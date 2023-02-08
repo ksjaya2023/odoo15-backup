@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Reservation",
+    'name': "Maintenance",
 
     'summary': """
-        Reservation in Maintenance""",
+        Maintenance Customization""",
 
     'description': """
-        Reservation Module customization.
+        Enhancement Maintenance Module.
     """,
 
     'author': "HIT Digital Indonesia",

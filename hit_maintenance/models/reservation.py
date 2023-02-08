@@ -28,11 +28,11 @@ class reservation(models.Model):
     kanban_state = fields.Selection(string='Kanban State', selection=[(
         'normal', 'In Progress'), ('done', 'Ready'), ('blocked', 'Blocked')])
     notes = fields.Html(string='Notes')
-    email = fields.Char(string='Email')
+    partner_email = fields.Char(string='Email')
     partner_id = fields.Many2one(comodel_name='res.partner', string='Contact')
     partner_phone = fields.Char(string='Phone')
-    pr_number = fields.Many2one(
-        comodel_name='purchase.request', string='PR Number')
+    # pr_number = fields.Many2one(
+    #     comodel_name='purchase.request', string='PR Number')
     reservation_type = fields.Selection(string='Reservation Type', selection=[
                                         ('1', 'Stock'), ('2', 'Non Stock')])
     user_id = fields.Many2one(comodel_name='res.users', string='Responsible')

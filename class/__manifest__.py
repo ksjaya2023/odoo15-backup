@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "bin_location",
+    'name': "Class",
 
     'summary': """
-        bin_location in product""",
+        Class in Maintenance""",
 
     'description': """
-        bin_location Module customization.
+        Class Module customization.
     """,
 
     'author': "HIT Digital Indonesia",
@@ -21,7 +21,7 @@
     'installable': True,
 
     # any module necessary for this one to work correctly
-    'depends': ['stock'],
+    'depends': ['maintenance'],
 
     # always loaded
     'data': [

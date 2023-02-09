@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Reservation",
+    'name': "hit_inventrory",
 
     'summary': """
-        Reservation in Maintenance""",
+        hit_inventrory in Products""",
 
     'description': """
-        Reservation Module customization.
+        hit_inventrory Module customization.
     """,
 
     'author': "HIT Digital Indonesia",
@@ -21,7 +21,7 @@
     'installable': True,
 
     # any module necessary for this one to work correctly
-    'depends': ['maintenance'],
+    'depends': ['stock'],
 
     # always loaded
     'data': [

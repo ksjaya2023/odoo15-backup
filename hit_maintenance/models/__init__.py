@@ -12,3 +12,4 @@ from . import eqp_attachment_product
 from . import eqp_status
 from . import service_type
 from . import service_package
+from . import standard_job

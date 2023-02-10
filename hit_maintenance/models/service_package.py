@@ -24,4 +24,16 @@ class ServicePackageLine(models.Model):
     _name = 'service.package.line'
     _description = 'Service Package Line'
 
+    active = fields.Boolean(string='Active', default=True)
+    currency_id = fields.Many2one('res.currency', string='Currency')
+    name = fields.Char('Name')
     service_package_id = fields.Many2one(comodel_name='service.package')
+    price = fields.Monetary('Price')
+    product = fields.Many2one(comodel_name='product.product', string='Product')
+    quantity = fields.Integer(string='Quantity')
+    sequence = fields.Integer(string='Sequence')
+    service_type = fields.Char(string='Service Type')  # related
+    total_price = fields.Monetary('Total Price')  # compute
+    unit_model = fields.Char(string='Unit Model')  # related
+    uom = fields.Many2one(comodel_name='uom.uom', string='UoM') # related
+    

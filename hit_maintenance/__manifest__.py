@@ -21,7 +21,7 @@
     'installable': True,
 
     # any module necessary for this one to work correctly
-    'depends': ['maintenance'],
+    'depends': ['maintenance', 'account_accountant', 'purchase', 'stock', 'analytic'],
 
     # always loaded
     'data': [

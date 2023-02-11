@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <record id="purchase_order_line_tree_inherit" model="ir.ui.view">
+    <field name="name">purchase.order.line.tree.inherit</field>
+    <field name="model">purchase.order</field>
+    <field name="inherit_id" ref="purchase_request.purchase_order_form" />
+    <field name="arch" type="xml">
+      <xpath expr="//button[@name='action_openRequestLineTreeView']" position="after">
+        <!-- <attribute name="invisible">[('order_line.purchase_request_lines', '!=', [])]</attribute> -->
+        <button string="Purchase Request lines" attrs="{'invisible': [('purchase_request_code', '=', [])]}" name="action_openRequestLineTreeView" type="object" icon="fa-folder-open-o" />
+      </xpath>
+    </field>
+  </record>
+</odoo>

@@ -21,9 +21,9 @@ class MeasuringEquipment(models.Model):
     delta = fields.Integer('Delta')
     equipment_id = fields.Many2one('maintenance.equipment', string='Equipment')
     hm_awal = fields.Integer(
-        'HM Awal', help='Begin value of Hourmeter.')  # compute
+        'HM Awal', help='Begin value of Hourmeter.')
     hourmeter = fields.Integer(
-        'Hourmeter Total', help='The Total Computation of Hourmeter.')
+        'Hourmeter Total', help='The Total Computation of Hourmeter.')  # compute
     measuring_date = fields.Date('Measuring Date')
     measuring_type = fields.Selection(
         selection=_MEASURING_TYPE, string='measuring_type')

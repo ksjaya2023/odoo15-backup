@@ -54,6 +54,8 @@ class Reservation(models.Model):
         comodel_name='maintenance.request', string='Work Order')
     reservation_line_count = fields.Integer(string='Reservation Count')
     reservation_stock_picking_count = fields.Integer(string='Issued')
+    return_request_ids = fields.One2many(
+        'return.request', 'reservation_id', string='Return Requests')
 
 
 class ReservationLine(models.Model):

@@ -1,6 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 hit_maintenance.access_reservation,access_reservation,hit_maintenance.model_reservation,base.group_user,1,1,1,1
 hit_maintenance.access_maintenance_request,access_maintenance_request,hit_maintenance.model_maintenance_request,base.group_user,1,1,1,1
+hit_maintenance.access_maintenance_request_line,access_maintenance_request_line,hit_maintenance.model_maintenance_request_line,base.group_user,1,1,1,1
 hit_maintenance.access_maintenance_equipment,access_mmaintenance_equipment,hit_maintenance.model_maintenance_equipment,base.group_user,1,1,1,1
 hit_maintenance.access_return_request,access_return_request,hit_maintenance.model_return_request,base.group_user,1,1,1,1
 hit_maintenance.access_mnemonic,access_mnemonic,hit_maintenance.model_mnemonic,base.group_user,1,1,1,1
@@ -14,3 +15,6 @@ hit_maintenance.access_service_type,access_service_type,hit_maintenance.model_se
 hit_maintenance.access_service_package,access_service_package,hit_maintenance.model_service_package,base.group_user,1,1,1,1
 hit_maintenance.access_service_package_line,access_service_package_line,hit_maintenance.model_service_package_line,base.group_user,1,1,1,1
 hit_maintenance.access_standard_job,access_standard_job,hit_maintenance.model_standard_job,base.group_user,1,1,1,1
+hit_maintenance.access_reservation_stage,access_reservation_stage,hit_maintenance.model_reservation_stage,base.group_user,1,1,1,1
+hit_maintenance.access_reservation_tag,access_reservation_tag,hit_maintenance.model_reservation_tag,base.group_user,1,1,1,1
+hit_maintenance.access_measuring_equipment,access_measuring_equipment,hit_maintenance.model_measuring_equipment,base.group_user,1,0,0,0

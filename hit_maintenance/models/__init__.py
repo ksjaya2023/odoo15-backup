@@ -13,3 +13,6 @@ from . import eqp_status
 from . import service_type
 from . import service_package
 from . import standard_job
+from . import reservation_stage
+from . import reservation_tag
+from . import measuring_equipment

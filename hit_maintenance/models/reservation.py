@@ -3,16 +3,16 @@
 from odoo import models, fields, api
 
 _STATUS = [
-    ("Installed", "Installed"),
-    ("Not Installed", "Not Installed"),
-    ("Return", "Return")
+    ("installed", "Installed"),
+    ("not_installed", "Not Installed"),
+    ("return", "Return")
 ]
 
 _STATUS_1 = [
-    ("Installed", "Installed"),
-    ("Not Installed", "Not Installed"),
-    ("Return", "Return"),
-    ("Finish", "Finish")
+    ("installed", "Installed"),
+    ("not_installed", "Not Installed"),
+    ("return", "Return"),
+    ("finish", "Finish")
 ]
 
 

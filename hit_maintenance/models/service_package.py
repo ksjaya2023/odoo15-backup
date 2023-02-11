@@ -35,5 +35,4 @@ class ServicePackageLine(models.Model):
     service_type = fields.Char(string='Service Type')  # related
     total_price = fields.Monetary('Total Price')  # compute
     unit_model = fields.Char(string='Unit Model')  # related
-    uom = fields.Many2one(comodel_name='uom.uom', string='UoM') # related
-    
+    uom_id = fields.Many2one(comodel_name='uom.uom', string='UoM')  # related

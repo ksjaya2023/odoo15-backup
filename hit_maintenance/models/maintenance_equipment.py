@@ -20,7 +20,7 @@ class MaintenanceEquipment(models.Model):
     lifetime = fields.Float(string='Lifetime')  # compute
     location = fields.Char(string='Location')
     engine_model_id = fields.Many2one('engine.model', string='Engine Model')
-    mnemonic_id = fields.Many2one('mnemonic', string='Mnemonic')
+    brand_id = fields.Many2one('brand', string='brand')
     unit_model_id = fields.Many2one('unit.model', string='Unit Model')
     status_id = fields.Many2one('eqp.status', string='Status')
     plan_serv_hm = fields.Char(string='Plan Service HM')  # compute

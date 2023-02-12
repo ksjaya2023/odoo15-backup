@@ -19,8 +19,6 @@
     'version': '0.1',
     'license': 'LGPL-3',
     'installable': True,
-
-    # any module necessary for this one to work correctly
     'depends': ['maintenance', 'account_accountant', 'purchase', 'stock', 'analytic'],
 
     # always loaded
@@ -30,7 +28,5 @@
         'views/templates.xml',
     ],
     # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
-    ],
+    'demo': [],
 }

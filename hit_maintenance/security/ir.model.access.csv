@@ -4,7 +4,7 @@ hit_maintenance.access_maintenance_request,access_maintenance_request,hit_mainte
 hit_maintenance.access_maintenance_request_line,access_maintenance_request_line,hit_maintenance.model_maintenance_request_line,base.group_user,1,1,1,1
 hit_maintenance.access_maintenance_equipment,access_mmaintenance_equipment,hit_maintenance.model_maintenance_equipment,base.group_user,1,1,1,1
 hit_maintenance.access_return_request,access_return_request,hit_maintenance.model_return_request,base.group_user,1,1,1,1
-hit_maintenance.access_mnemonic,access_mnemonic,hit_maintenance.model_mnemonic,base.group_user,1,1,1,1
+hit_maintenance.access_brand,access_brand,hit_maintenance.model_brand,base.group_user,1,1,1,1
 hit_maintenance.access_unit_model,access_unit_model,hit_maintenance.model_unit_model,base.group_user,1,1,1,1
 hit_maintenance.access_reservation_line,access_reservation_line,hit_maintenance.model_reservation_line,base.group_user,1,1,1,1
 hit_maintenance.access_engine_model,access_engine_model,hit_maintenance.model_engine_model,base.group_user,1,1,1,1

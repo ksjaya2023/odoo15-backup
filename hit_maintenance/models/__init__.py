@@ -4,7 +4,7 @@ from . import reservation
 from . import maintenance_request
 from . import return_request
 from . import maintenance_equipment
-from . import mnemonic
+from . import brand
 from . import unit_model
 from . import engine_model
 from . import eqp_attachment

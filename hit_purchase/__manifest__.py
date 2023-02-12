@@ -2,7 +2,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl-3.0).
 
 {
-    'name': 'hit_purchase',
+    'name': 'HIT Purchase',
     'author': 'HIT Digital Indonesia',
     'website': 'http://www.hitconsulting.id',
     'version': '0.1',
@@ -14,10 +14,11 @@
     'category': 'Purchase',
     'license': 'LGPL-3',
     'installable': True,
+    'application': True,
     'depends': ['maintenance', 'account_accountant', 'purchase', 'stock', 'analytic'],
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
+        # 'views/views.xml',
     ],
     'demo': [],
 }

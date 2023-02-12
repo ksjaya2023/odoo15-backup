@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "hit_maintenance",
+    'name': "HIT Maintenance",
 
     'summary': """
         Maintenance Customization""",
@@ -19,6 +19,7 @@
     'version': '0.1',
     'license': 'LGPL-3',
     'installable': True,
+    'application': True,
     'depends': ['maintenance', 'account_accountant', 'purchase', 'stock', 'analytic'],
 
     # always loaded

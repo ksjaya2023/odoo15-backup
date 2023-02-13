@@ -19,3 +19,4 @@ hit_maintenance.access_reservation_stage,access_reservation_stage,hit_maintenanc
 hit_maintenance.access_reservation_tag,access_reservation_tag,hit_maintenance.model_reservation_tag,base.group_user,1,1,1,1
 hit_maintenance.access_measuring_equipment,access_measuring_equipment,hit_maintenance.model_measuring_equipment,base.group_user,1,1,1,1
 hit_maintenance.access_return_request_line,access_return_request_line,hit_maintenance.model_return_request_line,base.group_user,1,1,1,1
+hit_maintenance.access_eqp_class,access_eqp_class,hit_maintenance.model_eqp_class,base.group_user,1,1,1,1

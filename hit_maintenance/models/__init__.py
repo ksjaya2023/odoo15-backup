@@ -10,6 +10,7 @@ from . import engine_model
 from . import eqp_attachment
 from . import eqp_attachment_product
 from . import eqp_status
+from . import eqp_class
 from . import service_type
 from . import service_package
 from . import standard_job

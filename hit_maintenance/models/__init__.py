@@ -17,3 +17,4 @@ from . import standard_job
 from . import reservation_stage
 from . import reservation_tag
 from . import measuring_equipment
+from . import hourmeter

@@ -16,7 +16,9 @@
     'installable': True,
     'application': True,
     'depends': ['account_accountant',
-                'account'],
+                'account',
+                'contacts',
+                'account_asset'],
     'data': [
         'security/ir.model.access.csv',
         # 'views/views.xml',

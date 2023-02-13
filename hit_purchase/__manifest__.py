@@ -15,7 +15,12 @@
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['maintenance', 'account_accountant', 'purchase', 'stock', 'analytic'],
+    'depends': ['purchase',
+                'maintenance',
+                'account_accountant',
+                'stock',
+                'analytic',
+                'uom'],
     'data': [
         'security/ir.model.access.csv',
         # 'views/views.xml',

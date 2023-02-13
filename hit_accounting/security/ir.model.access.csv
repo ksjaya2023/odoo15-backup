@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+hit_accounting.access_process,access_process,hit_accounting.model_process,base.group_user,1,1,1,1
+hit_accounting.access_process_line,access_process_line,hit_accounting.model_process_line,base.group_user,1,1,1,1

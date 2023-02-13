@@ -120,3 +120,4 @@ class ReservationLine(models.Model):
     #                       string='UoM', related=product_id.uom_id)
     work_order_related = fields.Many2one(
         comodel_name='maintenance.request', string='Work Order Related')
+    stock_picking_id = fields.Many2one('stock.picking', string='Stock Picking')

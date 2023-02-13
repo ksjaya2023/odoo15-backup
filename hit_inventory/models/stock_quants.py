@@ -5,4 +5,5 @@ class StockQuants(models.Model):
     _inherit = 'stock.quant'
     _description = 'Quants'
 
-    # bin_location= fields.Many2one(comodel_name='bin_location', string='Bin Location')
+    bin_location = fields.Many2one(
+        comodel_name='bin.location', string='Bin Location')

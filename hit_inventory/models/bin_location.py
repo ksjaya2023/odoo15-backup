@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 
 class BinLocation(models.Model):
-    _name = 'bin_location'
-    _description = 'bin_location'
+    _name = 'bin.location'
+    _description = 'Bin Location'
 
-    name = fields.Char()
+    name = fields.Char('Name')

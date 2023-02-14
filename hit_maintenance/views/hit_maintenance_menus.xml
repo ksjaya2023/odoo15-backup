@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <menuitem
+        id="reservation_menu"
+        name="Reservation" 
+        parent="maintenance.menu_m_request"
+        action="action_reservation_act_window"
+        />
+
+    </data>
+</odoo>

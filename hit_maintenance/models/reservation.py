@@ -2,13 +2,13 @@
 
 from odoo import models, fields, api
 
-_STATUS = [
+_STATUS_1 = [
     ("installed", "Installed"),
     ("not_installed", "Not Installed"),
     ("return", "Return")
 ]
 
-_STATUS_1 = [
+_STATUS = [
     ("installed", "Installed"),
     ("not_installed", "Not Installed"),
     ("return", "Return"),
@@ -86,6 +86,7 @@ class Reservation(models.Model):
         'return.request', string='Return Request')
     return_request_ids = fields.One2many(
         'return.request', 'reservation_id', string='Return Requests')
+    signature = fields.Binary(string='Signature')
 
 
 class ReservationLine(models.Model):
@@ -113,7 +114,7 @@ class ReservationLine(models.Model):
     reqmt_date = fields.Date(string='Requirement Date')
     sequence = fields.Integer(string='Sequence')
     status = fields.Selection(string='', selection=_STATUS)
-    status_1 = fields.Selection(string='', selection=_STATUS_1)
+    # status_1 = fields.Selection(string='', selection=_STATUS_1)
     total_price = fields.Float(string='Est. Total Price')
     uom = fields.Many2one(comodel_name='uom.uom',
                           string='UoM', related='product_id.uom_id')

@@ -26,13 +26,17 @@
                 'stock',
                 'analytic',
                 'account',
-                'hit_accounting'],
+                'hit_accounting',
+                'product',
+                'purchase_stock'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'views/maintenance_request_views.xml',
-        'views/maintenance_equipment_views.xml'
+        'views/maintenance_equipment_views.xml',
+        'views/reservation.xml',
+        'views/hit_maintenance_menus.xml'
     ],
     # only loaded in demonstration mode
     'demo': [],

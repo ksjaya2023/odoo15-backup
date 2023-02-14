@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+hit_purchase.access_vendor_main_product,access_vendor_main_product,hit_purchase.model_vendor_main_product,base.group_user,1,1,1,1
+hit_purchase.access_vendor_product,access_vendor_product,hit_purchase.model_vendor_product,base.group_user,1,1,1,1
+hit_purchase.access_vendor_others_product,access_vendor_others_product,hit_purchase.model_vendor_others_product,base.group_user,1,1,1,1
+hit_purchase.access_vendor_business_reference,access_vendor_business_reference,hit_purchase.model_vendor_business_reference,base.group_user,1,1,1,1

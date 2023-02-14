@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+    <!-- Inherited Maintenance Request View Form -->
+    <record id="maintenance_request_view_form_inherit" model="ir.ui.view">
+        <field name="name">maintenance.request.view.form.inherit</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Column 1 -->
+            <xpath expr="/form/sheet/group/group[1]" position="inside">
+                <field name="reservation_id" />
+            </xpath>
+            <!-- Column 2 -->
+            <xpath expr="/form/sheet/group/group[2]" position="inside">
+                <field name="close_date" />
+            </xpath>
+            <!-- Column after Description -->
+            <xpath expr="/form/sheet/group[2]" position="after">
+                <group>
+                    <group name="analytic_equipment" string="Analytic Equipment">
+                        <field name="expence_element" />
+                        <field name="process_id" />
+                        <field name="process_activity_id" />
+                        <field name="activity_location_id" />
+                        <field name="location_department_id" />
+                        <field name="analytic_group_id" />
+                        <field name="analytic_account_id" />
+                    </group>
+                    <group name="standard_job" string ="Standard Job">
+                        <field name="standard_job_id" />
+                    </group>
+                </group>
+                <group name="part_install" string="Part Install">
+                    <field name="maintenance_request_ids">
+                        <tree>
+                            <field name="reservation_id" />
+                            <field name="product_id" />
+                            <field name="status" />
+                            <field name="date" />
+                        </tree>
+                    </field>
+                </group>
+            </xpath>
+        </field>
+    </record>
+    <!-- End of Maintenance Request View Form -->
+    
+    <!-- Form view for Maintenance Request Line -->
+    <record id="maintenance_request_line_view_form_inherit" model="ir.ui.view">
+        <field name="name">maintenance.request.view.line.form</field>
+        <field name="model">maintenance.request.line</field>
+        <field name="type">form</field>
+        <field name="mode">primary</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" />
+        <field name="arch" type="xml">
+            <form string="maintenance_request_line_form" create="true" delete="true" edit="true">
+                <header>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="date" />
+                        <field name="status" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>  
+
+
+    </data>
+</odoo>

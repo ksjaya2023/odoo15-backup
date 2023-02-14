@@ -47,7 +47,7 @@
     </record>
     <!-- End of Maintenance Request View Form -->
     
-    <!-- Form view for "model" -->
+    <!-- Form view for Maintenance Request Line -->
     <record id="maintenance_request_line_view_form_inherit" model="ir.ui.view">
         <field name="name">maintenance.request.view.line.form</field>
         <field name="model">maintenance.request.line</field>

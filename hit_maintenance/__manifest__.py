@@ -32,7 +32,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/maintenance_request_views.xml',
-        'views/templates.xml',
+        'views/maintenance_equipment_views.xml'
     ],
     # only loaded in demonstration mode
     'demo': [],

@@ -3,9 +3,9 @@
 from odoo import models, fields, api
 
 
-class Class(models.Model):
-    _name = 'Class'
-    _description = 'Class'
+class EquipmentClass(models.Model):
+    _name = 'eqp.class'
+    _description = 'Eqipment Class'
 
     name = fields.Char(string='Class Id')
     active = fields.Boolean()

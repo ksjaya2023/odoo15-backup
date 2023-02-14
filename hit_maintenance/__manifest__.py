@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "hit_maintenance",
+    'name': "HIT Maintenance",
 
     'summary': """
         Maintenance Customization""",
@@ -15,13 +15,12 @@
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'HDI',
+    'category': 'Maintenance',
     'version': '0.1',
     'license': 'LGPL-3',
     'installable': True,
-
-    # any module necessary for this one to work correctly
-    'depends': ['maintenance'],
+    'application': True,
+    'depends': ['maintenance', 'account_accountant', 'purchase', 'stock', 'analytic'],
 
     # always loaded
     'data': [
@@ -30,7 +29,5 @@
         'views/templates.xml',
     ],
     # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
-    ],
+    'demo': [],
 }

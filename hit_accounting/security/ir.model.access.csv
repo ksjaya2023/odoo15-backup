@@ -6,3 +6,6 @@ hit_accounting.access_location,access_location,hit_accounting.model_location,bas
 hit_accounting.access_department,access_department,hit_accounting.model_department,base.group_user,1,1,1,1
 hit_accounting.access_activity_line,access_activity_line,hit_accounting.model_activity_line,base.group_user,1,1,1,1
 hit_accounting.access_department_line,access_department_line,hit_accounting.model_department_line,base.group_user,1,1,1,1
+hit_accounting.access_department_analytic,access_department_analytic,hit_accounting.model_department_analytic,base.group_user,1,1,1,1
+hit_accounting.access_activity_location,access_activity_location,hit_accounting.model_activity_location,base.group_user,1,1,1,1
+hit_accounting.access_activity_location_department,access_activity_location_department,hit_accounting.model_activity_location_department,base.group_user,1,1,1,1

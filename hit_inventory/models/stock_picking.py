@@ -21,7 +21,7 @@ class StockPicking(models.Model):
     grand_total = fields.Float(string='Actual Cost')
     reservation_id = fields.Many2one(
         comodel_name='reservation', string='Reservation')
-    operation_type = fields.Char(string='Operation Type')
+    operation_type = fields.Char(string='Operation Types')
     outstanding_price = fields.Float(string='Outstanding Cost')
     # pr = fields.Many2one(comodel_name='purchase.request',
     #                      string='Purchase Request')

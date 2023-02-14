@@ -20,12 +20,18 @@
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['maintenance', 'account_accountant', 'purchase', 'stock', 'analytic'],
+    'depends': ['maintenance',
+                'account_accountant',
+                'purchase',
+                'stock',
+                'analytic',
+                'account',
+                'hit_accounting'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
+        'views/maintenance_request_views.xml',
         'views/templates.xml',
     ],
     # only loaded in demonstration mode

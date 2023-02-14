@@ -20,7 +20,8 @@
                 'account_accountant',
                 'stock',
                 'analytic',
-                'uom'],
+                'uom',
+                'hit_maintenance'],
     'data': [
         'security/ir.model.access.csv',
         # 'views/views.xml',

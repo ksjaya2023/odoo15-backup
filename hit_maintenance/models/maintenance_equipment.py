@@ -23,6 +23,7 @@ class MaintenanceEquipment(models.Model):
     brand_id = fields.Many2one('brand', string='brand')
     unit_model_id = fields.Many2one('unit.model', string='Unit Model')
     status_id = fields.Many2one('eqp.status', string='Status')
+    class_id = fields.Many2one('eqp.class', string='Class')
     plan_serv_hm = fields.Char(string='Plan Service HM')  # compute
     prev_serv_date = fields.Date(string='Previous Service Date')  # compute
     prev_serv_hrm = fields.Char(string='Previous Service HRM')  # compute

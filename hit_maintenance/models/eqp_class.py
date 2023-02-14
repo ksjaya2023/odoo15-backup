@@ -8,9 +8,8 @@ class EquipmentClass(models.Model):
     _description = 'Eqipment Class'
 
     name = fields.Char(string='Class Id')
-    active = fields.Boolean()
-    active = fields.Boolean(string='Active')
+    active = fields.Boolean(string='Active', default=True)
     description = fields.Char(string='EQP Type')
     notes = fields.Html(string='Notes')
     sequence = fields.Integer(string='Sequence')
-    class_maintenance_equipment_count = fields.Integer(string='Equipment')
+    equipment_count = fields.Integer(string='Equipment')

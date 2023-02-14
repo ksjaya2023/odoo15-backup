@@ -6,7 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 
 class Process(models.Model):
     _name = 'process'
-    _description = 'process'
+    _description = 'Process'
 
     name = fields.Char('Process')
     active = fields.Boolean(string='Active', default=True)
@@ -18,7 +18,7 @@ class Process(models.Model):
 
 class ProcessLine(models.Model):
     _name = 'process.line'
-    _description = 'Process Line'
+    _description = 'Process Activity'
 
     name = fields.Char('Process')
     active = fields.Boolean(string='Active', default=True)

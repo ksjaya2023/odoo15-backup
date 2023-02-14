@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_reservation_reservation,reservation.reservation,model_reservation_reservation,base.group_user,1,1,1,1
+hit_inventory.access_bin_location,access_bin_location,hit_inventory.model_bin_location,base.group_user,1,1,1,1
+hit_inventory.access_product_class,access_product_class,hit_inventory.model_product_class,base.group_user,1,1,1,1
+hit_inventory.access_stock_type,access_stock_type,hit_inventory.model_stock_type,base.group_user,1,1,1,1

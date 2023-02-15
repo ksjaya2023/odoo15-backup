@@ -23,7 +23,7 @@
         </field>
     </record>
     
-    <!-- Form view for "model" -->
+    <!-- Form view for "reservation" -->
     <record id="view_reservation_form" model="ir.ui.view">
         <field name="name">view.reservation.form</field>
         <field name="model">reservation</field>

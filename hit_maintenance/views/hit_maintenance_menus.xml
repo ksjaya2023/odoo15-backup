@@ -40,6 +40,12 @@
         parent="master_data_menu"
         action="action_brand_act_window"
         />
+        <menuitem
+        id="master_data_unit_model_menu"
+        name="Unit Model" 
+        parent="master_data_menu"
+        action="action_unit_model_act_window"
+        />
 
 
     </data>

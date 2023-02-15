@@ -41,6 +41,7 @@
         'views/measuring_equipment_views.xml',
         'views/eqp_class.xml',
         'views/brand.xml',
+        'views/unit_model.xml',
         'views/hit_maintenance_menus.xml',
     ],
     # only loaded in demonstration mode

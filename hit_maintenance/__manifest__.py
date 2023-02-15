@@ -39,6 +39,7 @@
         'views/reservation.xml',
         'views/return_request.xml',
         'views/measuring_equipment_views.xml',
+        'views/eqp_class.xml',
         'views/hit_maintenance_menus.xml',
     ],
     # only loaded in demonstration mode

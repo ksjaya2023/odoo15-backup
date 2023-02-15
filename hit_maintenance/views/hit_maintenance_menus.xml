@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-
+        
+        <!-- Maintenance  -->
         <menuitem
         id="reservation_menu"
         name="Reservation" 
@@ -20,6 +21,20 @@
         parent="maintenance.menu_m_request"
         action="action_measuring_equipment_act_window"
         />
+
+        <!-- Master Data -->
+        <menuitem
+        id="master_data_menu"
+        name="Master Data"
+        parent="maintenance.menu_maintenance_title"
+        />
+        <menuitem
+        id="master_data_equipment_class_menu"
+        name="Class and Type" 
+        parent="master_data_menu"
+        action="action_eqp_class_act_window"
+        />
+
 
     </data>
 </odoo>

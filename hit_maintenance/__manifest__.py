@@ -42,7 +42,7 @@
         'views/eqp_class_views.xml',
         'views/brand_views.xml',
         'views/unit_model_views.xml',
-        # 'views/engine_model_views.xml',
+        'views/engine_model_views.xml',
         'views/hit_maintenance_menus.xml',
     ],
     # only loaded in demonstration mode

@@ -46,6 +46,12 @@
         parent="master_data_menu"
         action="action_unit_model_act_window"
         />
+        <menuitem
+        id="master_data_engine_model_menu"
+        name="Engine Model" 
+        parent="master_data_menu"
+        action="action_engine_model_act_window"
+        />
 
 
     </data>

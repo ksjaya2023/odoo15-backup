@@ -34,6 +34,12 @@
         parent="master_data_menu"
         action="action_eqp_class_act_window"
         />
+        <menuitem
+        id="master_data_brand_menu"
+        name="Brand" 
+        parent="master_data_menu"
+        action="action_brand_act_window"
+        />
 
 
     </data>

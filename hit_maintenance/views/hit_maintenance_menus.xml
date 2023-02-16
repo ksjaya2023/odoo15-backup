@@ -58,6 +58,12 @@
         parent="master_data_menu"
         action="action_eqp_attachment_act_window"
         />
+        <menuitem
+        id="master_data_eqp_attachment_product_menu"
+        name="Equipment Attachment Product" 
+        parent="master_data_menu"
+        action="action_eqp_attachment_product_act_window"
+        />
 
 
 

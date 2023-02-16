@@ -64,6 +64,12 @@
         parent="master_data_menu"
         action="action_eqp_attachment_product_act_window"
         />
+        <menuitem
+        id="master_data_eqp_status_menu"
+        name="Status" 
+        parent="master_data_menu"
+        action="action_eqp_status_act_window"
+        />
 
 
 

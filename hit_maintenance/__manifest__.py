@@ -45,6 +45,7 @@
         'views/engine_model_views.xml',
         'views/eqp_attachment_views.xml',
         'views/eqp_attachment_product.xml',
+        'views/eqp_status_views.xml',
         'views/hit_maintenance_menus.xml',
     ],
     # only loaded in demonstration mode

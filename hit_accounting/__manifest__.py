@@ -21,7 +21,7 @@
                 'account_asset'],
     'data': [
         'security/ir.model.access.csv',
-        # 'views/views.xml',
+        'views/account_move_views.xml',
     ],
     'demo': [],
 }

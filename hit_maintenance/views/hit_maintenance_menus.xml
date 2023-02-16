@@ -82,6 +82,12 @@
         parent="master_data_menu"
         action="action_service_package_act_window"
         />
+        <menuitem
+        id="master_data_standard_job_menu"
+        name="Standard Job" 
+        parent="master_data_menu"
+        action="action_standard_job_act_window"
+        />
 
 
 

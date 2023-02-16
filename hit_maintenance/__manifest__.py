@@ -48,6 +48,7 @@
         'views/eqp_status_views.xml',
         'views/service_type_views.xml',
         'views/service_package_views.xml',
+        'views/standard_job_views.xml',
         'views/hit_maintenance_menus.xml',
     ],
     # only loaded in demonstration mode

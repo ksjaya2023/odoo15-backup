@@ -70,6 +70,12 @@
         parent="master_data_menu"
         action="action_eqp_status_act_window"
         />
+        <menuitem
+        id="master_data_service_type_menu"
+        name="Service Type" 
+        parent="master_data_menu"
+        action="action_service_type_act_window"
+        />
 
 
 

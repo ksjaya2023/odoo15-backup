@@ -8,4 +8,4 @@ class ReservationTag(models.Model):
 
     name = fields.Char(string='Name', translate=True)
     sequence = fields.Integer(string='Sequence', default=10)
-    color = fields.Char(string='Color Index')
+    color = fields.Integer('Color Index')

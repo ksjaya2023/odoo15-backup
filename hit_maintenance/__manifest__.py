@@ -50,6 +50,8 @@
         'views/service_package_views.xml',
         'views/standard_job_views.xml',
         'views/hourmeter_views.xml',
+        'views/reservation_stage_views.xml',
+        'views/reservation_tag_views.xml',
         'views/hit_maintenance_menus.xml',
     ],
     # only loaded in demonstration mode

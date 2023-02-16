@@ -23,6 +23,6 @@ class StockMove(models.Model):
     standard_price = fields.Float(string='Cost')
     stock_code = fields.Char(string='Stock Code')
     total_price = fields.Float(string='Total Price')
-
+    allocation_ids = fields.One2many('purchase.request.allocation', 'stock_move_id', string='Allocation')
 
    

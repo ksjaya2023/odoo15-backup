@@ -2,13 +2,13 @@
 
 from odoo import models, fields, api
 
-_STATUS = [
+_STATUS_1 = [
     ("installed", "Installed"),
     ("not_installed", "Not Installed"),
     ("return", "Return")
 ]
 
-_STATUS_1 = [
+_STATUS = [
     ("installed", "Installed"),
     ("not_installed", "Not Installed"),
     ("return", "Return"),
@@ -86,6 +86,7 @@ class Reservation(models.Model):
         'return.request', string='Return Request')
     return_request_ids = fields.One2many(
         'return.request', 'reservation_id', string='Return Requests')
+    signature = fields.Binary(string='Signature')
 
 
 class ReservationLine(models.Model):
@@ -102,22 +103,21 @@ class ReservationLine(models.Model):
         comodel_name='account.analytic.account', string='Analytic Account')
     product_id = fields.Many2one(
         comodel_name='product.product', string='Products')
-    # price = fields.Float(string='Price', tracking=True,
-    #                      related=product_id.price)
-    # standard_price = fields.Float(
-    #     string='Standard Price', tracking=True, related=product_id.standard_price)
+    price = fields.Float(string='Price', related='product_id.standard_price')
+    standard_price = fields.Float(
+        string='Standard Price', related='product_id.standard_price')
     product = fields.Char(string='Product')
     product_name = fields.Char(string='Product Name')
     quantity = fields.Integer(string='Quantity')
-    # quantity_on_hand = fields.Float(
-    #     string='Quantity on Hand', tracking=True, related=product_id.qty_available)
+    quantity_on_hand = fields.Float(
+        string='Quantity on Hand', related='product_id.qty_available')
     reqmt_date = fields.Date(string='Requirement Date')
     sequence = fields.Integer(string='Sequence')
     status = fields.Selection(string='', selection=_STATUS)
-    status_1 = fields.Selection(string='', selection=_STATUS_1)
+    # status_1 = fields.Selection(string='', selection=_STATUS_1)
     total_price = fields.Float(string='Est. Total Price')
-    # uom = fields.Many2one(comodel_name='uom.uom',
-    #                       string='UoM', related=product_id.uom_id)
+    uom = fields.Many2one(comodel_name='uom.uom',
+                          string='UoM', related='product_id.uom_id')
     work_order_related = fields.Many2one(
         comodel_name='maintenance.request', string='Work Order Related')
     stock_picking_id = fields.Many2one('stock.picking', string='Stock Picking')

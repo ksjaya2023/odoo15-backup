@@ -9,3 +9,4 @@ class Brand(models.Model):
     active = fields.Boolean(string='Active', default=True)
     notes = fields.Html(string='Notes')
     sequence = fields.Integer(string='Sequence')
+    equipment_count = fields.Integer(string='Equipment')

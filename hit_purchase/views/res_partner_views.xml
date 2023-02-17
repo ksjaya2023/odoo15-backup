@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="tax_and_product_inherit_res_partner" model="ir.ui.view">
+            <field name="name">res.partner.view.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+
+            <xpath expr="/form/sheet/group/group[2]" position="after">
+            <group>
+                <field name="certificated_no" />
+                <field name="comodity_group_code" />
+                <field name="company_director" />
+                <field name="credit_limit_value" />
+                <field name="turn_on_per_year" />
+            </group>
+            <group>
+                <field name="fax" />
+                <field name="holding_company_group" />
+                <field name="iso_company" />
+                <field name="supplier_type" />
+            </group>
+            <group name="main_product" string="Main Product">
+            <field name="main_product_ids" widget="section_one2many">
+                <tree editable="bottom">
+                    <field name="name" />
+                    <field name="partner_id" />
+                </tree>
+            </field>
+            </group>
+            <group name="product_or_brand" string="Product or Brand">
+            <field name="product_ids" widget="section_one2many">
+                <tree editable="bottom">
+                    <field name="name" />
+                    <field name="partner_id" />
+                </tree>
+            </field>
+            </group>
+            <group name="others_product" string="Others Product">
+            <field name="others_product_ids" widget="section_one2many">
+                <tree editable="bottom">
+                    <field name="name" />
+                    <field name="partner_id" />
+                </tree>
+            </field>
+            </group>
+            <group name="business_references" string="Business References">
+            <field name="business_reference_ids" widget="section_one2many">
+                <tree editable="bottom">
+                    <field name="name" />
+                    <field name="partner_id" />
+                </tree>
+            </field>
+            </group>
+            </xpath>
+                
+            </field>
+        </record>
+
+    </data>
+</odoo>

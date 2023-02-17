@@ -26,7 +26,7 @@ class MeasuringEquipment(models.Model):
         'Hourmeter Total', help='The Total Computation of Hourmeter.')  # compute
     measuring_date = fields.Date('Measuring Date')
     measuring_type = fields.Selection(
-        selection=_MEASURING_TYPE, string='measuring_type')
+        selection=_MEASURING_TYPE, string='Measuring Type')
     reset = fields.Boolean(
         'Reset', help='True if the hour meter finished a cycle.')
     sisa_serv_type = fields.Char('Sisa Service Type')

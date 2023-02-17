@@ -21,7 +21,16 @@
                 'account_asset'],
     'data': [
         'security/ir.model.access.csv',
-        # 'views/views.xml',
+        'views/account_move_views.xml',
+        'views/account_asset_views.xml',
+        'views/account_payment_views.xml',
+        'views/process_views.xml',
+        'views/activity_views.xml',
+        'views/location_views.xml',
+        'views/department_views.xml',
+        'views/process_activity_views.xml',
+        # 'views/res_partner_bank_views.xml',
+        'views/hit_accounting_menus.xml',
     ],
     'demo': [],
 }

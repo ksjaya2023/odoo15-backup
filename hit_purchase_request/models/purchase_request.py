@@ -5,14 +5,14 @@ class PurchaseRequest(models.Model):
     _inherit = 'purchase.request'
     _description = 'Purchase Request'
 
-    amount_total = fields.Float(string='amount_total')
     create_by_issue = fields.Boolean('Create by Issue')
     create_by_reservasi = fields.Boolean('Create by Reservasi')
     create_rfq = fields.Boolean('Create RFQ')
     document_name = fields.Char('Document Name')
-    many2one_field_y7F5a = fields.Many2one(
+    purchase_order_id = fields.Many2one(
         comodel_name='purchase.order', string='Purchase Order')
-    # many2one_reservation = fields.Many2one(comodel_name='x_reservation', string='Reservation')
+    reservation_id = fields.Many2one(
+        comodel_name='reservation', string='Reservation')
     purchase_type = fields.Selection(string='Purchase Type',
                                      selection=[('Purchase Request', 'Purchase Request'), ('Asset Request', 'Asset Request')])
     request_number = fields.Char('Request Number')

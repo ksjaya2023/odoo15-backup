@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+    <menuitem id="accounting_master_data_menu" name="Master Data" sequence="15" parent="account.menu_finance_entries"/>
+        <menuitem id="master_data_process_menu" name="Process" action="action_process_act_window" parent="accounting_master_data_menu"/>
+        <menuitem id="master_data_activity_menu" name="Activity" action="action_activity_act_window" parent="accounting_master_data_menu"/>
+        <menuitem id="master_data_location_menu" name="Location" action="action_location_act_window" parent="accounting_master_data_menu"/>
+        <menuitem id="master_data_department_menu" name="Department" action="action_department_act_window" parent="accounting_master_data_menu"/>
+        <menuitem id="process_activity_menu" name="Process Activity" action="action_process_line_act_window" parent="accounting_master_data_menu"/>
+    </data>
+</odoo>

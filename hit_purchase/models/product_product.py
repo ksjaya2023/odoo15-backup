@@ -11,4 +11,4 @@ class ProductProduct(models.Model):
     part_number = fields.Char('Part Number')
     product_id = fields.Integer('Product ID')
     stock_code = fields.Char('Stock Code')
-    brand = fields.Many2one('brand', string='Brand')
+    brand = fields.Many2one('brand', string='Product Brand')

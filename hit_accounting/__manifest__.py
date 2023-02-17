@@ -30,6 +30,8 @@
         'views/department_views.xml',
         'views/process_activity_views.xml',
         # 'views/res_partner_bank_views.xml',
+        'views/process_activity_location_views.xml',
+        'views/location_department_views.xml',
         'views/hit_accounting_menus.xml',
     ],
     'demo': [],

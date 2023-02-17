@@ -15,12 +15,12 @@ class MaintenanceEquipment(models.Model):
     curr_hrm_date = fields.Datetime(string='Current HRM Date')  # compute
     current_hrm = fields.Char(string='Current HRM')  # compute
     eqp_type = fields.Char(string='EQP Type')  # related
-    height_cm = fields.Float(string='Height (cm)')
-    length_cm = fields.Float(string='Length (cm)')
+    height = fields.Float(string='Height')
+    length = fields.Float(string='Length')
     lifetime = fields.Float(string='Lifetime')  # compute
     location = fields.Char(string='Location')
     engine_model_id = fields.Many2one('engine.model', string='Engine Model')
-    brand_id = fields.Many2one('brand', string='brand')
+    brand_id = fields.Many2one('brand', string='Brand')
     unit_model_id = fields.Many2one('unit.model', string='Unit Model')
     status_id = fields.Many2one('eqp.status', string='Status')
     class_id = fields.Many2one('eqp.class', string='Class')
@@ -30,5 +30,5 @@ class MaintenanceEquipment(models.Model):
     production_year = fields.Char(string='Production Year')
     service_type = fields.Char(string='Service Type')  # compute
     transfer = fields.Many2one(comodel_name='stock.picking', string='Transfer')
-    weight_ton = fields.Float(string='Weight (ton)')
-    width_cm = fields.Float(string='Width (cm)')
+    weight = fields.Float(string='Weight')
+    width = fields.Float(string='Width')

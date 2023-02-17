@@ -6,16 +6,16 @@
     'author': 'HIT Digital Indonesia',
     'website': 'http://www.hitconsulting.id',
     'version': '0.1',
-    'summary': '''Purchase Customization
+    'summary': '''Purchase Request Customization
     ''',
     'description': '''
-        Enhancement Purchase Module.
+        Enhancement Purchase Request Module.
     ''',
     'category': 'Purchase',
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['purchase_request'],
+    'depends': ['purchase_request', 'hit_maintenance'],
     'data': [
         'security/ir.model.access.csv',
         # 'views/views.xml',

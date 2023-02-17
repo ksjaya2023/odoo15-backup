@@ -8,6 +8,11 @@ class StandardJob(models.Model):
     name = fields.Char(string='Standard Job')
     active = fields.Boolean(string='Active', default=True)
     sequence = fields.Integer(string='Sequence')
+    process_id = fields.Many2one('process', string='Process')
+    process_line_id = fields.Many2one('process.line', string='Activity')
+    location_id = fields.Many2one('activity.location', string='Location')
+    department_id = fields.Many2one(
+        'activity.location.department', string='Department')
     # account_group = fields.Many2one(
     #     comodel_name='account.analytic.group', string='Account Group')  # related
     analytic_account_id = fields.Many2one(

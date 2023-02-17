@@ -34,3 +34,4 @@ class ReturnRequestLine(models.Model):
     product_id = fields.Many2one('product.product', string='Product')
     quantity = fields.Float('Quantity')
     uom_id = fields.Many2one('uom.uom', string='UoM')
+    description = fields.Char('Description', required=True)

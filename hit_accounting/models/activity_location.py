@@ -13,7 +13,7 @@ class ActivityLocation(models.Model):
     code = fields.Char('Code')
     sequence = fields.Integer(string='Sequence')
     process_activity_id = fields.Many2one(
-        'process.line', string='Process Activity')
+        'process.line', string='Activity')
     activity_description = fields.Char('Activity Description')
     location_department_ids = fields.One2many(
         'activity.location.department', 'activity_location_id', string='Location Department')
@@ -30,7 +30,7 @@ class ActivitylocationDepartment(models.Model):
     active = fields.Boolean(string='Active', default=True)
     sequence = fields.Integer(string='Sequence')
     activity_location_id = fields.Many2one(
-        'activity.location', string='Activity Location')
+        'activity.location', string='Location')
     activity = fields.Char('Activity')  # related
     department_id = fields.Many2one('department', string='Department')
     department_description = fields.Char('Department Description')

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+    
+    <record id="res_partner_bank_view_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.bank.view.form.inherit</field>
+        <field name="model">res.partner.bank</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='allow_out_payment']" position="inside">
+                <field name="bank_account_name" optional="1"/>
+                <field name="bank_address_branches" optional="1"/>
+                <field name="pic_name" optional="1"/>
+            </xpath>
+        </field>
+    </record>
+    
+    
+    </data>
+</odoo>

@@ -17,8 +17,7 @@ class MaintenanceRequest(models.Model):
 
     # account_group = fields.Many2one(
     #     comodel_name='account.analytic.group', string='Account Group')
-    analytic_code = fields.Char(string='Analytic Code')
-    category = fields.Char(string='Categories')
+    analytic_code = fields.Char(string='Analytic Code')  # Hide
     close_date = fields.Date(string='Done Date')
     create_reservation = fields.Boolean(string='Create Reservation')
     expence_element = fields.Char(string='Expence Element')
@@ -29,10 +28,19 @@ class MaintenanceRequest(models.Model):
     part_installed_id = fields.Many2one(
         'reservation.line', string='Part Installed')
     maintenance_request_ids = fields.One2many(
-        'maintenance.request.line', 'maintenance_request_id', string='Maintenance Request Ids')
+        'maintenance.request.line', 'maintenance_request_id', string='')
     reservation_id = fields.Many2one(
         comodel_name='reservation', string='Reservation')
     standard_job_id = fields.Many2one('standard.job', string='Standard Job')
+    process_id = fields.Many2one('process', string='Process')
+    process_activity_id = fields.Many2one(
+        'process.line', string='Activity')
+    activity_location_id = fields.Many2one(
+        'activity.location', string='Location')
+    location_department_id = fields.Many2one(
+        'activity.location.department', string='Department')
+    analytic_group_id = fields.Many2one(
+        'department.analytic', string='Analytic Group')
 
 
 class MaintenanceRequestLine(models.Model):
@@ -43,5 +51,8 @@ class MaintenanceRequestLine(models.Model):
     maintenance_request_id = fields.Many2one(
         comodel_name='maintenance.request', string='Maintenance Request ID')
     date = fields.Date('Date')
-    sequence = fields.Integer('Sequence')
+    sequence = fields.Integer('Sequence', invisible=True)
     status = fields.Selection(selection=_STATUS, string='Status')
+    reservation_id = fields.Many2one(
+        comodel_name='reservation', string='Reservation')
+    product_id = fields.Many2one('product.product', string='Product')

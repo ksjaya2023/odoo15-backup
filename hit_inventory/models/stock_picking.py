@@ -23,8 +23,8 @@ class StockPicking(models.Model):
         comodel_name='reservation', string='Reservation')
     operation_type = fields.Char(string='Operation Types')
     outstanding_price = fields.Float(string='Outstanding Cost')
-    # pr = fields.Many2one(comodel_name='purchase.request',
-    #                      string='Purchase Request')
+    pr = fields.Many2one(comodel_name='purchase.request',
+                         string='Purchase Request')
     receive_date = fields.Datetime(string='Receive Date')
     stock_picking_type = fields.Selection(string='New Related Field',
                                           selection=[('incoming', 'Receipt'), ('outgoing', 'Delivery'),

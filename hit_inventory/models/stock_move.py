@@ -7,8 +7,8 @@ class StockMove(models.Model):
 
     currency_id = fields.Many2one(
         comodel_name='res.currency', string='Currency')
-    bin_location = fields.Char(string='Bin Location')
-    # binlocation = fields.Many2one(comodel_name='bin_location', string='Bin Location')
+    binlocation = fields.Many2one(
+        comodel_name='bin.location', string='Bin Location')
     demand_price = fields.Float(string='Demand Price')
     equipment = fields.Many2one(
         comodel_name='maintenance.equipment', string='Equipment')
@@ -19,10 +19,9 @@ class StockMove(models.Model):
     # reservation_id = fields.Many2one(
     #     comodel_name='x_reservation', string='Reservation id')
     reservation_type = fields.Selection(string='Reservation Type',
-                                          selection=[('1', 'Stock'), ('2', 'Non Stock')])
+                                        selection=[('1', 'Stock'), ('2', 'Non Stock')])
     standard_price = fields.Float(string='Cost')
     stock_code = fields.Char(string='Stock Code')
     total_price = fields.Float(string='Total Price')
-    allocation_ids = fields.One2many('purchase.request.allocation', 'stock_move_id', string='Allocation')
-
-   
+    allocation_ids = fields.One2many(
+        'purchase.request.allocation', 'stock_move_id', string='Allocation')

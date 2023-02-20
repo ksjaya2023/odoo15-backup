@@ -34,6 +34,7 @@
                 <field name="equipment_type" />
                 <field name="equipment_id" />
                 <field name="reservation_id" />
+                <field name="pr" />
             </xpath>
             <xpath expr="//field[@name='name']" position="after">
                 <field name="outstanding_price" />
@@ -54,6 +55,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="reservation_id" />
+                <field name="pr" />
                 <field name="operation_type" />
                 <field name="equipment_id" />
                 <field name="work_order" />

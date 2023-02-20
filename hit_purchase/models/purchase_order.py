@@ -32,5 +32,6 @@ class PurchaseOrder(models.Model):
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
-    schedule_date = fields.Date('Schedule Date')
+    schedule_date = fields.Datetime(
+        'Schedule Date', related='order_id.effective_date')
     status = fields.Char('Purchase Status')

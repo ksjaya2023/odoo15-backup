@@ -11,6 +11,7 @@
             <!-- Column 1 -->
             <xpath expr="/form/sheet/group/group[1]" position="inside">
                 <field name="reservation_id" />
+                <field name="category" />
             </xpath>
             <!-- Column 2 -->
             <xpath expr="/form/sheet/group/group[2]" position="inside">

@@ -43,25 +43,20 @@ class Reservation(models.Model):
         comodel_name='reservation.line', inverse_name='reservation_id', string='Reservation Line Item')
     currency_id = fields.Many2one(
         comodel_name='res.currency', string='Currency')
-    analytic_account_id = fields.Many2one(
-        comodel_name='account.analytic.account', string='Analytic Account')
     company_id = fields.Many2one(comodel_name='res.company', string='Company')
     create_by_wo = fields.Boolean(string='Creat by WO')
     create_gi = fields.Boolean(string='Creat GI')
     create_pr = fields.Boolean(string='Creat PR')
     date = fields.Date(string='Date')
     description = fields.Char(string='Description')
-    done_date = fields.Date(string='Done Date', readonly=True)
-    equipment = fields.Many2one(
-        comodel_name='maintenance.equipment', string='Equipment', readonly=True)
     gi = fields.Many2one(comodel_name='stock.picking', string='GI Number')
     image = fields.Binary(string='Image')
     kanban_state = fields.Selection(
         string='Kanban State', selection=_KANBAN_STATE)
     notes = fields.Html(string='Notes')
-    partner_email = fields.Char(string='Email')
     partner_id = fields.Many2one(comodel_name='res.partner', string='Contact')
-    partner_phone = fields.Char(string='Phone')
+    partner_phone = fields.Char(string='Phone', related='partner_id.phone')
+    partner_email = fields.Char(string='Email', related='partner_id.email')
     # pr_number = fields.Many2one(
     #     comodel_name='purchase.request', string='PR Number')
     reservation_type = fields.Selection(string='Reservation Type', selection=[
@@ -78,6 +73,12 @@ class Reservation(models.Model):
     value = fields.Float(string='Grand Total', readonly=True)
     work_order = fields.Many2one(
         comodel_name='maintenance.request', string='Work Order')
+    analytic_account_id = fields.Many2one(
+        comodel_name='account.analytic.account', string='Analytic Account', related='work_order.analytic_account_id')
+    done_date = fields.Date(
+        string='Done Date', readonly=True, related='work_order.close_date')
+    equipment = fields.Many2one(
+        comodel_name='maintenance.equipment', string='Equipment', readonly=True, related='work_order.equipment_id')
     reservation_line_count = fields.Integer(
         string='Reservation Count')  # compute
     reservation_stock_picking_count = fields.Integer(

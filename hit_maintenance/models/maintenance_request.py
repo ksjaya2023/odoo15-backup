@@ -15,8 +15,6 @@ class MaintenanceRequest(models.Model):
     _inherit = 'maintenance.request'
     _description = 'Maintenance Request or Work Order'
 
-    # account_group = fields.Many2one(
-    #     comodel_name='account.analytic.group', string='Account Group')
     analytic_code = fields.Char(string='Analytic Code')  # Hide
     close_date = fields.Date(string='Done Date')
     create_reservation = fields.Boolean(string='Create Reservation')
@@ -41,6 +39,11 @@ class MaintenanceRequest(models.Model):
         'activity.location.department', string='Department')
     analytic_group_id = fields.Many2one(
         'department.analytic', string='Analytic Group')
+    # account_group = fields.Many2one(
+    #     comodel_name='department.analytic', string='Account Group', related='analytic_group_id.account_analytic_group_id')
+    equipment_id = fields.Many2one('maintenance.equipment', string='Equipment')
+    category = fields.Char('Equipment Category',
+                           related='equipment_id.eqp_type')
 
 
 class MaintenanceRequestLine(models.Model):

@@ -11,4 +11,4 @@ class ReservationStage(models.Model):
     fold = fields.Boolean(string='Folded in Kanban View',
                           help='This stage is folded in the kanban view when'
                                'there are no records in that stage to display.')
-    color = fields.Char(string='Color Index')
+    color = fields.Integer('Color Index')

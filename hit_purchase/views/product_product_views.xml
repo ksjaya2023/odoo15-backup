@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="code_view_inherit_product_product" model="ir.ui.view">
+            <field name="name">product.product.view.form.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='uom_po_id']" position="after">
+                <field name="brand" />
+                <field name="part_number" />
+                <field name="stock_code" />
+                <field name="product_id" />
+            </xpath>
+                
+            </field>
+        </record>
+
+    </data>
+</odoo>

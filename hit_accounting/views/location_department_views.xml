@@ -3,42 +3,40 @@
     <data>
     
    
-    <!-- Tree view for "reservation" -->
-    <record id="view_reservation_tree" model="ir.ui.view">
-        <field name="name">view.reservation.tree</field>
-        <field name="model">reservation</field>
+    <record id="view_activity_location_department_tree" model="ir.ui.view">
+        <field name="name">view.activity.location.department.tree</field>
+        <field name="model">activity.location.department</field>
         <field name="type">tree</field>
         <field name="mode">primary</field>
         <field name="priority" eval="16" />
         <field name="active" eval="True" />
         <field name="arch" type="xml">
-            <tree string="reservation_tree" create="true" delete="true" edit="true">
-                <field name="name" optional="1"/>
-                <field name="equipment" />
-                <field name="status" />
-                <field name="value" />
+            <tree string="activity_location_department_tree" create="true" delete="true" edit="true">
+                <field name="name"/>
+                <field name="activity_location_id" />
+                <field name="location_description" />
+                <field name="department_id" />
+                <field name="department_description" />
+                <field name="active" optional="1"/>
                 <field name="create_date" optional="1"/>
                 <field name="create_uid" optional="1"/>
             </tree>
         </field>
     </record>
     
-    <!-- Form view for "reservation" -->
-    <record id="view_reservation_form" model="ir.ui.view">
-        <field name="name">view.reservation.form</field>
-        <field name="model">reservation</field>
+    
+    <record id="view_activity_location_department_form" model="ir.ui.view">
+        <field name="name">view.activity.location.department.form</field>
+        <field name="model">activity.location.department</field>
         <field name="type">form</field>
         <field name="mode">primary</field>
         <field name="priority" eval="16" />
         <field name="active" eval="True" />
         <field name="arch" type="xml">
-            <form string="reservation_form" create="true" delete="true" edit="true">
+            <form string="activity_location_department_form" create="true" delete="true" edit="true">
                 <header>
-                    <field name="status" widget="statusbar" clickable="0"/>
                 </header>
                 <sheet>
-                    <field name="kanban_state" widget="state_selection"/>
-                    <field class="oe_avatar" widget="image" name="image"/>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only" />
                         <h1>
@@ -48,38 +46,26 @@
                     </div>
                     <group>
                         <group>
-                            <field name="work_order" />
-                            <field name="equipment" />
-                            <field name="analytic_account_id" />
-                            <field name="reservation_type" />
-                            <field name="description" />
+                            <field name="activity_location_id" />
+                            <field name="location_description" />
+                            <field name="department_id" />
+                            <field name="department_description" />
                         </group>
                         <group>
                             <field name="create_date" />
                             <field name="create_uid" />
                         </group>
                     </group>
-                    <notebook>
-                        <page name="details" string="Details">
-                            <field name="reservation_line_ids" widget="section_one2many">
+                    <!-- <notebook>
+                        <page name="children" string="Children">
+                            <field name="process_activity_ids" widget="section_one2many">
                                 <tree editable="bottom">
-                                    <field name="product_id" />
-                                    <field name="quantity" />
-                                    <field name="uom" />
-                                    <field name="price" />
-                                    <field name="total_price" />
+                                    <field name="location_id" />
+                                    <field name="location_description" />
                                 </tree>
                             </field>
-                            <group name="footer">
-                                <group name="left">
-                                    <field name="value" />
-                                </group>
-                                <group name="right">
-                                    <field name="signature" widget="signature"/>
-                                </group>
-                            </group>
                         </page>
-                    </notebook>
+                    </notebook> -->
                 </sheet>
             </form>
         </field>
@@ -101,12 +87,12 @@
         </field>
     </record> -->
     
-    <!-- Main window action for "model" -->
-    <record id="action_reservation_act_window" model="ir.actions.act_window">
+    
+    <record id="action_activity_location_department_act_window" model="ir.actions.act_window">
         <field name="type">ir.actions.act_window</field>
-        <field name="name">Reservation</field>
-        <field name="res_model">reservation</field>
-        <field name="view_mode">tree,form,map</field>
+        <field name="name">Process</field>
+        <field name="res_model">activity.location.department</field>
+        <field name="view_mode">tree,form</field>
         <!-- <field name="view_type">form</field>
         <field name="target">current</field>
         <field name="domain">[]</field>
@@ -120,7 +106,7 @@
             </p>
         </field> -->
     </record>
-    
+   
     
     </data>
 </odoo>

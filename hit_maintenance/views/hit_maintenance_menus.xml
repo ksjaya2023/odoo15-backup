@@ -54,13 +54,13 @@
         />
         <menuitem
         id="master_data_eqp_attachment_menu"
-        name="Equipment Attachment" 
+        name="Attachment" 
         parent="master_data_menu"
         action="action_eqp_attachment_act_window"
         />
         <menuitem
         id="master_data_eqp_attachment_product_menu"
-        name="Equipment Attachment Product" 
+        name="Attachment Product" 
         parent="master_data_menu"
         action="action_eqp_attachment_product_act_window"
         />
@@ -76,8 +76,31 @@
         parent="master_data_menu"
         action="action_service_type_act_window"
         />
+        <menuitem
+        id="master_data_service_package_menu"
+        name="Service Package" 
+        parent="master_data_menu"
+        action="action_service_package_act_window"
+        />
+        <menuitem
+        id="master_data_standard_job_menu"
+        name="Standard Job" 
+        parent="master_data_menu"
+        action="action_standard_job_act_window"
+        />
 
-
-
+        <!-- Configuration -->
+        <menuitem
+        id="reservation_stage_menu"
+        name="Reservation Stage" 
+        parent="maintenance.menu_maintenance_configuration"
+        action="action_reservation_stage_act_window"
+        />
+        <menuitem
+        id="reservation_tag_menu"
+        name="Reservation Tag" 
+        parent="maintenance.menu_maintenance_configuration"
+        action="action_reservation_tag_act_window"
+        />
     </data>
 </odoo>

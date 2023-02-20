@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+    <record id="view_stock_valuation_layer_tree_inherited" model="ir.ui.view">
+        <field name="name">stock.valuation.layer.tree.inherited</field>
+        <field name="model">stock.valuation.layer</field>
+        <!-- Please veryfiy, that the following inherited view really sticks to the naming convention. -->
+        <field name="inherit_id" ref="stock_account.stock_valuation_layer_tree" />
+        <!-- <field name="type">tree</field>
+        <field name="mode">primary|extension</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" /> -->
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='create_date']" position="after">
+                <field name="reservation_type" />
+                <field name="reservation_description" />
+                <field name="equipment" />
+                <field name="operation_type" />
+                <field name="equipment_type" />
+            </xpath>
+            <xpath expr="//field[@name='value']" position="after">
+                <field name="temporary_total_value" />
+            </xpath>
+        </field>
+    </record>
+    </data>
+</odoo>

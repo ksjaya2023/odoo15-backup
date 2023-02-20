@@ -24,13 +24,23 @@
     # any module necessary for this one to work correctly
     'depends': ['stock',
                 'account',
-                'hit_maintenance'],
+                'hit_maintenance',
+                'purchase_request'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
+        # 'views/views.xml',
+        'views/stock_picking_views.xml',
+        'views/stock_quant_views.xml',
+        'views/stock_move_views.xml',
+        'views/product_category_views.xml',
+        'views/product_template_views.xml',
+        'views/stock_valuation_layer_views.xml',
+        'views/bin_location_views.xml',
+        'views/hit_inventory_menus.xml',
+        'views/product_class_views.xml',
+        'views/stock_type_views.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

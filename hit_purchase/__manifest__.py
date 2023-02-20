@@ -21,7 +21,8 @@
                 'stock',
                 'analytic',
                 'uom',
-                'hit_maintenance'],
+                'hit_maintenance',
+                'purchase_request'],
     'data': [
         'security/ir.model.access.csv',
         'views/purchase_order_views.xml',

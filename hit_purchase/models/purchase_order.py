@@ -11,6 +11,22 @@ class PurchaseOrder(models.Model):
     complete_gr = fields.Boolean('Complete GR')
     create_by_pr = fields.Boolean('Create by PR')
     rfq = fields.Char('RFQ')
+    purchase_request_id = fields.Many2one(
+        'purchase.request', string='Purchase Request')
+
+    @api.onchange('purchase_request_id')
+    def _onchange_purchase_order_items(self):
+        for record in self:
+            if record.purchase_request_id:
+                record['order_line'] = [(5, 0, 0)]
+                for line in record.purchase_request_id.line_ids:
+                    record['order_line'] = [(0, 0, {'order_id': record.id,
+                                                    'product_template_id': line.product_id.id,
+                                                    'name': line.name,
+                                                    'product_qty': line.purchased_qty,
+                                                    'product_uom': line.product_uom_id.id,
+                                                    'price_unit': line.estimated_cost
+                                                    })]
 
 
 class PurchaseOrderLine(models.Model):

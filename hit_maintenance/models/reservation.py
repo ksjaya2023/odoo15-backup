@@ -108,7 +108,8 @@ class ReservationLine(models.Model):
     standard_price = fields.Float(
         string='Standard Price', related='product_id.standard_price')
     product = fields.Char(string='Product')
-    product_name = fields.Char(string='Product Name')
+    product_name = fields.Char(
+        string='Product Name', related='product_id.name')
     quantity = fields.Integer(string='Quantity')
     quantity_on_hand = fields.Float(
         string='Quantity on Hand', related='product_id.qty_available')
@@ -116,9 +117,16 @@ class ReservationLine(models.Model):
     sequence = fields.Integer(string='Sequence')
     status = fields.Selection(string='', selection=_STATUS)
     # status_1 = fields.Selection(string='', selection=_STATUS_1)
-    total_price = fields.Float(string='Est. Total Price')
+    total_price = fields.Float(string='Est. Total Price',
+                               compute='_compute_total_price')
     uom = fields.Many2one(comodel_name='uom.uom',
                           string='UoM', related='product_id.uom_id')
     work_order_related = fields.Many2one(
-        comodel_name='maintenance.request', string='Work Order Related')
+        comodel_name='maintenance.request', string='Work Order Related', related='reservation_id.work_order')
     stock_picking_id = fields.Many2one('stock.picking', string='Stock Picking')
+
+    @api.depends('quantity', 'price')
+    def _compute_total_price(self):
+        for record in self:
+            prices = record.quantity * record.price
+            record.total_price = prices

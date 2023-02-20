@@ -31,10 +31,12 @@ class ServicePackageLine(models.Model):
     price = fields.Float('Price', related='product_id.standard_price')
     quantity = fields.Integer(string='Quantity')
     sequence = fields.Integer(string='Sequence')
-    service_type = fields.Char(string='Service Type')  # related
+    service_type = fields.Char(
+        string='Service Type', related='service_package_id.service_type_id.name')
     total_price = fields.Monetary(
         'Total Price', compute='_compute_total_price')  # compute
-    unit_model = fields.Char(string='Unit Model')  # related
+    unit_model = fields.Char(
+        string='Unit Model', related='service_package_id.unit_model_id.name')
     uom_id = fields.Many2one(
         comodel_name='uom.uom', string='UoM', related='product_id.uom_id')
 

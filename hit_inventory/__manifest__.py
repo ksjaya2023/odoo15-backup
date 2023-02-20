@@ -38,9 +38,9 @@
         'views/product_template_views.xml',
         'views/stock_valuation_layer_views.xml',
         'views/bin_location_views.xml',
-        'views/hit_inventory_menus.xml',
         'views/product_class_views.xml',
         'views/stock_type_views.xml',
+        'views/hit_inventory_menus.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

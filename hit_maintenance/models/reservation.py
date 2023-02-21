@@ -70,7 +70,8 @@ class Reservation(models.Model):
         'reservation.stage', string='Reservation Stage')
     reservation_tag_ids = fields.Many2many(
         'reservation.tag', string='Reservation Tag')
-    value = fields.Float(string='Grand Total', readonly=True)
+    value = fields.Float(string='Grand Total',
+                         readonly=True, compute='_compute_value')
     work_order = fields.Many2one(
         comodel_name='maintenance.request', string='Work Order')
     analytic_account_id = fields.Many2one(
@@ -80,14 +81,32 @@ class Reservation(models.Model):
     equipment = fields.Many2one(
         comodel_name='maintenance.equipment', string='Equipment', readonly=True, related='work_order.equipment_id')
     reservation_line_count = fields.Integer(
-        string='Reservation Count')  # compute
+        string='Reservation Count', compute='_compute_reservation_line')
     reservation_stock_picking_count = fields.Integer(
-        string='Issued')  # compute
+        string='Issued', compute='_compute_reservation_stock_picking')
     return_request_id = fields.Many2one(
         'return.request', string='Return Request')
     return_request_ids = fields.One2many(
         'return.request', 'reservation_id', string='Return Requests')
     signature = fields.Binary(string='Signature')
+
+    @api.depends('reservation_line_ids', 'reservation_line_ids.total_price')
+    def _compute_value(self):
+        for record in self:
+            record.value = sum(
+                record.reservation_line_ids.mapped("total_price"))
+
+    @api.depends('name')
+    def _compute_reservation_line(self):
+        for record in self:
+            record.reservation_line_count = self.env['reservation.line'].search_count(
+                [('reservation_id', '=', record.id)])
+
+    @api.depends('name')
+    def _compute_reservation_stock_picking(self):
+        for record in self:
+            record.reservation_stock_picking_count = self.env['stock.picking'].search_count(
+                [('reservation_id', '=', record.id)])
 
 
 class ReservationLine(models.Model):
@@ -129,5 +148,6 @@ class ReservationLine(models.Model):
     @api.depends('quantity', 'price')
     def _compute_total_price(self):
         for record in self:
+            prices = 0
             prices = record.quantity * record.price
             record.total_price = prices

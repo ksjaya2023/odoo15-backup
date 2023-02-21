@@ -43,5 +43,6 @@ class ServicePackageLine(models.Model):
     @api.depends('quantity', 'price')
     def _compute_total_price(self):
         for record in self:
+            prices = 0
             prices = record.quantity * record.price
             record.total_price = prices

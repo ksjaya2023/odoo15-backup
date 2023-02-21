@@ -30,13 +30,11 @@
         <field name="priority" eval="16" />
         <field name="active" eval="True" /> -->
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='name']" position="before">
+            <xpath expr="//field[@name='name']" position="after">
                 <field name="equipment_type" />
                 <field name="equipment_id" />
                 <field name="reservation_id" />
                 <field name="pr" />
-            </xpath>
-            <xpath expr="//field[@name='name']" position="after">
                 <field name="outstanding_price" />
                 <field name="grand_total" />
             </xpath>
@@ -53,15 +51,29 @@
         <field name="priority" eval="16" />
         <field name="active" eval="True" /> -->
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="reservation_id" />
-                <field name="pr" />
-                <field name="operation_type" />
-                <field name="equipment_id" />
-                <field name="work_order" />
-                <field name="return_request" />
-                <field name="analytic_account_id" />
+            <xpath expr="/form/sheet/group[1]" position="after">
+                <group>
+                    <group>
+                        <field name="reservation_id" />
+                        <field name="pr" />
+                        <field name="operation_type" />
+                        <field name="equipment_id" />                    
+                    </group>
+                    <group>
+                        <field name="work_order" />
+                        <field name="return_request" />
+                        <field name="analytic_account_id" />
+                    </group>
+                </group>
             </xpath>
+            <!-- <xpath expr="//field[@name='name']" position="attributes">
+            <attribute name="attrs">
+                {
+                'invisible': [('name', '!=', '/')],
+                'default': [('name', '=', 'Draft')],
+                }
+            </attribute>
+            </xpath> -->
         </field>
     </record>
     

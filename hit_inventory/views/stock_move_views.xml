@@ -15,9 +15,7 @@
                 <field name="allocation_ids" >
                     <tree>
                         <field name="id" />
-                        <field name="stock_move_id" />
-                        <field name="stock_move_id" />
-                        <field name="stock_move_id" />
+                        <field name="stock_move_id"/>
                     </tree>
                 </field>
             

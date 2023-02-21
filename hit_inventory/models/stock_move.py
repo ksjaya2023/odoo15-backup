@@ -7,7 +7,7 @@ class StockMove(models.Model):
 
     currency_id = fields.Many2one(
         comodel_name='res.currency', string='Currency')
-    binlocation = fields.Many2one(
+    bin_location = fields.Many2one(
         comodel_name='bin.location', string='Bin Location')
     demand_price = fields.Float(string='Demand Price')
     equipment = fields.Many2one(

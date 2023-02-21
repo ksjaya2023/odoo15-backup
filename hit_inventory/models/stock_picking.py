@@ -11,7 +11,7 @@ class StockPicking(models.Model):
         comodel_name='reservation', string='Reservation')
     # approval_list = fields.One2many(
     #     comodel_name='approval_list', string='Approval List')
-    cek_actual_price = fields.Float(string='Cek Actual Price')
+    cek_actual_price = fields.Float(string='Cek Actual Price', compute="_compute_actual_price")
     cek_total_demand = fields.Float(string='Cek Total Demand')
     create_by_reservation = fields.Boolean(string='Create by Reservation')
     create_pr = fields.Boolean(string='Create PR')
@@ -53,3 +53,10 @@ class StockPicking(models.Model):
                                                                   'location_id': record.location_id,
                                                                   'location_dest_id': record.location_dest_id
                                                                   })]
+    @api.depends('move_ids_without_package')
+    def _compute_actual_price(self):
+            for record in self:
+                total = 0
+                for line in record.move_ids_without_package:
+                    total += line.total_price
+                record['cek_actual_price'] = total

@@ -10,3 +10,4 @@ class ProductTemplate(models.Model):
         comodel_name='product.class', string='Product Class')
     stock_type = fields.Many2one(
         comodel_name='stock.type', string='Stock Type')
+    part_number = fields.Char('Part Number')

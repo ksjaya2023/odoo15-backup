@@ -15,6 +15,7 @@
             <xpath expr="//field[@name='detailed_type']" position="after">
                 <field name="product_class" />
                 <field name="stock_type" />
+                <field name="part_number" />
             </xpath>
         </field>
     </record>

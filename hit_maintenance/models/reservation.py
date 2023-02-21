@@ -95,15 +95,16 @@ class ReservationLine(models.Model):
     _description = 'reservation line'
 
     name = fields.Char('Name')
-    currency_id = fields.Many2one('res.currency', string='Currency')
+    product_id = fields.Many2one(
+        comodel_name='product.product', string='Products')
+    currency_id = fields.Many2one(
+        'res.currency', string='Currency', related='product_id.currency_id')
     reservation_id = fields.Many2one(
         comodel_name='reservation', string='Reservation ID')
     date = fields.Date(string='Date')
     date_install = fields.Date(string='Date Install')
     analytic_account_id = fields.Many2one(
         comodel_name='account.analytic.account', string='Analytic Account')
-    product_id = fields.Many2one(
-        comodel_name='product.product', string='Products')
     price = fields.Float(string='Price', related='product_id.standard_price')
     standard_price = fields.Float(
         string='Standard Price', related='product_id.standard_price')

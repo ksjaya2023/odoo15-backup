@@ -33,7 +33,7 @@ class ReturnRequest(models.Model):
                                                             'uom_id': line.uom.id
                                                             })]
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         seq = self.env['ir.sequence'].next_by_code('return.request.seq')
         vals['name'] = seq

@@ -24,8 +24,10 @@ class ProcessLine(models.Model):
     active = fields.Boolean(string='Active', default=True)
     sequence = fields.Integer(string='Sequence')
     activity_id = fields.Many2one('activity', string='Activity')
-    activity_description = fields.Char('Activity Description')
+    activity_description = fields.Char(
+        'Activity Description', related='activity_id.activity')
     process_id = fields.Many2one('process', string='Process ID')
-    process_description = fields.Char('Process Description')
+    process_description = fields.Char(
+        'Process Description', related='process_id.description')
     process_activity_ids = fields.One2many(
         'activity.location', 'process_activity_id', string='Process Activity')

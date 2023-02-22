@@ -71,15 +71,13 @@
                                     <field name="total_price" />
                                 </tree>
                             </field>
-                            <!-- Test Signature
                             <group name="footer">
                                 <group name="left">
-                                    <field name="value" />
                                 </group>
                                 <group name="right">
-                                    <field name="signature" widget="signature"/>
+                                    <field name="value"/>
                                 </group>
-                            </group> -->
+                            </group>
                         </page>
                     </notebook>
                 </sheet>

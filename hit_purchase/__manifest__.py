@@ -25,6 +25,10 @@
                 'purchase_request'],
     'data': [
         'security/ir.model.access.csv',
+        'data/po_sequence.xml',
+        'data/pr_sequence.xml',
+        'data/rfq_sequence.xml',
+        'data/stock_code_sequence.xml',
         'views/purchase_order_views.xml',
         'views/product_template_views.xml',
         'views/product_product_views.xml',

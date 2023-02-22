@@ -12,4 +12,11 @@ class EquipmentClass(models.Model):
     description = fields.Char(string='Equipment Type')
     notes = fields.Html(string='Notes')
     sequence = fields.Integer(string='Sequence')
-    equipment_count = fields.Integer(string='Equipment')
+    equipment_count = fields.Integer(
+        string='Equipment', compute='_compute_equipment_count')
+
+    @api.depends('name')
+    def _compute_equipment_count(self):
+        for record in self:
+            record.equipment_count = self.env['maintenance.equipment'].search_count(
+                [('status_id', '=', record.id)])

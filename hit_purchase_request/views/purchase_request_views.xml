@@ -20,6 +20,12 @@
               <field name="create_rfq" invisible="1"/>
             </group>
           </xpath>
+
+          <xpath expr="//field[@name='line_ids']" position="after">
+            <group style='float: left;'>
+              <field name="amount_total" invisible="1" />
+            </group>
+          </xpath>
         </field>
       </record>  
       

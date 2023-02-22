@@ -34,4 +34,18 @@ class PurchaseOrderLine(models.Model):
 
     schedule_date = fields.Datetime(
         'Schedule Date', related='order_id.effective_date')
-    status = fields.Char('Purchase Status')
+    status = fields.Char('Purchase Status', compute='_compute_status')
+
+    @api.depends('schedule_date', 'date_planned')
+    def _compute_status(self):
+        for record in self:
+            result = ""
+            if record.date_planned and record.schedule_date:
+                count = record.date_planned - record.schedule_date
+                if count.days == 0:
+                    result = "Ontime"
+                elif count.days < 0:
+                    result = "Early"
+                else:
+                    result = "Delay"
+            record.status = result

@@ -17,6 +17,10 @@
             <xpath expr="//field[@name='fiscal_position_id']" position="after">
                 <field name="rfq" />
             </xpath>
+
+            <xpath expr="//field[@name='price_subtotal']" position="before">
+                <field name="status" invisible="1"/>
+            </xpath>
                 
             </field>
         </record>

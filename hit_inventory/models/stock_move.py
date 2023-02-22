@@ -9,9 +9,9 @@ class StockMove(models.Model):
         comodel_name='res.currency', string='Currency')
     reservation_id = fields.Many2one(
         comodel_name='reservation', string='Reservation id', related='picking_id.reservation_id')
-    binlocation = fields.Many2one(
+    bin_location = fields.Many2one(
         comodel_name='bin.location', string='Bin Location', related='product_tmpl_id.bin_location')
-    demand_price = fields.Float(string='Demand Price')
+    demand_price = fields.Float(string='Demand Price', compute="_compute_demand_price")
     equipment = fields.Many2one(
         comodel_name='maintenance.equipment', string='Equipment', related='picking_id.equipment_id')
     equipment_type = fields.Char(
@@ -26,6 +26,17 @@ class StockMove(models.Model):
         string='Cost', related='product_id.standard_price')
     stock_code = fields.Char(
         string='Stock Code', related='product_tmpl_id.default_code')
-    total_price = fields.Float(string='Total Price')
+    total_price = fields.Float(string='Total Price', compute='_compute_total_price')
     allocation_ids = fields.One2many(
         'purchase.request.allocation', 'stock_move_id', string='Allocation')
+
+    
+    @api.depends('product_uom_qty', 'standard_price')
+    def _compute_demand_price(self):
+            for record in self:
+                record['demand_price'] = record.product_uom_qty * record.standard_price
+
+    @api.depends('standard_price', 'quantity_done')
+    def _compute_total_price(self):
+           for record in self:
+                record['total_price'] = record.quantity_done * record.standard_price

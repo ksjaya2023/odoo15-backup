@@ -18,6 +18,7 @@
     'depends': ['purchase_request', 'hit_maintenance'],
     'data': [
         'security/ir.model.access.csv',
+        'data/return_request_sequences.xml',
         'views/purchase_request_views.xml',
     ],
     'demo': [],

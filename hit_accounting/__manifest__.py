@@ -21,6 +21,9 @@
                 'account_asset'],
     'data': [
         'security/ir.model.access.csv',
+        'data/list_approval_account_move_seq.xml',
+        'data/customer_invoice_beside_not_indocement_seq.xml',
+        'data/customer_invoice_indocement_sequence.xml',
         'views/account_move_views.xml',
         'views/account_asset_views.xml',
         'views/account_payment_views.xml',

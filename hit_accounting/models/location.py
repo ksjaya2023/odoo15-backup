@@ -12,3 +12,8 @@ class Location(models.Model):
     active = fields.Boolean(string='Active', default=True)
     code = fields.Char('Code')
     location = fields.Char('Location')
+
+    @api.onchange('code')
+    def _onchange_(self):
+        for record in self:
+            record.name = str(record.code)

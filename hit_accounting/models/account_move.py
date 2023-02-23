@@ -17,3 +17,4 @@ class AccountMove(models.Model):
     tanggal_bukti_potong = fields.Date('Tanggal Bukti Potong')
     tanggal_faktur_pajak = fields.Date('Tanggal Faktur Pajak')
     signature = fields.Binary(string='Signature')
+    invoice_date = fields.Date(default=fields.Date.today())

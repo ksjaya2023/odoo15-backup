@@ -23,6 +23,12 @@ class ActivityLocation(models.Model):
         'Location Description', related='location_id.location')
     process = fields.Char('Process')
 
+    @api.onchange('location_id', 'process_activity_id')
+    def _onchange_activity_location_form(self):
+        for record in self:
+            record.name = str(record.location_id.code) + '-' + \
+                str(record.process_activity_id.activity_id.code)
+
 
 class ActivitylocationDepartment(models.Model):
     _name = 'activity.location.department'

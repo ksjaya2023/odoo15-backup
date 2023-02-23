@@ -38,3 +38,8 @@ class DepartmentAnalytic(models.Model):
         'activity.location.department', string='Department')
     department_description = fields.Char('Department Description')
     description = fields.Text('Description')
+
+    @api.onchange('department_id')
+    def _onchange_department_id(self):
+        for record in self:
+            record.name = record.department_id.name + 'AAG'

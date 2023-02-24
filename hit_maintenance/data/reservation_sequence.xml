@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Sequence for material request -->
+    <record id="maintenance_reservation_sequence" model="ir.sequence">
+        <field name="name">resv_test</field>
+        <field name="code">resv.test</field>
+        <field name="active">TRUE</field>
+        <field name="prefix">RESV-%(y)s%(month)s</field>
+        <field name="padding">4</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+</odoo>

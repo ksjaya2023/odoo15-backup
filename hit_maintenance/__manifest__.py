@@ -34,6 +34,11 @@
     # make sure the menu view is on the last
     'data': [
         'security/ir.model.access.csv',
+        'data/return_request_sequence.xml',
+        'data/wo_auto_number_schecudlle_sequence.xml',
+        'data/wo_auto_number_un_schecudlle_sequence.xml',
+        'data/wo_test_auto_number_sequence.xml',
+        'data/reservation_sequence.xml',
         'views/maintenance_request_views.xml',
         'views/maintenance_equipment_views.xml',
         'views/reservation_views.xml',

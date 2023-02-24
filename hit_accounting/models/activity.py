@@ -13,6 +13,11 @@ class Activity(models.Model):
     code = fields.Char('Code')
     activity = fields.Char('Activity')
 
+    @api.onchange('code')
+    def _onchange_(self):
+        for record in self:
+            record.name = str(record.code)
+
 
 class ActivityLine(models.Model):
     _name = 'activity.line'

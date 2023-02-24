@@ -14,8 +14,8 @@
             <tree string="location_tree" create="true" delete="true" edit="true">
                 <field name="name"/>
                 <field name="code" />
-                <field name="active" />
                 <field name="location" />
+                <field name="active" />
                 <field name="create_date" optional="1"/>
                 <field name="create_uid" optional="1"/>
             </tree>
@@ -39,14 +39,14 @@
                         <label for="name" class="oe_edit_only" />
                         <h1>
                             <field name="name" class="oe_inline"
-                                placeholder="name" />
+                                placeholder="name" invisible="1"/>
                         </h1>
                     </div>
                     <group>
                         <group>
                             <field name="code" />
-                            <field name="active" />
                             <field name="location" />
+                            <field name="active" />
                         </group>
                         <group>
                             <field name="create_date" />

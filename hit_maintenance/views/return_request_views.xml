@@ -36,7 +36,7 @@
                         <label for="name" class="oe_edit_only" />
                         <h1>
                             <field name="name" class="oe_inline"
-                                placeholder="name" />
+                                placeholder="name" readonly="1"/>
                         </h1>
                     </div>
                     <group>
@@ -54,7 +54,7 @@
                     <notebook>
                         <page name="details" string="Return Product">
                             <field name="return_request_ids">
-                                <tree>
+                                <tree editable="bottom">
                                     <field name="product_id" />
                                     <field name="quantity" />
                                     <field name="uom_id" />

@@ -30,6 +30,12 @@
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'data/inventory_issued_sequence.xml',
+        'data/inventory_receipt_sequence.xml',
+        'data/inventory_return_sequence.xml',
+        'data/inventory_transfer_rev_sequence.xml',
+        'data/inventory_transfer_trf_sequence.xml',
+        'data/number_gi_sequence.xml',
         # 'views/views.xml',
         'views/stock_picking_views.xml',
         'views/stock_quant_views.xml',

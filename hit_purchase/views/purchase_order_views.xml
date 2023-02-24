@@ -9,12 +9,17 @@
             <field name="arch" type="xml">
 
             <xpath expr="//field[@name='partner_ref']" position="after">
+                <field name="purchase_request_id" />
                 <field name="complete_gr" />
                 <field name="create_by_pr" invisible="1"/>
             </xpath>
 
             <xpath expr="//field[@name='fiscal_position_id']" position="after">
                 <field name="rfq" />
+            </xpath>
+
+            <xpath expr="//field[@name='price_subtotal']" position="before">
+                <field name="status" invisible="1"/>
             </xpath>
                 
             </field>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Sequence for material request -->
+    <record id="wo_auto_number_un_schecudlle_sequence" model="ir.sequence">
+        <field name="name">WO Auto Number Un-Schecudlle</field>
+        <field name="code">wo.unschdulle</field>
+        <field name="active">TRUE</field>
+        <field name="prefix">WO-USC-%(y)s-%(month)s-</field>
+        <field name="padding">4</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+</odoo>

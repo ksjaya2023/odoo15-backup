@@ -1,4 +1,5 @@
 from odoo import _, api, fields, models
+import datetime
 
 _STATUS = [
     ("installed", "Installed"),
@@ -15,8 +16,6 @@ class MaintenanceRequest(models.Model):
     _inherit = 'maintenance.request'
     _description = 'Maintenance Request or Work Order'
 
-    # account_group = fields.Many2one(
-    #     comodel_name='account.analytic.group', string='Account Group')
     analytic_code = fields.Char(string='Analytic Code')  # Hide
     close_date = fields.Date(string='Done Date')
     create_reservation = fields.Boolean(string='Create Reservation')
@@ -41,6 +40,49 @@ class MaintenanceRequest(models.Model):
         'activity.location.department', string='Department')
     analytic_group_id = fields.Many2one(
         'department.analytic', string='Analytic Group')
+    # account_group = fields.Many2one(
+    #     comodel_name='department.analytic', string='Account Group', related='analytic_group_id.account_analytic_group_id')
+    equipment_id = fields.Many2one('maintenance.equipment', string='Equipment')
+    category = fields.Char('Equipment Category',
+                           related='equipment_id.eqp_type')
+
+    @api.onchange('standard_job_id')
+    def _onchange_standard_job_id(self):
+        for record in self:
+            if record.standard_job_id:
+                record.process_id = record.standard_job_id.process_id.id
+                record.process_activity_id = record.standard_job_id.process_line_id.id
+                record.activity_location_id = record.standard_job_id.location_id.id
+                record.location_department_id = record.standard_job_id.department_id.id
+                record.analytic_group_id = record.standard_job_id.analytic_group_id.id
+                record.analytic_account_id = record.standard_job_id.analytic_account_id.id
+
+    @api.onchange('stage_id')
+    def _onchange_stage_id(self):
+        for record in self:
+            if (record.stage_id.name == 'Done'):
+                done_date = datetime.date.today()
+                record.close_date = done_date
+
+
+#     if record.x_studio_part_install:
+#       record['x_studio_part_install_editable'] = [(5,0,0)]  #clear
+#   for line in record.x_studio_part_install:
+#     record['x_studio_part_install_editable'] = [(0,0,{'x_studio_product':line.x_studio_many2one_field_vym0h, 
+#                                           'x_studio_status':line.x_studio_status,
+#                                           'x_studio_work_order':record.id,
+#                                           'x_studio_date':line.x_studio_date
+#     })]
+
+
+# if (record.x_studio_part_install):
+#       record['x_studio_part_install_editable'] = [(5,0,0)]  #clear
+#   for line in record.x_studio_part_install:
+#     record['x_studio_part_install_editable'] = [(0,0,{'x_studio_product':line.x_studio_many2one_field_vym0h, 
+#                                           'x_studio_status':line.x_studio_status,
+#                                           'x_studio_work_order':record.id,
+#                                           'x_studio_date':line.x_studio_date
+#     })]
 
 
 class MaintenanceRequestLine(models.Model):

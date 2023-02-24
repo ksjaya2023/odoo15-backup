@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Sequence for material request -->
+    <record id="maintenance_return_request_sequence" model="ir.sequence">
+        <field name="name">Return Request Sequence</field>
+        <field name="code">return.request.seq</field>
+        <field name="active">TRUE</field>
+        <field name="prefix">RET%(y)s%(month)s</field>
+        <field name="padding">4</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+</odoo>

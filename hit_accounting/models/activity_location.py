@@ -8,7 +8,7 @@ class ActivityLocation(models.Model):
     _name = 'activity.location'
     _description = 'Activity Location'
 
-    name = fields.Char('Name')
+    name = fields.Char('Name', compute='_compute_name')
     active = fields.Boolean(string='Active', default=True)
     code = fields.Char('Code')
     sequence = fields.Integer(string='Sequence')
@@ -21,6 +21,14 @@ class ActivityLocation(models.Model):
     location_id = fields.Many2one('location', string='Location')
     location_description = fields.Char(
         'Location Description', related='location_id.location')
+
+    @api.depends('process_activity_id', 'location_id')
+    def _compute_name(self):
+        for record in self:
+            record.name = str(record.process_activity_id.process_id.code) + \
+                '-' + str(record.process_activity_id.activity_id.code) + \
+                '-' + str(record.location_id.code) + \
+                ': ' + str(record.location_description)
 
     @api.onchange('process_activity_id', 'location_id')
     def _onchange_activity_location_form(self):
@@ -41,7 +49,7 @@ class ActivitylocationDepartment(models.Model):
     activity_location_id = fields.Many2one(
         'activity.location', string='Location')
     location_description = fields.Char(
-        'Location Description', related='department_id.department')
+        'Location Description', related='activity_location_id.activity_description')
     department_id = fields.Many2one('department', string='Department')
     department_description = fields.Char(
         'Department Description', related='department_id.department')

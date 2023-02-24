@@ -1,4 +1,4 @@
-from odoo import _, api, fields, models
+from odoo import _, api, fields, models, exceptions
 import datetime
 
 
@@ -41,6 +41,20 @@ class MaintenanceEquipment(models.Model):
     transfer = fields.Many2one(comodel_name='stock.picking', string='Transfer')
     weight = fields.Float(string='Weight')
     width = fields.Float(string='Width')
+
+    @api.constrains('production_year')
+    def _check_production_year(self):
+        for record in self:
+            if record.production_year:
+                year_range = False
+                cek_numerik = record.production_year.isnumeric()
+                if cek_numerik:
+                    if int(record.production_year) > 1900 and int(record.production_year) < 3000:
+                        year_range = True
+
+                if not year_range:
+                    raise exceptions.ValidationError(
+                        "The production year cannot be earlier than 1900 and no later than 3000.")
 
     @api.depends('act_hm')
     def _compute_act_hm(self):

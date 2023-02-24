@@ -13,10 +13,10 @@ class StandardJob(models.Model):
     location_id = fields.Many2one('activity.location', string='Location')
     department_id = fields.Many2one(
         'activity.location.department', string='Department')
-    # account_group = fields.Many2one(
-    #     comodel_name='account.analytic.group', string='Account Group')  # related
     analytic_account_id = fields.Many2one(
         comodel_name='account.analytic.account', string='Analytic Account')
-    notes = fields.Html(string='Notes')
     analytic_group_id = fields.Many2one(
         'department.analytic', string='Analytic Group')
+    # account_group = fields.Many2one(
+    #     comodel_name='account.analytic.group', string='Account Group')  # related
+    notes = fields.Html(string='Notes')

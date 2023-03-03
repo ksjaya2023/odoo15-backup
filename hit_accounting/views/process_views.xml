@@ -5,7 +5,7 @@
    
     <record id="view_process_tree" model="ir.ui.view">
         <field name="name">view.process.tree</field>
-        <field name="model">process</field>
+        <field name="model">hit.process</field>
         <field name="type">tree</field>
         <field name="mode">primary</field>
         <field name="priority" eval="16" />
@@ -25,7 +25,7 @@
     
     <record id="view_process_form" model="ir.ui.view">
         <field name="name">view.process.form</field>
-        <field name="model">process</field>
+        <field name="model">hit.process</field>
         <field name="type">form</field>
         <field name="mode">primary</field>
         <field name="priority" eval="16" />
@@ -73,7 +73,7 @@
     <!-- Search view for "model" -->
     <!-- <record id="view_model_search" model="ir.ui.view">
         <field name="name">view.model.search</field>
-        <field name="model">model</field>
+        <field name="model">hit.model</field>
         <field name="type">search</field>
         <field name="mode">primary</field>
         <field name="priority" eval="16" />
@@ -90,7 +90,7 @@
     <record id="action_process_act_window" model="ir.actions.act_window">
         <field name="type">ir.actions.act_window</field>
         <field name="name">Process</field>
-        <field name="res_model">process</field>
+        <field name="res_model">hit.process</field>
         <field name="view_mode">tree,form</field>
         <!-- <field name="view_type">form</field>
         <field name="target">current</field>

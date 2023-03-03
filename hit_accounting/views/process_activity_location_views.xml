@@ -5,7 +5,7 @@
    
     <record id="view_activity_location_tree" model="ir.ui.view">
         <field name="name">view.activity.location.tree</field>
-        <field name="model">activity.location</field>
+        <field name="model">hit.activity.location</field>
         <field name="type">tree</field>
         <field name="mode">primary</field>
         <field name="priority" eval="16" />
@@ -27,7 +27,7 @@
     
     <record id="view_activity_location_form" model="ir.ui.view">
         <field name="name">view.activity.location.form</field>
-        <field name="model">activity.location</field>
+        <field name="model">hit.activity.location</field>
         <field name="type">form</field>
         <field name="mode">primary</field>
         <field name="priority" eval="16" />
@@ -74,7 +74,7 @@
     <!-- Search view for "model" -->
     <!-- <record id="view_model_search" model="ir.ui.view">
         <field name="name">view.model.search</field>
-        <field name="model">model</field>
+        <field name="model">hit.model</field>
         <field name="type">search</field>
         <field name="mode">primary</field>
         <field name="priority" eval="16" />
@@ -91,7 +91,7 @@
     <record id="action_activity_location_act_window" model="ir.actions.act_window">
         <field name="type">ir.actions.act_window</field>
         <field name="name">Activity Location</field>
-        <field name="res_model">activity.location</field>
+        <field name="res_model">hit.activity.location</field>
         <field name="view_mode">tree,form</field>
         <!-- <field name="view_type">form</field>
         <field name="target">current</field>

@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 
 
 class Activity(models.Model):
-    _name = 'activity'
+    _name = 'hit.activity'
     _description = 'Activity'
 
     name = fields.Char('Name')
@@ -20,7 +20,7 @@ class Activity(models.Model):
 
 
 class ActivityLine(models.Model):
-    _name = 'activity.line'
+    _name = 'hit.activity.line'
     _description = 'Activity Line'
 
     name = fields.Char('Name')

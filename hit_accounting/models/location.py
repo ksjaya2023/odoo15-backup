@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 
 
 class Location(models.Model):
-    _name = 'location'
+    _name = 'hit.location'
     _description = 'Location'
 
     name = fields.Char('Name')

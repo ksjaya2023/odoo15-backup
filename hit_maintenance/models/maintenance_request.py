@@ -31,17 +31,17 @@ class MaintenanceRequest(models.Model):
     part_installed_ids = fields.One2many(
         related='reservation_id.reservation_line_ids', readonly=True, string='Part Installed')
     standard_job_id = fields.Many2one('standard.job', string='Standard Job')
-    process_id = fields.Many2one('process', string='Process')
+    process_id = fields.Many2one('hit.process', string='Process')
     process_activity_id = fields.Many2one(
-        'process.line', string='Activity')
+        'hit.process.line', string='Activity')
     activity_location_id = fields.Many2one(
-        'activity.location', string='Location')
+        'hit.activity.location', string='Location')
     location_department_id = fields.Many2one(
-        'activity.location.department', string='Department')
+        'hit.activity.location.department', string='Department')
     analytic_group_id = fields.Many2one(
-        'department.analytic', string='Analytic Group')
+        'hit.department.analytic', string='Analytic Group')
     # account_group = fields.Many2one(
-    #     comodel_name='department.analytic', string='Account Group', related='analytic_group_id.account_analytic_group_id')
+    #     comodel_name='hit.department.analytic', string='Account Group', related='analytic_group_id.account_analytic_group_id')
     equipment_id = fields.Many2one('maintenance.equipment', string='Equipment')
     category = fields.Char('Equipment Category',
                            related='equipment_id.eqp_type')

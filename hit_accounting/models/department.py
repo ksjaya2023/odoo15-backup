@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 
 
 class Department(models.Model):
-    _name = 'department'
+    _name = 'hit.department'
     _description = 'Department'
 
     name = fields.Char('Name')
@@ -20,7 +20,7 @@ class Department(models.Model):
 
 
 class DepartmentAnalytic(models.Model):
-    _name = 'department.analytic'
+    _name = 'hit.department.analytic'
     _description = 'Department Analytic'
 
     name = fields.Char('Name')
@@ -29,7 +29,7 @@ class DepartmentAnalytic(models.Model):
     #     'account.analytic.group', string='Account Analytic Group')
     company_id = fields.Many2one('res.company', string='Company')
     department_id = fields.Many2one(
-        'activity.location.department', string='Department')
+        'hit.activity.location.department', string='Department')
     department_description = fields.Char('Department Description')
     description = fields.Text('Description')
 

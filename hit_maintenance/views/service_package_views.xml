@@ -39,7 +39,7 @@
                         <label for="name" class="oe_edit_only" />
                         <h1>
                             <field name="name" class="oe_inline"
-                                placeholder="name" />
+                                placeholder="name" invisible="1"/>
                         </h1>
                     </div>
                     <group>

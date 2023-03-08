@@ -44,11 +44,12 @@
                             <field name="reservation_id" />
                             <field name="equipment_id" />
                             <field name="work_order_id" />
-                            <field name="return_document_id" />
+                            <field name="transfer_id" />
                         </group>
                         <group>
                             <field name="create_date" />
                             <field name="create_uid" />
+                            <field name="create_gi" invisible="1"/>
                         </group>
                     </group>
                     <notebook>

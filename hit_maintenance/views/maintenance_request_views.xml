@@ -32,7 +32,7 @@
                     </group>
                 </group>
                 <group name="part_install" string="Part Install">
-                    <field name="maintenance_request_ids">
+                    <field name="part_installed_ids">
                         <tree>
                             <field name="reservation_id" />
                             <field name="product_id" />

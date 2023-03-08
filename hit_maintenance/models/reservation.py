@@ -108,6 +108,15 @@ class Reservation(models.Model):
             record.reservation_stock_picking_count = self.env['stock.picking'].search_count(
                 [('reservation_id', '=', record.id)])
 
+    @api.model_create_multi
+    def create(self, vals):
+        for val in vals:
+            if not val.get('create_by_wo'):
+                seq_name = self.env['ir.sequence'].next_by_code('resv.test')
+                val['name'] = seq_name
+                create_name = super(Reservation, self).create(vals)
+        return create_name
+
 
 class ReservationLine(models.Model):
     _name = 'reservation.line'

@@ -24,12 +24,12 @@ class MaintenanceRequest(models.Model):
         string='Maintenance Type', selection_add=_MAINTENANCE_TYPE)
     analytic_account_id = fields.Many2one(
         comodel_name='account.analytic.account', string='Analytic Account')
-    part_installed_id = fields.Many2one(
-        'reservation.line', string='Part Installed')
     maintenance_request_ids = fields.One2many(
         'maintenance.request.line', 'maintenance_request_id', string='')
     reservation_id = fields.Many2one(
         comodel_name='reservation', string='Reservation')
+    part_installed_ids = fields.One2many(
+        related='reservation_id.reservation_line_ids', readonly=True, string='Part Installed')
     standard_job_id = fields.Many2one('standard.job', string='Standard Job')
     process_id = fields.Many2one('process', string='Process')
     process_activity_id = fields.Many2one(
@@ -63,26 +63,6 @@ class MaintenanceRequest(models.Model):
             if (record.stage_id.name == 'Done'):
                 done_date = datetime.date.today()
                 record.close_date = done_date
-
-
-#     if record.x_studio_part_install:
-#       record['x_studio_part_install_editable'] = [(5,0,0)]  #clear
-#   for line in record.x_studio_part_install:
-#     record['x_studio_part_install_editable'] = [(0,0,{'x_studio_product':line.x_studio_many2one_field_vym0h, 
-#                                           'x_studio_status':line.x_studio_status,
-#                                           'x_studio_work_order':record.id,
-#                                           'x_studio_date':line.x_studio_date
-#     })]
-
-
-# if (record.x_studio_part_install):
-#       record['x_studio_part_install_editable'] = [(5,0,0)]  #clear
-#   for line in record.x_studio_part_install:
-#     record['x_studio_part_install_editable'] = [(0,0,{'x_studio_product':line.x_studio_many2one_field_vym0h, 
-#                                           'x_studio_status':line.x_studio_status,
-#                                           'x_studio_work_order':record.id,
-#                                           'x_studio_date':line.x_studio_date
-#     })]
 
 
 class MaintenanceRequestLine(models.Model):

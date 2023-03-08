@@ -6,7 +6,7 @@ class ServicePackage(models.Model):
     _description = 'Service Package'
 
     active = fields.Boolean(string='Active', default=True)
-    name = fields.Char(string='Package Name')
+    name = fields.Char(string='Package Name', compute='_compute_name')
     service_type_ids = fields.Many2many(
         comodel_name='service.type', string='Service Types')
     sequence = fields.Integer(string='Sequence')
@@ -16,6 +16,12 @@ class ServicePackage(models.Model):
         comodel_name='unit.model', string='Unit Model', required=True)
     service_package_ids = fields.One2many(
         comodel_name='service.package.line', inverse_name='service_package_id', string='Service Item')
+
+    @api.depends('unit_model_id', 'service_type_id')
+    def _compute_name(self):
+        for record in self:
+            record.name = str(
+                record.id) + '/' + str(record.unit_model_id.name) + '/' + str(record.service_type_id.name)
 
 
 class ServicePackageLine(models.Model):

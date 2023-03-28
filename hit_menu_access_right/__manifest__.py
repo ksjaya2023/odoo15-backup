@@ -12,15 +12,15 @@
     'description': '''
         Enhancement Accounting Module.
     ''',
-    'category': 'Accounting',
+    'category': 'Access Right',
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['account'],
+    'depends': ['hit_purchase_request'],
     'data': [
-        # 'security/ir.model.access.csv',
-        # 'views/hit_account_menu_view.xml',
-        'security/hit_account_security.xml'
+        'security/hit_account_security.xml',
+        'security/ir.model.access-hit-purchasing.csv',
+        'views/hit_account_menu_view.xml',
     ],
     'demo': [],
 }

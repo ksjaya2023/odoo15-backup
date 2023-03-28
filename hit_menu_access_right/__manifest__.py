@@ -16,7 +16,7 @@
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['hit_purchase_request'],
+    'depends': ['purchase_request'],
     'data': [
         'security/hit_account_security.xml',
         'security/ir.model.access-hit-purchasing.csv',

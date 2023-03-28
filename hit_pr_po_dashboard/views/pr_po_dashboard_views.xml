@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 	<data>
+		<!-- PO Graph -->
 		<record id="pr_po_dashboard_view_graph" model="ir.ui.view" >
 			<field name="name">PR PO Dashboard Graph</field>
 			<field name="model">purchase.order</field>
@@ -16,6 +17,26 @@
 			<field name="res_model">purchase.order</field>
 			<field name="view_mode">graph</field>
 		</record>
+		<!-- PO Dashboard -->
+		<record id="pr_po_dashboard_aggregate_view" model="ir.ui.view">
+			<field name="name">Test Dashboard</field>
+			<field name="model">purchase.order</field>
+			<field name="mode">primary</field>
+			<field name="arch" type="xml">
+				<dashboard sample="1">
+					<!-- <view type="graph" ref="crm_enterprise.crm_lead_view_graph"/> -->
+					<group>
+						<aggregate name="amount_untaxed_average" string="Amount Untaxed" group_operator="avg" field="amount_untaxed"/>
+					</group>
+					<!-- <view type="pivot" ref="crm_enterprise.crm_lead_view_pivot"/> -->
+				</dashboard>
+			</field>
+		</record>
+		<record id="pr_po_dashboard_aggregate_action_window" model="ir.actions.act_window">
+			<field name="name">Test Dashboard</field>
+			<field name="res_model">purchase.order</field>
+			<field name="view_mode">dashboard</field>
+		</record>
 		<!-- board.board model view -->
 		<record id="board_board_dashboard_view_form" model="ir.ui.view">
 			<field name="name">pr_po_dashboard_view_form</field>
@@ -26,6 +47,9 @@
 					<board style="1-2">
 						<column>
 							<action string="Graph View" name="%(pr_po_dashboard_action_window)d"/>
+						</column>
+						<column>
+							<action string="Graph View" name="%(pr_po_dashboard_aggregate_action_window)d"/>
 						</column>
 					</board>
 				</form>

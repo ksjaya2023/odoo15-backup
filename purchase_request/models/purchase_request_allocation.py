@@ -25,10 +25,7 @@ class PurchaseRequestAllocation(models.Model):
         index=True,
     )
     stock_move_id = fields.Many2one(
-        string="Stock Move",
-        comodel_name="stock.move",
-        ondelete="cascade",
-        index=True,
+        string="Stock Move", comodel_name="stock.move", ondelete="cascade", index=True,
     )
     purchase_line_id = fields.Many2one(
         string="Purchase Line",
@@ -99,14 +96,11 @@ class PurchaseRequestAllocation(models.Model):
             "allocated to this purchase request"
         )
         message += "<ul>"
-        message += _(
-            "<li><b>%(product_name)s</b>: "
-            "Received quantity %(product_qty)s %(product_uom)s</li>"
-        ) % {
-            "product_name": message_data["product_name"],
-            "product_qty": message_data["product_qty"],
-            "product_uom": message_data["product_uom"],
-        }
+        message += _("<li><b>%s</b>: Received quantity %s %s</li>") % (
+            message_data["product_name"],
+            message_data["product_qty"],
+            message_data["product_uom"],
+        )
         message += "</ul>"
         return message
 
@@ -125,8 +119,9 @@ class PurchaseRequestAllocation(models.Model):
         for allocation in self:
             request = allocation.purchase_request_line_id.request_id
             po_line = allocation.purchase_line_id
-            message_data = self._prepare_message_data(po_line, request, allocated_qty)
-            message = self._purchase_request_confirm_done_message_content(message_data)
+            message_data = self._prepare_message_data(
+                po_line, request, allocated_qty)
+            message = self._purchase_request_confirm_done_message_content(
+                message_data)
             request.message_post(
-                body=message, subtype_id=self.env.ref("mail.mt_comment").id
-            )
+                body=message, subtype_id=self.env.ref('mail.mt_note').id)

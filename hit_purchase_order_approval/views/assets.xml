@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <!-- Account Financial Report Assets -->
+    <template id="edit_button_po_backend" inherit_id="web.assets_backend" active="True">
+      <xpath expr="." position="inside">
+        <script type="text/javascript" src="/hit_purchase_order_approval/static/src/js/edit_button.js"></script>
+      </xpath>
+    </template>
+
+  </data>
+</odoo>

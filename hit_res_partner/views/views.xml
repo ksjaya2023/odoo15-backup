@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <data>
+    <!-- res.partner inherit form view -->
+    <record id="res_partner_inherit_2" model="ir.ui.view">
+      <field name="name">res.partner.inherit.view.form</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//form[1]/sheet[1]/group[1]/group[2]/field[@name='function']" position="before">
+          <field name="is_vendor" attrs="{'invisible': [('company_type','=','person')]}"/>
+          <field name="is_customer" attrs="{'invisible': [('company_type','=','person')]}"/>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hit_product_material_type,hit_product_material.hit_product_material,model_material_type,base.group_user,1,1,1,1
+access_hit_product_material_group,hit_product_material.hit_product_material,model_material_group,base.group_user,1,1,1,1

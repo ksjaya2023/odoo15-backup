@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <!-- Add you code here -->
+  <!-- purchase.order.form inherit form view -->
+  <record id="view_id" model="ir.ui.view">
+    <field name="name">purchase.order.form.inherit.view.form</field>
+    <field name="model">purchase.order</field>
+    <field name="inherit_id" ref="purchase.purchase_order_form"/>
+    <field name="arch" type="xml">
+      <!-- Add your xpath here -->
+      <field name="partner_ref" position="after">
+        <field name="discount_type"/>
+        <field name="freight_category"/>
+        <field name="revision_counts"/>
+      </field>
+      <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+        <field name="discount_type" invisible="1"/>
+        <field name="discount" attrs="{'invisible': [('discount_type', '!=', 'percent')]}"/>
+        <field name="discount_rp" attrs="{'invisible': [('discount_type', '!=', 'price')]}"/>
+        <field name="freight_cost"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

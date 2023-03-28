@@ -10,9 +10,9 @@
             <xpath expr="//field[@name='order_line']/tree" position="inside">
                 <field name="purchase_request_lines" invisible="1" />
                 <button
+                    string="Purchase Request lines"
                     attrs="{'invisible': [('purchase_request_lines', '=', [])]}"
-                    name="action_open_request_line_tree_view"
-                    title="Request Lines"
+                    name="action_openRequestLineTreeView"
                     type="object"
                     icon="fa-folder-open-o"
                 />
@@ -38,9 +38,9 @@
             <xpath expr="//tree" position="inside">
                 <field name="purchase_request_lines" invisible="1" />
                 <button
+                    string="Purchase Request lines"
                     attrs="{'invisible': [('purchase_request_lines', '=', [])]}"
-                    name="action_open_request_line_tree_view"
-                    title="Request Lines"
+                    name="action_openRequestLineTreeView"
                     type="object"
                     icon="fa-folder-open-o"
                 />

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hit_purchaser_master,access_hit_purchaser_master,model_purchaser_master_data,base.group_user,1,1,1,1
+access_hit_purchasing_group,access_hit_purchasing_group,model_purchasing_group,base.group_user,1,1,1,1
+access_hit_scope_of_supply,access_hit_scope_of_supply,model_scope_of_supply,base.group_user,1,1,1,1
+access_hit_pr_type,access_hit_pr_type,model_pr_type,base.group_user,1,1,1,1
+access_hit_po_type,access_hit_po_type,model_po_type,base.group_user,1,1,1,1
+access_hit_order_type,access_hit_order_type,model_order_type,base.group_user,1,1,1,1

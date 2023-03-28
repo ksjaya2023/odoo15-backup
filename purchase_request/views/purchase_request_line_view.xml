@@ -7,45 +7,27 @@
         <field name="model">purchase.request.line</field>
         <field name="arch" type="xml">
             <tree
-                name="Purchase Request Lines"
+                string="Purchase Request Lines"
                 create="false"
                 decoration-muted="cancelled == True"
                 decoration-info="request_state in ('draft', 'to_approve')"
             >
                 <field name="request_id" />
-                <field
-                    name="request_state"
-                    widget="badge"
-                    decoration-success="request_state in ('done', 'approved')"
-                    decoration-info="request_state in ('draft', 'to_approve')"
-                    decoration-danger="request_state == 'rejected'"
-                />
-                <field name="requested_by" widget="many2one_avatar_user" />
-                <field name="assigned_to" widget="many2one_avatar_user" />
+                <field name="request_state" />
+                <field name="requested_by" />
+                <field name="assigned_to" />
                 <field name="date_required" />
                 <field name="estimated_cost" widget="monetary" />
                 <field name="currency_id" invisible="1" />
                 <field name="purchased_qty" />
-                <field
-                    name="purchase_state"
-                    widget="badge"
-                    decoration-success="purchase_state == 'done'"
-                    decoration-muted="purchase_state == 'draft'"
-                    decoration-info="purchase_state in ('sent', 'purchase')"
-                    decoration-warning="purchase_state == 'to_approve'"
-                    decoration-danger="purchase_state == 'cancelled'"
-                />
+                <field name="purchase_state" />
                 <field name="product_id" />
                 <field name="name" />
                 <field name="product_qty" />
-                <field name="product_uom_category_id" invisible="1" />
                 <field name="product_uom_id" groups="uom.group_uom" />
                 <field
-                    name="analytic_distribution"
-                    widget="analytic_distribution"
-                    optional="hide"
+                    name="analytic_account_id"
                     groups="analytic.group_analytic_accounting"
-                    options="{'product_field': 'product_id', 'business_domain': 'purchase_order'}"
                 />
                 <field name="supplier_id" />
                 <field
@@ -119,7 +101,6 @@
                                     class="oe_inline"
                                     attrs="{'readonly': [('is_editable','=', False)]}"
                                 />
-                                <field name="product_uom_category_id" invisible="1" />
                                 <field
                                     name="product_uom_id"
                                     groups="uom.group_uom"
@@ -128,10 +109,9 @@
                                 />
                             </div>
                             <field
-                                name="analytic_distribution"
-                                widget="analytic_distribution"
+                                name="analytic_account_id"
                                 groups="analytic.group_analytic_accounting"
-                                options="{'product_field': 'product_id', 'business_domain': 'purchase_order'}"
+                                attrs="{'readonly': [('is_editable','=', False)]}"
                             />
                             <field
                                 name="date_required"
@@ -174,9 +154,9 @@
                                 mode="tree"
                                 attrs="{'readonly': [('purchase_state', 'in', ('cancel'))]}"
                                 domain="[('product_id', '=', product_id)]"
-                                context="{'form_view_ref' : 'purchase_request.purchase_order_line_form2_sub',
-                                             'tree_view_ref' : 'purchase_request.purchase_order_line_tree_sub',
-                                             'search_view_ref' : 'purchase_request.purchase_order_line_search_sub'}"
+                                context="{'form_view_ref' : 'purchase_order_line_form2_sub',
+                                             'tree_view_ref' : 'purchase_order_line_tree_sub',
+                                             'search_view_ref' : 'purchase_order_line_search_sub'}"
                             />
                         </page>
                         <page name="allocations" string="Allocations">
@@ -238,10 +218,7 @@
                     domain="[('purchase_state','=','done')]"
                     help="At least a PO has been completed"
                 />
-                <field
-                    name="analytic_distribution"
-                    groups="analytic.group_analytic_accounting"
-                />
+                <field name="analytic_account_id" />
                 <field name="cancelled" invisible="1" />
                 <filter
                     name="request_state_draft"
@@ -328,11 +305,10 @@
                         context="{'group_by':'request_state'}"
                     />
                     <filter
-                        name="group_analytic_distribution"
-                        string="Analytic Distribution"
+                        name="analytic_account"
+                        string="Analytic Account"
                         domain="[]"
-                        context="{'group_by':'analytic_distribution'}"
-                        groups="analytic.group_analytic_accounting"
+                        context="{'group_by':'analytic_account_id'}"
                     />
                     <filter
                         name="purchase_status"
@@ -350,21 +326,14 @@
             </search>
         </field>
     </record>
-    <record
+    <act_window
+        context="{'search_default_product_id': [active_id], 'default_product_id': active_id}"
         id="action_purchase_request_line_product_tree"
-        model="ir.actions.act_window"
-    >
-        <field name="context">
-            {'search_default_product_id': [active_id], 'default_product_id': active_id}
-        </field>
-        <field name="name">Purchase Requests</field>
-        <field name="res_model">purchase.request.line</field>
-        <field name="binding_model_id" ref="product.model_product_product" />
-        <field
-            name="groups_id"
-            eval="[(4, ref('purchase_request.group_purchase_request_user')),(4, ref('purchase_request.group_purchase_request_manager'))]"
-        />
-    </record>
+        name="Purchase Requests"
+        res_model="purchase.request.line"
+        binding_model="product.product"
+        groups="group_purchase_request_user,group_purchase_request_manager"
+    />
     <record id="purchase_request_line_form_action" model="ir.actions.act_window">
         <field name="name">Purchase Request Lines</field>
         <field name="type">ir.actions.act_window</field>
@@ -427,7 +396,6 @@
                                     groups="uom.group_uom"
                                     class="oe_inline"
                                 />
-                                <field name="product_uom_category_id" invisible="1" />
                             </div>
                             <field name="price_unit" widget="monetary" readonly="1" />
                         </group>
@@ -446,11 +414,10 @@
                                 options="{'no_create': True}"
                             />
                             <field
-                                name="analytic_distribution"
-                                widget="analytic_distribution"
-                                groups="analytic.group_analytic_accounting"
-                                options="{'product_field': 'product_id', 'business_domain': 'purchase_order'}"
+                                name="account_analytic_id"
+                                readonly="1"
                                 colspan="4"
+                                groups="analytic.group_analytic_accounting"
                             />
                         </group>
                     </group>
@@ -469,7 +436,7 @@
         <field name="name">purchase.order.line.tree</field>
         <field name="model">purchase.order.line</field>
         <field name="arch" type="xml">
-            <tree name="Purchase Order Lines" create="true">
+            <tree string="Purchase Order Lines" create="true">
                 <field name="order_id" />
                 <field name="name" />
                 <field name="partner_id" string="Vendor" />
@@ -515,96 +482,6 @@
                     />
                 </group>
             </search>
-        </field>
-    </record>
-    <record id="view_purchase_request_line_details" model="ir.ui.view">
-        <field name="name">purchase.request.line.details.form</field>
-        <field name="model">purchase.request.line</field>
-        <field name="priority">1000</field>
-        <field name="arch" type="xml">
-        <form>
-            <sheet>
-                <group name="main">
-                    <group>
-                        <field name="is_editable" invisible="1" />
-                        <field
-                                name="product_id"
-                                attrs="{'readonly': [('is_editable','=', False)]}"
-                            />
-                        <field
-                                name="name"
-                                attrs="{'readonly': [('is_editable','=', False)]}"
-                            />
-                        <label for="product_qty" />
-                        <div class="o_row">
-                            <field
-                                    name="product_qty"
-                                    class="oe_inline"
-                                    attrs="{'readonly': [('is_editable','=', False)]}"
-                                />
-                            <field name="product_uom_category_id" invisible="1" />
-                            <field
-                                    name="product_uom_id"
-                                    groups="uom.group_uom"
-                                    class="oe_inline"
-                                    attrs="{'readonly': [('is_editable','=', False)]}"
-                                />
-                        </div>
-                        <field
-                                name="analytic_distribution"
-                                widget="analytic_distribution"
-                                groups="analytic.group_analytic_accounting"
-                                options="{'product_field': 'product_id', 'business_domain': 'purchase_order'}"
-                                attrs="{'readonly': [('is_editable','=', False)]}"
-                            />
-                        <field
-                                name="date_required"
-                                attrs="{'readonly': [('is_editable','=', False)]}"
-                            />
-                        <field
-                                name="estimated_cost"
-                                widget="monetary"
-                                attrs="{'readonly': [('is_editable','=', False)]}"
-                            />
-                        <field name="currency_id" invisible="1" />
-                        <field name="cancelled" widget="boolean" />
-                    </group>
-                </group>
-                <group name="specifications">
-                    <separator string="Specifications" />
-                    <newline />
-                    <field
-                            name="specifications"
-                            nolabel="1"
-                            attrs="{'readonly': [('is_editable','=', False)]}"
-                        />
-                </group>
-                <group name="quantities" string="Tracking">
-                    <group>
-                        <field name="pending_qty_to_receive" />
-                        <field name="qty_in_progress" />
-                        <field name="qty_done" />
-                        <field name="qty_cancelled" />
-                    </group>
-                </group>
-                <notebook>
-                    <page name="purchase_lines" string="Purchase Order Lines">
-                        <group>
-                            <group name="purchase_state">
-                                <field name="purchased_qty" />
-                                <field name="purchase_state" />
-                                <field name="qty_in_progress" />
-                                <field name="qty_done" />
-                            </group>
-                        </group>
-                        <newline />
-                        <group>
-                            <field name="purchase_lines" nolabel="1" />
-                        </group>
-                    </page>
-                </notebook>
-            </sheet>
-        </form>
         </field>
     </record>
     <menuitem

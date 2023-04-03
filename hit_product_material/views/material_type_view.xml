@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="material_type_form">
+      <field name="name">Material Type</field>
+      <field name="model">material.type</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet string='Create Material Type'>
+            <div class="oe_title">
+              <h1>
+                <field name="name"/>
+              </h1>
+            </div>
+            <group>
+              <field name="description"/>
+            </group>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="material_type_data_list">
+      <field name="name">Material Type</field>
+      <field name="model">material.type</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="description"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_material_type_view">
+      <field name="name">Material Type</field>
+      <field name="res_model">material.type</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_material_type" parent="material_master_data_root" name="Material Type" sequence="4" action="action_material_type_view"/>
+  </data>
+</odoo>

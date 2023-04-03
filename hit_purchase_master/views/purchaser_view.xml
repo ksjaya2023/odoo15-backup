@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <data>
+    <!-- Purchaser View form view -->
+    <record id="purchaser_view_form" model="ir.ui.view">
+      <field name="name">purchaser.view.form</field>
+      <field name="model">purchaser.master.data</field>
+      <field name="arch" type="xml">
+        <form string="Create Purchaser">
+          <sheet>
+            <div class="oe_title">
+              <h1>
+                <field name="name" placeholder="Name..."/>
+              </h1>
+            </div>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+
+    <!-- purchaser tree view -->
+    <record id="purchaser_view_tree" model="ir.ui.view">
+      <field name="name">purchaser.view.tree</field>
+      <field name="model">purchaser.master.data</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- purchaser action window -->
+    <record id="purchaser_action" model="ir.actions.act_window">
+      <field name="name">Purchaser</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">purchaser.master.data</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="oe_view_nocontent_create">
+          No Data
+        </p>
+        <p>
+          Silahkan masukkan data 
+        </p>
+      </field>
+    </record>
+
+    <menuitem id="master_data_menu_root" name="Master Data" parent="purchase.menu_purchase_root" sequence="32"/>
+    <menuitem id="master_data_menu_root_2" name="Purchase" parent="hit_master_data.root_master_data" sequence="3"/>
+    <!-- This Menu Item must have a parent and an action -->
+    <menuitem id="_menu_act" name="Purchaser" parent="master_data_menu_root" action="purchaser_action" sequence="99"/>
+    <menuitem id="hit_master_menu_act" name="Purchaser" parent="master_data_menu_root_2" action="purchaser_action" sequence="99"/>
+
+  </data>
+</odoo>

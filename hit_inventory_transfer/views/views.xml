@@ -1,0 +1,52 @@
+<odoo>
+  <data>
+    <record id="inherit_stock_view_picking_form" model="ir.ui.view">
+      <field name="name">inherit.stock.view.picking.form</field>
+      <field name="model">stock.picking</field>
+      <field name="inherit_id" ref="stock.view_picking_form"/>
+      <field name="arch" type="xml">
+        <!-- Add your xpath here -->
+        <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='location_id']" position="after">
+          <field name="project_id"/>
+          <field name="sub_job"/>
+        </xpath>
+        <xpath expr="//field[@name='origin']" position="after">
+          <field name="transfer_user"/>
+          <field name="transfer_level"/>
+          <field name="transfer_issued_by"/>
+          <field name="reference_doc"/>
+        </xpath>
+        <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='operations']/field[@name='move_ids_without_package']/tree[1]/field[@name='product_uom']" position="after">
+          <field name="po_way_bill" string="PO Way Bill"/>
+        </xpath>
+        <xpath expr="//form[1]/sheet[1]/notebook[1]" position='inside'>
+          <page string='Transporter'>
+            <group>
+              <field name="transported_by"/>
+              <field name="loading_unloading"/>
+              <field name="vehicle_no"/>
+            </group>
+          </page>
+        </xpath>
+      </field>
+    </record>
+    <!-- model.name inherit form view -->
+    <record id="inherit_stock_analytic_form_view" model="ir.ui.view">
+      <field name="name">inherit.stock.analytic.form.view</field>
+      <field name="model">stock.picking</field>
+      <field name="inherit_id" ref="stock_analytic.inherit_view_picking_form_analytic"/>
+      <field name="arch" type="xml">
+        <!-- Add your xpath here -->
+        <xpath expr="//field[@name='analytic_account_id']" position="attributes">
+          <attribute name="string">CBS</attribute>
+        </xpath>
+        <xpath expr="//field[@name='analytic_account_id']" position="after">
+          <field name="wbs_id" string='WBS'/>
+        </xpath>
+        <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='product_id']" position="after">
+          <field name="rel_job_no" invisible="1"/>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>

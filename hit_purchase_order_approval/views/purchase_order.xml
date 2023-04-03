@@ -1,0 +1,113 @@
+<odoo>
+  <data>
+    <!-- purchase.order inherit form view -->
+    <record id="purchase_order_form_inherited_xxxx" model="ir.ui.view">
+      <field name="name">purchase.order.inherit.view.form.xxx</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="purchase.purchase_order_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//page[@name='products']" position="after">
+          <page name="approval_info" string="Approval">
+            <div>
+              <group invisible="1">
+                <p>Untuk Keperluan testing</p>
+                <field name="x_css"/>
+                <field name="x_studio_many2one_field_8l3kA"/>
+                <field name="x_studio_job_no"/>
+
+                <field name="next_approval"/>
+                <field name="user_eligibility_release"/>
+                <field name="user_eligibility_unrelease"/>
+                <field name="purchasing_group_rel"/>
+                <field name="approval_sec" readonly="0"/>
+                <field name="user_eligibility_print" readonly="0"/>
+              </group>
+              <div class="row">
+                <div class="col-4">
+                  <span attrs="{'invisible': [('approval_sec', '&lt;', 1)]}">✅ </span>
+                  <label for="approval_a" string="Chain Management" attrs="{'invisible': ['&amp;', ('purchasing_group_rel','!=', 'Buyer HO Non Asset'), ('purchasing_group_rel','!=', 'Buyer HO Asset')]}"/>
+                  <label for="approval_a" string="Supervisi" attrs="{'invisible': ['|', ('purchasing_group_rel','=', 'Buyer HO Non Asset'), ('purchasing_group_rel','=', 'Buyer HO Asset')]}"/>
+                </div>
+                <div class="col-4">
+                  <!--<field name="approval_a" nolabel="1" required="1"/>-->
+                  <field name="approval_a" nolabel="1" required="1" domain="['&amp;','&amp;',['x_studio_approved_1','=',True],['x_studio_purc_group','=',x_studio_many2one_field_8l3kA],['x_studio_project','=', x_studio_job_no]]"/>
+                </div>
+                <div class="col-4">
+                  <field name="approval_a_time" readonly="1"/>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-4">
+                  <span attrs="{'invisible': [('approval_sec','&lt;', 2)]}">✅ </span>
+                  <label for="approval_b" string="Product Planning Control" attrs="{'invisible': ['&amp;', ('purchasing_group_rel','!=', 'Buyer HO Non Asset'), ('purchasing_group_rel','!=', 'Buyer HO Asset')]}"/>
+                  <label for="approval_b" string="Budget Control" attrs="{'invisible': ['|', ('purchasing_group_rel','=', 'Buyer HO Non Asset'), ('purchasing_group_rel','=', 'Buyer HO Asset')]}"/>
+                </div>
+                <div class="col-4">
+                  <field name="approval_b" nolabel="1" required="1" domain="['&amp;','&amp;',['x_studio_approved_2','=',True],['x_studio_purc_group','=',x_studio_many2one_field_8l3kA],['x_studio_project','=',x_studio_job_no]]"/>
+                  <!--<field name="approval_b" nolabel="1" required="1"/>-->
+                </div>
+                <div class="col-4">
+                  <field name="approval_b_time" readonly="1"/>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-4">
+                  <span attrs="{'invisible': [('approval_sec','&lt;', 3)]}">✅ </span>
+                  <label for="approval_c" string="General Management" attrs="{'invisible': ['&amp;', ('purchasing_group_rel','!=', 'Buyer HO Non Asset'), ('purchasing_group_rel','!=', 'Buyer HO Asset')]}"/>
+                  <label for="approval_c" string="Site Management" attrs="{'invisible': ['|', ('purchasing_group_rel','=', 'Buyer HO Non Asset'), ('purchasing_group_rel','=', 'Buyer HO Asset')]}"/>
+                </div>
+                <div class="col-4">
+                  <field name="approval_c" nolabel="1" required="1" domain="['&amp;','&amp;',['x_studio_approved_3','=',True],['x_studio_purc_group','=',x_studio_many2one_field_8l3kA],['x_studio_project','=',x_studio_job_no]]"/>
+                  <!--<field name="approval_c" nolabel="1" required="1"/>-->
+                </div>
+                <div class="col-4">
+                  <field name="approval_c_time" readonly="1"/>
+                </div>
+              </div>
+              <!--<div class="row" attrs="{'invisible': [('purchasing_group_rel','!=', 'Buyer HO')]}">-->
+              <div class="row" attrs="{'invisible': ['&#38;', ('purchasing_group_rel','!=', 'Buyer HO Non Asset'), ('purchasing_group_rel','!=', 'Buyer HO Asset')]}">
+                <div class="col-4">
+                  <span attrs="{'invisible': [('approval_sec','!=', 4)]}">✅ </span>
+                  <label for="approval_d" string="Director"/>
+                </div>
+                <div class="col-4">
+
+                  <!--<field name="approval_d" nolabel="1" required="1"/>-->
+                  <field name="approval_d" nolabel="1" attrs="{'required' :['|', ('purchasing_group_rel','=', 'Buyer HO Non Asset'), ('purchasing_group_rel','=', 'Buyer HO Asset')]}" domain="['&amp;','&amp;',['x_studio_approved_4','=',True],['x_studio_purc_group','=',x_studio_many2one_field_8l3kA],['x_studio_project','=',x_studio_job_no]]"/>
+                  <!--<field name="approval_d" nolabel="1" attrs="{'required' :[('purchasing_group_rel','=', 'Buyer HO')]}"/>-->
+                </div>
+                <div class="col-4">
+                  <field name="approval_d_time" readonly="1"/>
+                </div>
+              </div>
+            </div>
+          </page>
+        </xpath>
+        <button name="button_done" position="before">
+          <button name="action_release" attrs="{'invisible': ['|', ('state','not in', ('to approve', 'purchase')), ('user_eligibility_release', '=', False)]}" string="Release" type="object"/>
+          <button name="action_unrelease" attrs="{'invisible': ['|', ('state','not in', ('to approve', 'purchase')), ('user_eligibility_unrelease', '=', False)]}" string="Unrelease" type="object"/>
+          <button name="607" string="Print" attrs="{'invisible': [('user_eligibility_print', '=', False)]}" type="action"/>
+          <button name="action_approve" attrs="{'invisible': [('state','!=', 'draft')]}" string="Start Approval" type="object"/>
+        </button>
+        <button name="button_confirm" position="attributes">
+          <attribute name="invisible">1</attribute>
+        </button>
+        <button name="button_confirm" position="attributes">
+          <attribute name="invisible">1</attribute>
+        </button>
+        <button name="button_approve" position="replace">
+        </button>
+        <button name="print_quotation" position="replace">
+        </button>
+        <button name="print_quotation" position="replace">
+        </button>
+        <button name="button_cancel" position="replace">
+          <button name="button_cancel" states="draft,sent" string="Cancel" type="object" />
+        </button>
+        <!-- <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="attributes">
+          <attribute name="required">1</attribute>
+        </xpath> -->
+      </field>
+    </record>
+  </data>
+</odoo>

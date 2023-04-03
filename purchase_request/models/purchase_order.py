@@ -11,29 +11,25 @@ class PurchaseOrder(models.Model):
         self.ensure_one()
         if not request_dict:
             request_dict = {}
-        title = _("Order confirmation %(po_name)s for your Request %(pr_name)s") % {
-            "po_name": self.name,
-            "pr_name": request.name,
-        }
+        title = _("Order confirmation %s for your Request %s") % (
+            self.name,
+            request.name,
+        )
         message = "<h3>%s</h3><ul>" % title
         message += _(
-            "The following requested items from Purchase Request %(pr_name)s "
-            "have now been confirmed in Purchase Order %(po_name)s:"
-        ) % {
-            "po_name": self.name,
-            "pr_name": request.name,
-        }
+            "The following requested items from Purchase Request %s "
+            "have now been confirmed in Purchase Order %s:"
+        ) % (request.name, self.name)
 
         for line in request_dict.values():
             message += _(
-                "<li><b>%(prl_name)s</b>: Ordered quantity %(prl_qty)s %(prl_uom)s, "
-                "Planned date %(prl_date_planned)s</li>"
-            ) % {
-                "prl_name": line["name"],
-                "prl_qty": line["product_qty"],
-                "prl_uom": line["product_uom"],
-                "prl_date_planned": line["date_planned"],
-            }
+                "<li><b>%s</b>: Ordered quantity %s %s, Planned date %s</li>"
+            ) % (
+                line["name"],
+                line["product_qty"],
+                line["product_uom"],
+                line["date_planned"],
+            )
         message += "</ul>"
         return message
 
@@ -60,8 +56,7 @@ class PurchaseOrder(models.Model):
                     request, requests_dict[request_id]
                 )
                 request.message_post(
-                    body=message, subtype_id=self.env.ref("mail.mt_comment").id
-                )
+                    body=message, subtype_id=self.env.ref('mail.mt_note').id)
         return True
 
     def _purchase_request_line_check(self):
@@ -71,7 +66,7 @@ class PurchaseOrder(models.Model):
                     if request_line.sudo().purchase_state == "done":
                         raise exceptions.UserError(
                             _("Purchase Request %s has already been completed")
-                            % (request_line.request_id.name)
+                            % request_line.request_id.name
                         )
         return True
 
@@ -87,9 +82,7 @@ class PurchaseOrder(models.Model):
             for alloc in (
                 rec.order_line.mapped("purchase_request_lines")
                 .mapped("purchase_request_allocation_ids")
-                .filtered(
-                    lambda alloc, rec=rec: alloc.purchase_line_id.order_id.id == rec.id
-                )
+                .filtered(lambda alloc: alloc.purchase_line_id.order_id.id == rec.id)
             ):
                 alloc_to_unlink += alloc
         res = super().unlink()
@@ -100,13 +93,15 @@ class PurchaseOrder(models.Model):
 class PurchaseOrderLine(models.Model):
     _inherit = "purchase.order.line"
 
+    # add store indicator
     purchase_request_lines = fields.Many2many(
         comodel_name="purchase.request.line",
         relation="purchase_request_purchase_order_line_rel",
         column1="purchase_order_line_id",
         column2="purchase_request_line_id",
-        readonly=True,
+        string="Purchase Request Lines",
         copy=False,
+        readonly=True
     )
 
     purchase_request_allocation_ids = fields.One2many(
@@ -116,7 +111,7 @@ class PurchaseOrderLine(models.Model):
         copy=False,
     )
 
-    def action_open_request_line_tree_view(self):
+    def action_openRequestLineTreeView(self):
         """
         :return dict: dictionary value for created view
         """
@@ -180,7 +175,7 @@ class PurchaseOrderLine(models.Model):
                     message_data
                 )
                 alloc.purchase_request_line_id.request_id.message_post(
-                    body=message, subtype_id=self.env.ref("mail.mt_comment").id
+                    body=message, subtype_id=self.env.ref('mail.mt_note').id
                 )
 
                 alloc.purchase_request_line_id._compute_qty()
@@ -194,21 +189,15 @@ class PurchaseOrderLine(models.Model):
         message = "<h3>%s</h3>" % title
         message += _(
             "The following requested services from Purchase"
-            " Request %(request_name)s requested by %(requestor)s "
+            " Request %s requested by %s "
             "have now been received:"
-        ) % {
-            "request_name": message_data["request_name"],
-            "requestor": message_data["requestor"],
-        }
+        ) % (message_data["request_name"], message_data["requestor"])
         message += "<ul>"
-        message += _(
-            "<li><b>%(product_name)s</b>: "
-            "Received quantity %(product_qty)s %(product_uom)s</li>"
-        ) % {
-            "product_name": message_data["product_name"],
-            "product_qty": message_data["product_qty"],
-            "product_uom": message_data["product_uom"],
-        }
+        message += _("<li><b>%s</b>: Received quantity %s %s</li>") % (
+            message_data["product_name"],
+            message_data["product_qty"],
+            message_data["product_uom"],
+        )
         message += "</ul>"
         return message
 
@@ -226,7 +215,8 @@ class PurchaseOrderLine(models.Model):
         #  to allocate them.
         prev_qty_received = {}
         if vals.get("qty_received", False):
-            service_lines = self.filtered(lambda l: l.product_id.type == "service")
+            service_lines = self.filtered(
+                lambda l: l.product_id.type == "service")
             for line in service_lines:
                 prev_qty_received[line.id] = line.qty_received
         res = super(PurchaseOrderLine, self).write(vals)

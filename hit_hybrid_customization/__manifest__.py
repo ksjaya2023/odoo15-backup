@@ -20,7 +20,7 @@
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['maintenance'],
+    'depends': ['account'],
 
     # always loaded
     # make sure the menu view is on the last

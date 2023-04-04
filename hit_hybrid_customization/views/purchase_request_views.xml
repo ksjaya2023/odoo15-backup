@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Form view for "model" -->
+        <record id="hit_purchase_request_form_inherit" model="ir.ui.view">
+            <field name="name">hit.purchase.request.form.inherit</field>
+            <field name="model">purchase.request</field>
+            <field name="inherit_id" ref="purchase_request.view_purchase_request_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet/notebook/page/field[@name='line_ids']/tree/field[@name='product_qty']" position="after">
+                    <field name="life_of_projects"/>
+                </xpath>
+                <xpath expr="//form/sheet/notebook/page/field[@name='line_ids']/form/sheet/group/group" position="inside">
+                    <field name="life_of_projects"/>
+                </xpath>
+                <xpath expr="//form/sheet/notebook/page/field[@name='line_ids']/form/sheet/group/group/field[@name='estimated_cost']" position="attributes">
+                    <attribute name="string">Estimate Cost</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

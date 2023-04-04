@@ -20,11 +20,12 @@
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['account'],
+    'depends': ['account', 'purchase_request'],
 
     # always loaded
     # make sure the menu view is on the last
     'data': [
         'security/ir.model.access.csv',
+        'views/purchase_request_views.xml',
     ],
 }

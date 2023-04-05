@@ -25,3 +25,19 @@ class MaintenanceRequest(models.Model):
                 diff = record.wo_done_date_time - record.schedule_date
                 result = abs(diff)
                 record.duration = result.total_seconds() / 3600
+
+    # @api.onchange('x_studio_asset')
+    # def _onchange_account_asset(self):
+    #     for record in self:
+    #         if record.x_studio_asset:
+    #             asset_analytic_account = record.x_studio_asset.account_analytic_id
+    #             asset_analytic_site = asset_analytic_account.x_studio_site
+    #             if asset_analytic_account:
+    #                 record.x_studio_analytic_account = asset_analytic_account.id
+    #             if not asset_analytic_account:
+    #                 record.x_studio_analytic_account = None
+    #             if asset_analytic_site:
+    #                 record.x_studio_warehouse = asset_analytic_site.id
+    #             if not asset_analytic_site:
+    #                 record.x_studio_warehouse = None
+    #                 record.x_studio_locations = None

@@ -28,5 +28,6 @@
         'security/ir.model.access.csv',
         'views/purchase_request_views.xml',
         'views/maintenance_request_views.xml',
+        'views/account_payment_views.xml',
     ],
 }

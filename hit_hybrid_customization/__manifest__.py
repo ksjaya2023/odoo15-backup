@@ -20,7 +20,7 @@
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['account', 'purchase_request', 'account_asset'],
+    'depends': ['account', 'purchase_request', 'account_asset', 'purchase'],
 
     # always loaded
     # make sure the menu view is on the last
@@ -29,5 +29,6 @@
         'views/purchase_request_views.xml',
         'views/maintenance_request_views.xml',
         'views/account_payment_views.xml',
+        'views/purchase_order_views.xml',
     ],
 }

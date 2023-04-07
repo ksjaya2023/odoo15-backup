@@ -16,6 +16,7 @@ class HitConditionMonitoring(models.Model):
             team = MT.search([], limit=1)
         return team.id
 
+    name = fields.Char('Name')
     equipment_id = fields.Many2one('maintenance.equipment', string='Equipment')
     work_order_type = fields.Selection(selection=[
         ('Maintenance', 'Service'),
@@ -42,7 +43,7 @@ class HitConditionMonitoring(models.Model):
     schedule_date = fields.Datetime('Schedule Date')
     complete_date = fields.Datetime('Complete Date')
     owner_user_id = fields.Many2one(
-        'res.users', string='Created by', default=lambda s: s.env.uid)
+        'res.users', string='Created by User', default=lambda s: s.env.uid)
 
     @api.model
     def _get_user_domain(self):

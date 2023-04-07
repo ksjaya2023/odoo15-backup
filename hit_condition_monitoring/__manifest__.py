@@ -26,5 +26,6 @@
     # make sure the menu view is on the last
     'data': [
         'security/ir.model.access.csv',
+        'views/hit_condition_monitoring_views.xml'
     ],
 }

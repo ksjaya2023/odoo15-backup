@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <!-- tree view -->
         <record id="hit_condition_monitoring_view_model_tree" model="ir.ui.view">
             <field name="name">hit.condition.monitoring.view.model.tree</field>
             <field name="model">hit.condition.monitoring</field>
@@ -11,9 +12,21 @@
             <field name="arch" type="xml">
                 <tree string="condition_monitoring_tree" create="true" delete="true" edit="true">
                     <field name="name" />
+                    <field name="equipment_id" />
+                    <field name="maintenance_type" />
+                    <field name="location_id" />
+                    <field name="warehouse_id" />
+                    <field name="hourmeter" />
+                    <field name="maintenance_team_id" optional="hide"/>
+                    <field name="responsible_id" optional="hide"/>
+                    <field name="maintenance_type" optional="hide"/>
+                    <field name="schedule_date" optional="hide"/>
+                    <field name="complete_date" optional="hide"/>
+                    <field name="create_uid" optional="hide"/>
                 </tree>
             </field>
         </record>
+        <!-- form view -->
         <record id="hit_condition_monitoring_view_model_form" model="ir.ui.view">
             <field name="name">hit.condition.monitoring.view.model.form</field>
             <field name="model">hit.condition.monitoring</field>
@@ -34,12 +47,42 @@
                             </h1>
                         </div>
                         <group>
-    
-                    </group>
+                            <group name="condition_monitoring_left">
+                                <field name="name" />
+                                <field name="equipment_id" />
+                                <field name="work_order_type"/>
+                                <field name="location_id" />
+                                <field name="warehouse_id" />
+                                <field name="hourmeter" />
+                            </group>
+                            <group name="condition_monitoring_right">
+                                <field name="maintenance_team_id" />
+                                <field name="responsible_id" />
+                                <field name="maintenance_type" />
+                                <field name="schedule_date" />
+                                <field name="complete_date" />
+                                <field name="owner_user_id" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description" name="description">
+                                <field name="note"/>
+                            </page>
+                            <page string="Attachment" name="attachment">
+                                <group>
+                                    <group>
+                                        <field name="attachment" widget="pdf_viewer" filename="attachment_name"/>
+                                    </group>
+                                    <group>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
                     </sheet>
                 </form>
             </field>
         </record>
+        <!-- search view -->
         <record id="hit_condition_monitoring_view_model_search" model="ir.ui.view">
             <field name="name">hit.condition.monitoring.view.model.search</field>
             <field name="model">hit.condition.monitoring</field>
@@ -50,32 +93,23 @@
             <field name="arch" type="xml">
                 <search string="condition_monitoring_search">
                     <field name="equipment_id" />
+                    <field name="name" />
                 </search>
             </field>
         </record>
+        <!-- action window -->
         <record id="action_hit_condition_monitoring_act_window" model="ir.actions.act_window">
             <field name="type">ir.actions.act_window</field>
-            <field name="name">hit condition monitoring action window</field>
+            <field name="name">Condition Monitoring</field>
             <field name="res_model">hit.condition.monitoring</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <record id="hit_condition_monitoring_menu_equipment" model="ir.ui.menu" >
-            <field name="name">Condition Monitoring</field>
-            <field name="sequence" eval="10" />
-            <field name="action" ref="action_hit_condition_monitoring_act_window" />
-            <field name="parent_id" ref="maintenance.menu_equipment_form" />
-        </record>
+        <!-- menu -->
         <menuitem
         id="hit__menu_equipment"
-        name="Equipment" 
-        parent="maintenance.menu_equipment_form"
-        action="maintenance.hr_equipment_action"
-        />
-        <!-- <menuitem
-        id="hit_condition_monitoring_menu_maintenance_req"
         name="Condition Monitoring" 
-        parent="maintenance.menu_m_request_form"
+        parent="maintenance.menu_m_request"
         action="action_hit_condition_monitoring_act_window"
-        /> -->
+        />
     </data>
 </odoo>

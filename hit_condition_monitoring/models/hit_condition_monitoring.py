@@ -16,7 +16,7 @@ class HitConditionMonitoring(models.Model):
             team = MT.search([], limit=1)
         return team.id
 
-    name = fields.Char('Name', default='Draft')
+    name = fields.Char('Name', default='Draft', readonly=True)
     equipment_id = fields.Many2one('maintenance.equipment', string='Equipment')
     work_order_type = fields.Selection(selection=[
         ('Maintenance', 'Service'),
@@ -48,6 +48,17 @@ class HitConditionMonitoring(models.Model):
     note = fields.Char('Note')
     attachment = fields.Binary('Upload PDF')
     attachment_name = fields.Char('Attachment Name')
+
+    def seq_auto_name(self):
+        seq = self.env['ir.sequence'].next_by_code(
+            'condition.monitoring.seq')
+        return self.write({"name": seq})
+
+    @api.model
+    def create(self, vals):
+        create_data = super(HitConditionMonitoring, self).create(vals)
+        create_data.seq_auto_name()
+        return create_data
 
     @api.onchange('maintenance_team_id')
     def _onchange_maintenance_team_id(self):

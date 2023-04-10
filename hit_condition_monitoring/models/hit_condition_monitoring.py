@@ -63,3 +63,11 @@ class HitConditionMonitoring(models.Model):
     def onchange_attachment(self):
         if self.attachment:
             self.attachment_name = 'attachment_' + self.name
+
+    @api.onchange('equipment_id')
+    def _onchange_equipment_id(self):
+        for record in self:
+            if record.equipment_id:
+                record.location_id = record.equipment_id.x_studio_warehouse.id
+                record.warehouse_id = record.equipment_id.x_studio_locations.id
+                record.hourmeter = record.equipment_id.x_studio_current_hrm

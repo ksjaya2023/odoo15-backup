@@ -91,9 +91,13 @@
             <field name="priority" eval="16" />
             <field name="active" eval="True" />
             <field name="arch" type="xml">
-                <search string="condition_monitoring_search">
+                <search string="condition_monitoring_search" >
                     <field name="equipment_id" />
                     <field name="name" />
+                    <separator/>
+                    <group expand="1" string="Group By">
+                        <filter name="equipment_id_group" string="Equipment" context="{'group_by': 'equipment_id'}" />
+                    </group>
                 </search>
             </field>
         </record>
@@ -103,6 +107,7 @@
             <field name="name">Condition Monitoring</field>
             <field name="res_model">hit.condition.monitoring</field>
             <field name="view_mode">tree,form</field>
+            <field name="context">{'group_by': 'equipment_id'}</field>
         </record>
         <!-- menu -->
         <menuitem

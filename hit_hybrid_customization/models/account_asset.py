@@ -9,6 +9,8 @@ class AccountAsset(models.Model):
     _inherit = 'account.asset'
     _description = 'account.asset'
 
+    account_analytic_id = fields.Many2one(tracking=True)
+
     def name_get(self):
         result = []
         for record in self:

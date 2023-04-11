@@ -11,6 +11,7 @@ class AccountPayment(models.Model):
     _description = 'account.payment'
 
     account_move_id = fields.Many2one('account.move', string='Invoice Number')
+    advance = fields.Boolean('Advance')
 
     @api.onchange('payment_type')
     def _onchange_payment_type(self):

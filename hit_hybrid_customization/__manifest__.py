@@ -20,7 +20,7 @@
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['account', 'purchase_request', 'account_asset', 'purchase'],
+    'depends': ['account', 'purchase_request', 'account_asset', 'purchase', 'stock'],
 
     # always loaded
     # make sure the menu view is on the last

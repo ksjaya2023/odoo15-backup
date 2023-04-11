@@ -14,7 +14,7 @@
                     <field name="life_of_projects"/>
                 </xpath>
                 <xpath expr="//form/sheet/notebook/page/field[@name='line_ids']/form/sheet/group/group/field[@name='estimated_cost']" position="attributes">
-                    <attribute name="string">Estimate Cost</attribute>
+                    <attribute name="string">Estimate Price</attribute>
                 </xpath>
             </field>
         </record>

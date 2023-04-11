@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- primary|extension Inherited .:Form:. view for "model" -->
+        <record id="hit_purchase_order_view_model_form_inherited" model="ir.ui.view">
+            <field name="name">hit.purchase.order.view.model.form.inherited</field>
+            <field name="model">purchase.order</field>
+            <!-- Please veryfiy, that the following inherited view really sticks to the naming convention. -->
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="type">form</field>
+            <field name="mode">extension</field>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='print_quotation']" position="after">
+                    <button name="alter_print_quotation" string="Print RFQ Alter" type="object" states="draft"/>
+                    <button name="alter_print_quotation" string="Print RFQ Alter" type="object" states="sent"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

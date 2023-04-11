@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- tree view -->
+        <record id="hit_condition_monitoring_view_model_tree" model="ir.ui.view">
+            <field name="name">hit.condition.monitoring.view.model.tree</field>
+            <field name="model">hit.condition.monitoring</field>
+            <field name="type">tree</field>
+            <field name="mode">primary</field>
+            <field name="priority" eval="16" />
+            <field name="active" eval="True" />
+            <field name="arch" type="xml">
+                <tree string="condition_monitoring_tree" create="true" delete="true" edit="true">
+                    <field name="name" />
+                    <field name="equipment_id" />
+                    <field name="maintenance_type" />
+                    <field name="location_id" />
+                    <field name="warehouse_id" />
+                    <field name="hourmeter" />
+                    <field name="maintenance_team_id" optional="hide"/>
+                    <field name="responsible_id" optional="hide"/>
+                    <field name="maintenance_type" optional="hide"/>
+                    <field name="schedule_date" optional="hide"/>
+                    <field name="complete_date" optional="hide"/>
+                    <field name="create_uid" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <!-- form view -->
+        <record id="hit_condition_monitoring_view_model_form" model="ir.ui.view">
+            <field name="name">hit.condition.monitoring.view.model.form</field>
+            <field name="model">hit.condition.monitoring</field>
+            <field name="type">form</field>
+            <field name="mode">primary</field>
+            <field name="priority" eval="16" />
+            <field name="active" eval="True" />
+            <field name="arch" type="xml">
+                <form string="condition_monitoring_form" create="true" delete="true" edit="true">
+                    <header>
+                </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only" />
+                            <h1>
+                                <field name="name" class="oe_inline"
+                                placeholder="name" />
+                            </h1>
+                        </div>
+                        <group>
+                            <group name="condition_monitoring_left">
+                                <field name="name" />
+                                <field name="equipment_id" />
+                                <field name="work_order_type"/>
+                                <field name="location_id" />
+                                <field name="warehouse_id" />
+                                <field name="hourmeter" />
+                            </group>
+                            <group name="condition_monitoring_right">
+                                <field name="maintenance_team_id" />
+                                <field name="responsible_id" />
+                                <field name="maintenance_type" />
+                                <field name="schedule_date" />
+                                <field name="complete_date" />
+                                <field name="owner_user_id" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description" name="description">
+                                <field name="note"/>
+                            </page>
+                            <page string="Attachment" name="attachment">
+                                <group>
+                                    <group>
+                                        <field name="attachment" widget="pdf_viewer" filename="attachment_name"/>
+                                    </group>
+                                    <group>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- search view -->
+        <record id="hit_condition_monitoring_view_model_search" model="ir.ui.view">
+            <field name="name">hit.condition.monitoring.view.model.search</field>
+            <field name="model">hit.condition.monitoring</field>
+            <field name="type">search</field>
+            <field name="mode">primary</field>
+            <field name="priority" eval="16" />
+            <field name="active" eval="True" />
+            <field name="arch" type="xml">
+                <search string="condition_monitoring_search" >
+                    <field name="equipment_id" />
+                    <field name="name" />
+                    <separator/>
+                    <group expand="1" string="Group By">
+                        <filter name="equipment_id_group" string="Equipment" context="{'group_by': 'equipment_id'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <!-- action window -->
+        <record id="action_hit_condition_monitoring_act_window" model="ir.actions.act_window">
+            <field name="type">ir.actions.act_window</field>
+            <field name="name">Condition Monitoring</field>
+            <field name="res_model">hit.condition.monitoring</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'group_by': 'equipment_id'}</field>
+        </record>
+        <!-- menu -->
+        <menuitem
+        id="hit__menu_equipment"
+        name="Condition Monitoring" 
+        parent="maintenance.menu_m_request"
+        action="action_hit_condition_monitoring_act_window"
+        />
+    </data>
+</odoo>

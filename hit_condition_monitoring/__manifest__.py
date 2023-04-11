@@ -1,34 +1,32 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "HIT Hybrid Customization",
+    'name': "HIT Condition Monitoring",
 
     'summary': """
-        Hybrid Customization""",
+        For Maintenance Purpose""",
 
     'description': """
-        Enhancement All Module.
+        Condition Monitoring.
     """,
 
-    'author': "HIT Digital Indonesia",
+    'author': "twitter.com/thepythoncode",
     'website': "http://www.hitconsulting.id",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'Customization',
+    'category': 'Maintenance',
     'version': '0.1',
     'license': 'LGPL-3',
     'installable': True,
     'application': True,
-    'depends': ['account', 'purchase_request', 'account_asset', 'purchase'],
+    'depends': ['maintenance', 'stock'],
 
     # always loaded
     # make sure the menu view is on the last
     'data': [
         'security/ir.model.access.csv',
-        'views/purchase_request_views.xml',
-        'views/maintenance_request_views.xml',
-        'views/account_payment_views.xml',
-        # 'views/purchase_order_views.xml',
+        'data/condition_monitoring_sequence.xml',
+        'views/hit_condition_monitoring_views.xml',
     ],
 }

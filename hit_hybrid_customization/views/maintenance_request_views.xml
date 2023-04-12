@@ -10,6 +10,10 @@
                 <xpath expr="//field[@name='schedule_date']" position="after">
                     <field name="wo_done_date_time"/>
                 </xpath>
+                <xpath expr="//field[@name='equipment_id']" position="after">
+                    <field name="x_studio_work_order_type"/>
+                    <field name="inspection_id" attrs="{'invisible': [('x_studio_work_order_type', '=', 'Perbaikan')]}"/>
+                </xpath>
             </field>
         </record>
     </data>

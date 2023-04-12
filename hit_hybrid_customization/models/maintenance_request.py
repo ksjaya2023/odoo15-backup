@@ -10,6 +10,11 @@ class MaintenanceRequest(models.Model):
     wo_done_date_time = fields.Datetime(
         compute='_compute_wo_done_date_time', string='Complete Time')
 
+    inspection_id = fields.Many2one(
+        string='Inspection',
+        comodel_name='hit.condition.monitoring'
+    )
+
     @api.depends('stage_id.name')
     def _compute_wo_done_date_time(self):
         for record in self:
@@ -26,18 +31,10 @@ class MaintenanceRequest(models.Model):
                 result = abs(diff)
                 record.duration = result.total_seconds() / 3600
 
-    # @api.onchange('x_studio_asset')
-    # def _onchange_account_asset(self):
-    #     for record in self:
-    #         if record.x_studio_asset:
-    #             asset_analytic_account = record.x_studio_asset.account_analytic_id
-    #             asset_analytic_site = asset_analytic_account.x_studio_site
-    #             if asset_analytic_account:
-    #                 record.x_studio_analytic_account = asset_analytic_account.id
-    #             if not asset_analytic_account:
-    #                 record.x_studio_analytic_account = None
-    #             if asset_analytic_site:
-    #                 record.x_studio_warehouse = asset_analytic_site.id
-    #             if not asset_analytic_site:
-    #                 record.x_studio_warehouse = None
-    #                 record.x_studio_locations = None
+    @api.onchange('inspection_id')
+    def _onchange_inspection_id(self):
+        if self.inspection_id:
+            if self.x_studio_work_order_type != 'Perbaikan':
+                self.x_studio_attachment = self.inspection_id.attachment
+            else:
+                self.x_studio_attachment = None

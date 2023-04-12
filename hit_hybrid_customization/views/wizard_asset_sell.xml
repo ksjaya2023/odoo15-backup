@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Form view for "model" -->
+        <record id="hit_wizard_asset_sell_form_inherit" model="ir.ui.view">
+            <field name="name">wizard.asset.sell.form.inherit</field>
+            <field name="model">account.asset.sell</field>
+            <field name="inherit_id" ref="account_asset.asset_sell_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='invoice_id']" position="after">
+                    <field name="x_studio_disposal_id" attrs="{'invisible': [('action', '=', 'sell')]}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

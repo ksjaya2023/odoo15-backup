@@ -92,6 +92,7 @@ class AccountPayment(models.Model):
                 ]
 
             self.env['account.move.line'].sudo().create(line_vals_list)
+            move_id._post(soft=False)
 
         ''' draft -> posted '''
         self.move_id._post(soft=False)

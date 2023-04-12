@@ -26,13 +26,6 @@ class AccountPayment(models.Model):
         return {'domain': {'account_move_id': domain}}
 
     def action_post(self):
-        ''' draft -> posted '''
-        self.move_id._post(soft=False)
-
-        self.filtered(
-            lambda pay: pay.is_internal_transfer and not pay.paired_internal_transfer_payment_id
-        )._create_paired_internal_transfer_payment()
-
         if self.advance:
             currency_id = self.move_id.currency_id
             amount = self.amount
@@ -92,5 +85,10 @@ class AccountPayment(models.Model):
                 ]
 
             self.env['account.move.line'].sudo().create(line_vals_list)
+        
+        ''' draft -> posted '''
+        self.move_id._post(soft=False)
 
-
+        self.filtered(
+            lambda pay: pay.is_internal_transfer and not pay.paired_internal_transfer_payment_id
+        )._create_paired_internal_transfer_payment()

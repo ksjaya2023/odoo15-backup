@@ -38,7 +38,7 @@ class AccountPayment(models.Model):
             amount = self.amount
             line_vals_list = []
             bank_account = self.journal_id.default_account_id
-            if self.payment_type = 'inbound':
+            if self.payment_type == 'inbound':
                 advance_sales_account = self.partner_id.x_studio_advance_sales_id
                 line_vals_list = [
                     {

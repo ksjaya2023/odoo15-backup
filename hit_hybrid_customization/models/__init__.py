@@ -7,4 +7,3 @@ from . import account_asset
 from . import maintenance_equipment
 from . import account_payment
 from . import stock_picking
-from . import res_partner

@@ -27,6 +27,13 @@ class AccountPayment(models.Model):
 
     def action_post(self):
         if self.advance:
+            move_vals = [
+                {
+                    'journal_id' : self.journal_id.id,
+                    'date' : self.date
+                }
+            ]
+            move_id = self.env['account.move'].sudo().create(move_vals)
             currency_id = self.move_id.currency_id
             amount = self.amount
             line_vals_list = []
@@ -35,7 +42,7 @@ class AccountPayment(models.Model):
                 advance_sales_account = self.partner_id.x_studio_advance_sales_id
                 line_vals_list = [
                     {
-                        'move_id' : self.move_id.id,
+                        'move_id' : move_id.id,
                         'name': self.move_id.name,
                         'date_maturity': self.date,
                         'amount_currency': amount,
@@ -46,7 +53,7 @@ class AccountPayment(models.Model):
                         'account_id': bank_account.id,
                     },
                     {
-                        'move_id' : self.move_id.id,
+                        'move_id' : move_id.id,
                         'name': self.move_id.name,
                         'date_maturity': self.date,
                         'amount_currency': amount,
@@ -61,7 +68,7 @@ class AccountPayment(models.Model):
                 advance_purchase_account = self.partner_id.x_studio_advance_purchase_id
                 line_vals_list = [
                     {
-                        'move_id' : self.move_id.id,
+                        'move_id' : move_id.id,
                         'name': self.move_id.name,
                         'date_maturity': self.date,
                         'amount_currency': amount,
@@ -72,7 +79,7 @@ class AccountPayment(models.Model):
                         'account_id': advance_purchase_account.id,
                     },
                     {
-                        'move_id' : self.move_id.id,
+                        'move_id' : move_id.id,
                         'name': self.move_id.name,
                         'date_maturity': self.date,
                         'amount_currency': amount,
@@ -85,7 +92,7 @@ class AccountPayment(models.Model):
                 ]
 
             self.env['account.move.line'].sudo().create(line_vals_list)
-        
+
         ''' draft -> posted '''
         self.move_id._post(soft=False)
 

@@ -18,6 +18,13 @@ class MaintenanceEquipment(models.Model):
             record.x_studio_warehouse = asset_analytic_site.id if asset_analytic_site else None
             record.x_studio_locations = asset_analytic_site.lot_stock_id if asset_analytic_site else None
             record.x_studio_many2one_class = asset_analytic_type.id if asset_analytic_type else None
+            # Fill vendor datain equipment using partner_id in asset if exist
+            asset_related_purchase = record.x_studio_asset.original_move_line_ids.filtered(
+                lambda line: line.partner_id)
+            if asset_related_purchase:
+                record.partner_id = asset_related_purchase[0].partner_id.id
+            else:
+                record.partner_id = None
 
     @api.onchange('employee_id')
     def _onchange_employee_id(self):

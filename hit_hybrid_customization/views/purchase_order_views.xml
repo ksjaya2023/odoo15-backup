@@ -8,9 +8,6 @@
             <field name="type">form</field>
             <field name="mode">extension</field>
             <field name="arch" type="xml">
-                <!-- <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="test_mayna" />
-                </xpath> -->
                 <xpath expr="//button[@name='button_unlock']" position="after">
                     <button name="button_confirm_rfq" type="object" string="Confirm Order" states="draft" class="oe_highlight"/>
                 </xpath>

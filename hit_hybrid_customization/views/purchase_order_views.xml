@@ -9,7 +9,7 @@
             <field name="mode">extension</field>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='button_unlock']" position="after">
-                    <button name="button_confirm_rfq" type="object" string="Confirm Order" states="draft" class="oe_highlight"/>
+                    <button name="button_confirm_rfq" type="object" string="Request Approval" states="draft" class="oe_highlight"/>
                 </xpath>
                 <xpath expr="//button[@name='print_quotation']" position="attributes">
                     <attribute name="invisible">1</attribute>

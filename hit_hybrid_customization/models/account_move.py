@@ -13,5 +13,5 @@ class AccountMove(models.Model):
         ('to_be_approved', 'To Be Approved'),
         ('posted', 'Posted'),
         ('cancel', 'Cancelled'),
-        ('rehect', 'Rejected'),
+        ('reject', 'Rejected'),
     ])

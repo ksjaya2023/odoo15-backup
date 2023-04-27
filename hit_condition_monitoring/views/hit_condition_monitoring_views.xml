@@ -71,7 +71,7 @@
                             <page string="Attachment" name="attachment">
                                 <group>
                                     <group>
-                                        <field name="attachment" widget="pdf_viewer" filename="attachment_name"/>
+                                        <field name="attachment"/>
                                     </group>
                                     <group>
                                     </group>

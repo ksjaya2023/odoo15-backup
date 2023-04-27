@@ -46,7 +46,7 @@ class HitConditionMonitoring(models.Model):
         'res.users', string='Created by User', default=lambda s: s.env.uid, readonly=True)
     hourmeter = fields.Char('Hourmeter')
     note = fields.Char('Note')
-    attachment = fields.Binary('Upload PDF')
+    attachment = fields.Binary('Upload File')
     attachment_name = fields.Char('Attachment Name')
 
     def seq_auto_name(self):

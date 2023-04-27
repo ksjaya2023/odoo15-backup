@@ -37,7 +37,8 @@
             <field name="arch" type="xml">
                 <form string="condition_monitoring_form" create="true" delete="true" edit="true">
                     <header>
-                </header>
+                        <button name="create_new_request" string="Maintenance Request" type="object" class="oe_highlight" attrs="{'invisible': ['|', ('show_maintenance_request', '=', False), ('work_order_id', '!=', False)]}"/>
+                    </header>
                     <sheet>
                         <div class="oe_title">
                             <label for="name" class="oe_edit_only" />
@@ -48,12 +49,12 @@
                         </div>
                         <group>
                             <group name="condition_monitoring_left">
-                                <field name="name" />
                                 <field name="equipment_id" />
                                 <field name="work_order_type"/>
                                 <field name="location_id" />
                                 <field name="warehouse_id" />
                                 <field name="hourmeter" />
+                                <field name="work_order_id" attrs="{'invisible': [('work_order_id', '=', False)]}"/>
                             </group>
                             <group name="condition_monitoring_right">
                                 <field name="maintenance_team_id" />
@@ -62,6 +63,7 @@
                                 <field name="schedule_date" />
                                 <field name="complete_date" />
                                 <field name="owner_user_id" />
+                                <field name="show_maintenance_request" invisible="1"/>
                             </group>
                         </group>
                         <notebook>
@@ -116,5 +118,12 @@
         parent="maintenance.menu_m_request"
         action="action_hit_condition_monitoring_act_window"
         />
+        <!-- <record id="maintenance_request_from_condition_monitoring" model="ir.actions.server">
+            <field name="name">Maintenance Requests</field>
+            <field name="model_id" ref="maintenance.model_maintenance_request"/>
+            <field name="model_id" ref="hit_condition_monitoring.model_hit_condition_monitoring"/>
+            <field name="state">code</field>
+            <field name="code"> action = model._create_new_request()</field>
+        </record> -->
     </data>
 </odoo>

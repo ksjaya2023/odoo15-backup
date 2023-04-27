@@ -22,10 +22,8 @@ class HitConditionMonitoring(models.Model):
         ('Maintenance', 'Service'),
         ('Perbaikan', 'Repaired'),
         ('Backlog', 'Backlog'),
-        ('Inspection', 'Inspection'),
     ],
         string='Work Order Type',
-        default='Inspection',
     )
     maintenance_type = fields.Selection(selection=[
         ('Schedulle', 'Schedule'),
@@ -48,6 +46,16 @@ class HitConditionMonitoring(models.Model):
     note = fields.Char('Note')
     attachment = fields.Binary('Upload File')
     attachment_name = fields.Char('Attachment Name')
+    work_order_id = fields.Many2one('maintenance.request', string='Work Order')
+    show_maintenance_request = fields.Boolean(
+        'Show Maintenance Request', default=False, compute='_compute_show_maintenance_request')
+
+    @api.depends('name')
+    def _compute_show_maintenance_request(self):
+        if not self.name:
+            self.show_maintenance_request = False
+        else:
+            self.show_maintenance_request = True
 
     def seq_auto_name(self):
         seq = self.env['ir.sequence'].next_by_code(
@@ -58,6 +66,7 @@ class HitConditionMonitoring(models.Model):
     def create(self, vals):
         create_data = super(HitConditionMonitoring, self).create(vals)
         create_data.seq_auto_name()
+        self.show_maintenance_request = False
         return create_data
 
     @api.onchange('maintenance_team_id')
@@ -82,3 +91,20 @@ class HitConditionMonitoring(models.Model):
                 record.location_id = record.equipment_id.x_studio_warehouse.id
                 record.warehouse_id = record.equipment_id.x_studio_locations.id
                 record.hourmeter = record.equipment_id.x_studio_current_hrm
+
+    def create_new_request(self):
+        condition_monitoring_data = {
+            'inspection_id': self.id,
+            'equipment_id': self.equipment_id.id or None,
+            'x_studio_maintenance_type': self.maintenance_type or None,
+            'maintenance_team_id': self.maintenance_team_id.id or None,
+            'company_id': self.env.company.id,
+            'user_id': self.responsible_id.id or None,
+            'x_studio_attachment': self.attachment or None,
+            'x_studio_work_order_type': self.work_order_type or None,
+            'schedule_date': self.schedule_date or None,
+        }
+        maintenance_requests = self.env["maintenance.request"].create(
+            condition_monitoring_data)
+        self.write({"work_order_id": maintenance_requests.id})
+        return maintenance_requests

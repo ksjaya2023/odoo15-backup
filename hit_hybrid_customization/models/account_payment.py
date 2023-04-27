@@ -5,6 +5,8 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
+import logging
+_logger = logging.getLogger(__name__)
 
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
@@ -121,8 +123,9 @@ class AccountPayment(models.Model):
     #             else:
     #                 pay.outstanding_account_id = False
 
-    @api.depends('journal_id', 'partner_id', 'partner_type', 'is_internal_transfer','advance')
+    @api.depends('journal_id', 'partner_id', 'partner_type', 'is_internal_transfer', 'advance')
     def _compute_destination_account_id(self):
+        _logger.info('####')
         self.destination_account_id = False
         for pay in self:
             if pay.is_internal_transfer:
@@ -133,8 +136,10 @@ class AccountPayment(models.Model):
                     if pay.advance:
                         if pay.payment_type == 'inbound':
                             pay.destination_account_id = pay.partner_id.x_studio_advance_sales_id
+                            _logger.info('inbound %s', pay.destination_account_id)
                         else:
                             pay.destination_account_id = pay.partner_id.x_studio_advance_purchase_id
+                            _logger.info('outbound %s', pay.destination_account_id)
                     else:
                         pay.destination_account_id = pay.partner_id.with_company(pay.company_id).property_account_receivable_id
                 else:
@@ -149,8 +154,10 @@ class AccountPayment(models.Model):
                     if pay.advance:
                         if pay.payment_type == 'inbound':
                             pay.destination_account_id = pay.partner_id.x_studio_advance_sales_id
+                            _logger.info('inbound %s', pay.destination_account_id)
                         else:
                             pay.destination_account_id = pay.partner_id.x_studio_advance_purchase_id
+                            _logger.info('outbound %s)', pay.destination_account_id)
                     else:
                         pay.destination_account_id = pay.partner_id.with_company(pay.company_id).property_account_payable_id
                 else:
@@ -159,3 +166,27 @@ class AccountPayment(models.Model):
                         ('internal_type', '=', 'payable'),
                         ('deprecated', '=', False),
                     ], limit=1)
+
+
+    def _seek_for_lines(self):
+        ''' Helper used to dispatch the journal items between:
+        - The lines using the temporary liquidity account.
+        - The lines using the counterpart account.
+        - The lines being the write-off lines.
+        :return: (liquidity_lines, counterpart_lines, writeoff_lines)
+        '''
+        self.ensure_one()
+
+        liquidity_lines = self.env['account.move.line']
+        counterpart_lines = self.env['account.move.line']
+        writeoff_lines = self.env['account.move.line']
+
+        for line in self.move_id.line_ids:
+            if line.account_id in self._get_valid_liquidity_accounts():
+                liquidity_lines += line
+            elif line.account_id.internal_type in ('receivable', 'payable', 'other') or line.partner_id == line.company_id.partner_id:
+                counterpart_lines += line
+            else:
+                writeoff_lines += line
+
+        return liquidity_lines, counterpart_lines, writeoff_lines

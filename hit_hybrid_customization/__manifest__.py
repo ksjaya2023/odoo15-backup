@@ -31,6 +31,5 @@
         'views/maintenance_request_views.xml',
         'views/account_payment_views.xml',
         'views/wizard_asset_sell.xml',
-        'views/reverse_entry_views.xml',
     ],
 }

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+    
+   
+    <record id="view_service_package_tree" model="ir.ui.view">
+        <field name="name">view.service.package.tree</field>
+        <field name="model">service.package</field>
+        <field name="type">tree</field>
+        <field name="mode">primary</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" />
+        <field name="arch" type="xml">
+            <tree string="service_package_tree" create="true" delete="true" edit="true">
+                <field name="name" optional="1"/>
+                <field name="unit_model_id" />
+                <field name="service_type_id" />
+                <field name="active" optional="1"/>
+                <field name="create_date" optional="1"/>
+                <field name="create_uid" optional="1"/>
+            </tree>
+        </field>
+    </record>
+    
+
+    <record id="view_service_package_form" model="ir.ui.view">
+        <field name="name">view.service.package.form</field>
+        <field name="model">service.package</field>
+        <field name="type">form</field>
+        <field name="mode">primary</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" />
+        <field name="arch" type="xml">
+            <form string="service_package_form" create="true" delete="true" edit="true">
+                <header>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" class="oe_inline"
+                                placeholder="name" invisible="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="equipment" string="Equipment">
+                            <field name="unit_model_id" />
+                            <field name="service_type_id" />
+                        </group>
+                        <group name="details" string="Details">
+                            <field name="create_date" />
+                            <field name="create_uid" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="item" string="Items">
+                            <field name="service_package_ids" widget="section_one2many">
+                                <tree editable="bottom">
+                                    <field name="product_id" />
+                                    <field name="quantity" />
+                                    <field name="uom_id" />
+                                    <field name="price" />
+                                    <field name="total_price" />
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- <record id="view_service_package_line_form" model="ir.ui.view">
+        <field name="name">view.service.package.line.form</field>
+        <field name="model">service.package.line</field>
+        <field name="type">form</field>
+        <field name="mode">primary</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" />
+        <field name="arch" type="xml">
+            <form string="service_package_line_form" create="true" delete="true" edit="true">
+                <header>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" class="oe_inline"
+                                placeholder="name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="equipment" string="Equipment">
+                            <field name="unit_model_id" />
+                            <field name="service_type_id" />
+                        </group>
+                        <group name="details" string="Details">
+                            <field name="create_date" />
+                            <field name="create_uid" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record> -->
+    
+    <!-- Search view for "model" -->
+    <!-- <record id="view_model_search" model="ir.ui.view">
+        <field name="name">view.model.search</field>
+        <field name="model">model</field>
+        <field name="type">search</field>
+        <field name="mode">primary</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" />
+        <field name="arch" type="xml">
+            <search string="model_search">
+                <field name="name" />
+                
+            </search>
+        </field>
+    </record> -->
+    
+
+    <record id="action_service_package_act_window" model="ir.actions.act_window">
+        <field name="type">ir.actions.act_window</field>
+        <field name="name">Service Package</field>
+        <field name="res_model">service.package</field>
+        <field name="view_mode">tree,form</field>
+        <!-- <field name="view_type">form</field>
+        <field name="target">current</field>
+        <field name="domain">[]</field>
+        <field name="context">\{}</field>
+        <field name="search_view_id" ref="view_model_search" />
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to add new Human readable name
+            </p><p>
+                Something about model
+            </p>
+        </field> -->
+    </record>
+    
+    
+    </data>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+    <record id="view_product_template_form_inherited" model="ir.ui.view">
+        <field name="name">product.template.form.inherited</field>
+        <field name="model">product.template</field>
+        <!-- Please veryfiy, that the following inherited view really sticks to the naming convention. -->
+        <field name="inherit_id" ref="product.product_template_only_form_view" />
+        <!-- <field name="type">tree</field>
+        <field name="mode">primary|extension</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" /> -->
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='detailed_type']" position="after">
+                <field name="product_class" />
+                <field name="stock_type" />
+                <field name="part_number" />
+            </xpath>
+        </field>
+    </record>
+    </data>
+</odoo>

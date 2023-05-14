@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <data>
+    <!-- Purchaser View form view -->
+    <record id="po_type_view_form" model="ir.ui.view">
+      <field name="name">po_type.view.form</field>
+      <field name="model">po.type</field>
+      <field name="arch" type="xml">
+        <form string="Create RFQ/PO Type">
+          <sheet>
+            <div class="oe_title">
+              <h1>
+                <field name="name" placeholder="Name..."/>
+              </h1>
+            </div>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+
+    <!-- purchaser tree view -->
+    <record id="po_type_view_tree" model="ir.ui.view">
+      <field name="name">po.type.view.tree</field>
+      <field name="model">po.type</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- purchaser action window -->
+    <record id="po_type_action" model="ir.actions.act_window">
+      <field name="name">RPQ/PO Type</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">po.type</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="oe_view_nocontent_create">
+          No Data
+        </p>
+        <p>
+          Silahkan masukkan data 
+        </p>
+      </field>
+    </record>
+
+    <!-- This Menu Item must have a parent and an action -->
+    <menuitem id="po_type_menu_act" name="RFQ/PO Type" parent="master_data_menu_root" action="po_type_action" sequence="4"/>
+    <menuitem id="po_type_menu_act_2" name="RFQ/PO Type" parent="master_data_menu_root_2" action="po_type_action" sequence="4"/>
+
+  </data>
+</odoo>

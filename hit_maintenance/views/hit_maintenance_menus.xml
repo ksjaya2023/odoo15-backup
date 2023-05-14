@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        
+        <!-- Maintenance  -->
+        <menuitem
+        id="reservation_menu"
+        name="Reservation" 
+        parent="maintenance.menu_m_request"
+        action="action_reservation_act_window"
+        />
+        <menuitem
+        id="return_request_menu"
+        name="Return Request" 
+        parent="maintenance.menu_m_request"
+        action="action_return_request_act_window"
+        />
+        <menuitem
+        id="measuring_equipment_menu"
+        name="Measuring Equipment" 
+        parent="maintenance.menu_m_request"
+        action="action_measuring_equipment_act_window"
+        />
+
+        <!-- Master Data -->
+        <menuitem
+        id="master_data_menu"
+        name="Master Data"
+        parent="maintenance.menu_maintenance_title"
+        />
+        <menuitem
+        id="master_data_equipment_class_menu"
+        name="Class and Type" 
+        parent="master_data_menu"
+        action="action_eqp_class_act_window"
+        />
+        <menuitem
+        id="master_data_brand_menu"
+        name="Brand" 
+        parent="master_data_menu"
+        action="action_brand_act_window"
+        />
+        <menuitem
+        id="master_data_unit_model_menu"
+        name="Unit Model" 
+        parent="master_data_menu"
+        action="action_unit_model_act_window"
+        />
+        <menuitem
+        id="master_data_engine_model_menu"
+        name="Engine Model" 
+        parent="master_data_menu"
+        action="action_engine_model_act_window"
+        />
+        <menuitem
+        id="master_data_eqp_attachment_menu"
+        name="Attachment" 
+        parent="master_data_menu"
+        action="action_eqp_attachment_act_window"
+        />
+        <menuitem
+        id="master_data_eqp_attachment_product_menu"
+        name="Attachment Product" 
+        parent="master_data_menu"
+        action="action_eqp_attachment_product_act_window"
+        />
+        <menuitem
+        id="master_data_eqp_status_menu"
+        name="Status" 
+        parent="master_data_menu"
+        action="action_eqp_status_act_window"
+        />
+        <menuitem
+        id="master_data_service_type_menu"
+        name="Service Type" 
+        parent="master_data_menu"
+        action="action_service_type_act_window"
+        />
+        <menuitem
+        id="master_data_service_package_menu"
+        name="Service Package" 
+        parent="master_data_menu"
+        action="action_service_package_act_window"
+        />
+        <menuitem
+        id="master_data_standard_job_menu"
+        name="Standard Job" 
+        parent="master_data_menu"
+        action="action_standard_job_act_window"
+        />
+
+        <!-- Configuration -->
+        <menuitem
+        id="reservation_stage_menu"
+        name="Reservation Stage" 
+        parent="maintenance.menu_maintenance_configuration"
+        action="action_reservation_stage_act_window"
+        />
+        <menuitem
+        id="reservation_tag_menu"
+        name="Reservation Tag" 
+        parent="maintenance.menu_maintenance_configuration"
+        action="action_reservation_tag_act_window"
+        />
+    </data>
+</odoo>

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+        <data>
+            <!-- project.master.data inherit form view -->
+            <record id="view_id" model="ir.ui.view">
+                <field name="name">project.master.data.inherit.view.form</field>
+                <field name="model">project.master.data</field>
+                <field name="inherit_id" ref="hit_master_data.project_master_data_view_form"/>
+                <field name="arch" type="xml">
+                    <!-- Add your xpath here -->
+                    <xpath expr="//field[@name='is_active']" position='before'>
+                        <field name="purchasing_group_id" widget="many2many_tags"/>
+                    </xpath>
+                </field>
+            </record>
+            
+        </data>
+</odoo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data >
+        <!-- Form view for "model" -->
+        <record id="hit_account_payment_view_model_form" model="ir.ui.view">
+            <field name="name">account.payment.view.model.form</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="advance"/>
+                </xpath>
+                <xpath expr="//field[@name='ref']" position="after">
+                    <field name="account_move_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

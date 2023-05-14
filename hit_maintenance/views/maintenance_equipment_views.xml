@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+    
+    <!-- Form view for "model" -->
+    <record id="maintenance_equipment_view_form_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.view.form.inherit</field>
+        <field name="model">maintenance.equipment</field>
+         <field name="inherit_id" ref="maintenance.hr_equipment_view_form" />
+        <field name="arch" type="xml">
+            <!-- Extra Column -->
+            <xpath expr="/form/sheet/group[1]" position="after">
+                <group>
+                    <group name="equipment_details" string="Equipment Details">
+                        <field name="class_id" />
+                        <field name="eqp_type" />
+                        <field name="brand_id" />
+                        <field name="unit_model_id" />
+                        <field name="production_year" />
+                        <field name="engine_model_id" />
+                        <field name="status_id" />
+                    </group>
+                    <group name="equipment_attachments" string="Equipment Attachments">
+                        <field name="attachment_id" />
+                        <field name="attachment_product_id" />
+                        <field name="attachment_serial_no" />
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="/form/sheet/notebook/page[@name='product_information']/group[1]" position="after">
+                <group>
+                    <group name="dimension">
+                        <label for="width"/>
+                        <div class="o_row">
+                            <field name="width" /> cm
+                        </div>
+                        <label for="length"/>
+                        <div class="o_row">
+                            <field name="length" /> cm
+                        </div>
+                        <label for="height"/>
+                        <div class="o_row">
+                            <field name="height" /> cm
+                        </div>
+                        <label for="weight"/>
+                        <div class="o_row">
+                            <field name="weight" /> ton
+                        </div>
+                    </group>
+                    <group>
+                        <field name="lifetime" />
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='maintenance']" position="after">
+                <group name="hourmeter">
+                    <field name="service_type" />
+                    <field name="curr_hrm_date" />
+                    <field name="current_hrm" />
+                    <field name="prev_serv_hrm" />
+                    <field name="plan_serv_hm" />
+                    <field name="act_hm" />
+                </group>
+            </xpath>         
+        </field>
+    </record>
+        
+
+    </data>
+</odoo>

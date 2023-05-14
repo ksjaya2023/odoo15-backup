@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="project_master_data_view_form">
+      <field name="name">hit_project_master_data form</field>
+      <field name="model">project.master.data</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet string='Create Project'>
+            <div class="oe_title">
+              <h1>
+                <field name="name" required='1'/>            
+              </h1>
+            </div>
+            <group>
+              <group string='Project Detail'>
+                <field name="project_name"/>
+                <field name="address"/>
+                <field name="project_description"/>
+                <field name="customer" domain="[('is_customer', '=', True)]"/>
+              </group>
+              <group string='Project Status'>
+                <field name='project_start'/>
+                <field name='project_end'/>
+                <field name='is_active'/>
+              </group>  
+            </group>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="project_master_data_view_list">
+      <field name="name">hit_project_master_data list</field>
+      <field name="model">project.master.data</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="project_name"/>
+          <field name="customer"/>
+          <field name="is_active"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_project_view">
+      <field name="name">Project Master Data</field>
+      <field name="res_model">project.master.data</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="root_master_data" name="Master Data" />
+
+    <menuitem id="menu_project_master_data" parent="root_master_data" name="Projects" 
+      sequence="1" action="action_project_view"/>
+
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="hit_project_master_data.action_window">
+      <field name="name">hit_project_master_data window</field>
+      <field name="res_model">hit_project_master_data.hit_project_master_data</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="hit_project_master_data.action_server">
+      <field name="name">hit_project_master_data server</field>
+      <field name="model_id" ref="model_hit_project_master_data_hit_project_master_data"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="hit_project_master_data" id="hit_project_master_data.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="hit_project_master_data.menu_1" parent="hit_project_master_data.menu_root"/>
+    <menuitem name="Menu 2" id="hit_project_master_data.menu_2" parent="hit_project_master_data.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="hit_project_master_data.menu_1_list" parent="hit_project_master_data.menu_1"
+              action="hit_project_master_data.action_window"/>
+    <menuitem name="Server to list" id="hit_project_master_data" parent="hit_project_master_data.menu_2"
+              action="hit_project_master_data.action_server"/>
+-->
+  </data>
+</odoo>

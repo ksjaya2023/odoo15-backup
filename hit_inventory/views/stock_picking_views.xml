@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+    
+    <!--
+    
+    Human readable name
+    Human readable name
+    
+    Inherited Views
+    
+    - - - - - - - - - model
+    - Model·········: model
+    - Base Module···: module_name
+    - Mode··········: primary|extension
+    - View priority·: 16
+    - - - - - - - - - model
+    
+    -->
+<!--     
+    primary|extension Inherited .:Tree:. view for "model" -->
+    <record id="view_stock_picking_tree_inherited" model="ir.ui.view">
+        <field name="name">stock.picking.tree.inherited</field>
+        <field name="model">stock.picking</field>
+        <!-- Please veryfiy, that the following inherited view really sticks to the naming convention. -->
+        <field name="inherit_id" ref="stock.vpicktree" />
+        <!-- <field name="type">tree</field>
+        <field name="mode">primary|extension</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" /> -->
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="equipment_type" />
+                <field name="equipment_id" />
+                <field name="reservation_id" />
+                <field name="pr" />
+                <field name="outstanding_price" />
+                <field name="grand_total" />
+            </xpath>
+        </field>
+    </record>
+
+     <record id="view_stock_picking_form_inherited" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherited</field>
+        <field name="model">stock.picking</field>
+        <!-- Please veryfiy, that the following inherited view really sticks to the naming convention. -->
+        <field name="inherit_id" ref="stock.view_picking_form" />
+        <!-- <field name="type">tree</field>
+        <field name="mode">primary|extension</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" /> -->
+        <field name="arch" type="xml">
+            <xpath expr="/form/sheet/group[1]" position="after">
+                <group>
+                    <group>
+                        <field name="reservation_id" />
+                        <field name="pr" />
+                        <field name="operation_type" />
+                        <field name="equipment_id" />                    
+                    </group>
+                    <group>
+                        <field name="work_order" />
+                        <field name="return_request" />
+                        <field name="analytic_account_id" />
+                    </group>
+                </group>
+            </xpath>
+            <!-- <xpath expr="//field[@name='name']" position="attributes">
+            <attribute name="attrs">
+                {
+                'invisible': [('name', '!=', '/')],
+                'default': [('name', '=', 'Draft')],
+                }
+            </attribute>
+            </xpath> -->
+        </field>
+    </record>
+    
+    
+    
+
+        
+
+    </data>
+</odoo>

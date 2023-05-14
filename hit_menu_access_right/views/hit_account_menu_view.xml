@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+     <menuitem name="Purchase"
+            id="purchase.menu_purchase_root"
+            groups="purchase.group_purchase_manager,purchase.group_purchase_user,hit_menu_access_right.group_hit_purch_asset_maintenance_director,hit_menu_access_right.group_hit_purch_asset_general_manager,hit_menu_access_right.group_hit_purch_purchase_officer,hit_menu_access_right.group_hit_purch_warehouse_officer"
+            web_icon="purchase,static/description/icon.svg"
+            sequence="135"/>
+</odoo>

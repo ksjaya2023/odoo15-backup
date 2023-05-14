@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+    <record id="view_stock_move_form_inherited" model="ir.ui.view">
+        <field name="name">stock.move.form.inherited</field>
+        <field name="model">stock.move</field>
+        <!-- Please veryfiy, that the following inherited view really sticks to the naming convention. -->
+        <field name="inherit_id" ref="stock.view_move_form" />
+        <!-- <field name="type">tree</field>
+        <field name="mode">primary|extension</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" /> -->
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_dest_ids']" position="after">
+                <field name="allocation_ids" >
+                    <tree>
+                        <field name="id" />
+                        <field name="stock_move_id"/>
+                    </tree>
+                </field>
+            
+            </xpath>
+        </field>
+    </record>
+
+    
+    </data>
+</odoo>

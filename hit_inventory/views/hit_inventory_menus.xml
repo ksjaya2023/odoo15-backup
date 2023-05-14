@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        
+        <!-- prudoction  -->
+        <menuitem
+        id="bin_location_menu"
+        name="Bin Location" 
+        parent="stock.menu_stock_inventory_control"
+        action="action_bin_location_act_window"
+        />
+
+        <menuitem
+        id="product_class_menu"
+        name="Product Class" 
+        parent="stock.menu_stock_inventory_control"
+        action="action_product_class_act_window"
+        />
+
+        <menuitem
+        id="stock_type_menu"
+        name="Stock Type" 
+        parent="stock.menu_stock_inventory_control"
+        action="action_stock_type_act_window"
+        />
+
+    </data>
+</odoo>

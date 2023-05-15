@@ -15,7 +15,7 @@
     "category": "Uncategorized",
     "version": "0.1",
     # any module necessary for this one to work correctly
-    "depends": ["base", "stock", "hit_master_data", "stock_analytic"],
+    "depends": ["base", "stock", "hit_master_data"],
     # always loaded
     "data": [
         # 'security/ir.model.access.csv',

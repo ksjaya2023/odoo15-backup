@@ -26,6 +26,7 @@
     # make sure the menu view is on the last
     'data': [
         'security/ir.model.access.csv',
+        'security/hit_account_asset.xml',
         'views/purchase_order_views.xml',
         'views/purchase_request_views.xml',
         'views/maintenance_request_views.xml',

@@ -29,7 +29,8 @@ class AccountMove(models.Model):
     def create(self, vals):
         create_data = super(AccountMove, self).create(vals)
         if create_data.move_type == "out_invoice":
-            create_data.seq_auto_name()
+            if not create_data.name or create_data.name == '/':
+                create_data.seq_auto_name()
             return create_data
         else:
             return create_data

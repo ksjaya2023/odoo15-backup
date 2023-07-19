@@ -54,3 +54,13 @@ class MaintenanceEquipment(models.Model):
             if record.name and not record.x_studio_equipment_name:
                 result.append((record.id, record.name))
         return result
+
+    @api.model
+    def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
+        if operator == 'ilike':
+            args = ['|',
+                    ('name', 'ilike', name),
+                    ('x_studio_equipment_name', 'ilike', name)]
+            return self._search(args, limit=limit, access_rights_uid=name_get_uid)
+
+        return super()._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)

@@ -29,7 +29,8 @@ class AccountMove(models.Model):
     def create(self, vals):
         create_data = super(AccountMove, self).create(vals)
         if create_data.move_type == "out_invoice":
-            create_data.seq_auto_name()
+            if not create_data.name or create_data.name == '/':
+                create_data.seq_auto_name()
             return create_data
         else:
             return create_data
@@ -44,10 +45,10 @@ class AccountMove(models.Model):
         locks = []
         user_lock_date = self.company_id._get_user_fiscal_lock_date()
         if invoice_date and user_lock_date and invoice_date <= user_lock_date:
-            locks.append((user_lock_date, _('user')))
+            locks.append((user_lock_date, _("user")))
         tax_lock_date = self.company_id.tax_lock_date
         if invoice_date and tax_lock_date and has_tax and invoice_date <= tax_lock_date:
-            locks.append((tax_lock_date, _('tax')))
+            locks.append((tax_lock_date, _("tax")))
         locks.sort()
         return locks
 

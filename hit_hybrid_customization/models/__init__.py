@@ -8,3 +8,5 @@ from . import maintenance_equipment
 from . import account_payment
 from . import stock_picking
 from . import purchase_order
+from . import pg_master_data
+from . import analytic_account

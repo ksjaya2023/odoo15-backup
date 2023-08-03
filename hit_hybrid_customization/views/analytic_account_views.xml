@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="pg_analytic_account_analytic_group_form_view_inherit" model="ir.ui.view">
+            <field name="inherit_id" ref="analytic.account_analytic_group_form_view"/>
+            <field name="mode">extension</field>
+            <field name="model">account.analytic.group</field>
+            <field name="name">pg_analytic_account_analytic_group_form_view_inherit</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='parent_id']" position="after">
+                    <field name="site_id"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="pg_analytic_account_analytic_group_tree_view_inherit" model="ir.ui.view">
+            <field name="inherit_id" ref="analytic.account_analytic_group_tree_view"/>
+            <field name="mode">extension</field>
+            <field name="model">account.analytic.group</field>
+            <field name="name">pg_analytic_account_analytic_group_tree_view_inherit</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="site_id"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="pg_analytic_view_account_analytic_account_form_inherit" model="ir.ui.view">
+            <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+            <field name="mode">extension</field>
+            <field name="model">account.analytic.account</field>
+            <field name="name">pg_analytic_view_account_analytic_account_form_inherit</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='group_id']" position="after">
+                    <field name="site_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

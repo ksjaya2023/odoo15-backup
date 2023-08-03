@@ -11,6 +11,8 @@ from odoo.tools.misc import format_date, get_lang
 class AccountMove(models.Model):
     _inherit = "account.move"
 
+    site_id = fields.Many2one('md.site', string='Site')
+
     state = fields.Selection(
         selection=[
             ("draft", "Draft"),
@@ -268,3 +270,24 @@ class AccountMove(models.Model):
         # This is performed at the very end to avoid flushing fields before the whole processing.
         to_post._check_balanced()
         return to_post
+
+
+class AccountMoveLine(models.Model):
+    _inherit = "account.move.line"
+
+
+    @api.onchange("product_id")
+    def _onchange_product_id(self):
+        if self.product_id:
+            self.analytic_account_id = False
+            site_id = self.move_id.site_id.id
+            if site_id:
+                domain = [("site_id", "=", site_id)]
+                return {"domain": {"analytic_account_id": domain}}
+            else:
+                return {"domain": {"analytic_account_id": [("site_id", "=", False)]}}
+        else:
+            self.analytic_account_id = False
+            return {"domain": {"analytic_account_id": [("site_id", "=", False)]}}
+
+

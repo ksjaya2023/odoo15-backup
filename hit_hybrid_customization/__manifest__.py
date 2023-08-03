@@ -35,5 +35,8 @@
         "views/maintenance_request_views.xml",
         "views/account_payment_views.xml",
         "views/wizard_asset_sell.xml",
+        "views/account_move_views.xml",
+        "views/analytic_account_views.xml",
+        "views/pg_master_data_views.xml",
     ],
 }

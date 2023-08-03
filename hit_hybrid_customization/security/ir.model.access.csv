@@ -1,1 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+hit_hybrid_customization.access_md_site,access_md_site,hit_hybrid_customization.model_md_site,base.group_user,1,1,1,0

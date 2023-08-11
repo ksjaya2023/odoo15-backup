@@ -8,7 +8,7 @@
             <field name="name">pg_account_view_move_form_inherit</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="site_id" attrs="{'invisible': [('move_type', '!=', 'in_invoice')]}"/>
+                    <field name="site_id"/>
                 </xpath>
             </field>
         </record>

@@ -276,9 +276,9 @@ class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
 
-    @api.onchange("product_id")
+    @api.onchange("product_id", "account_id")
     def _onchange_product_id(self):
-        if self.product_id:
+        if self.product_id or self.account_id:
             self.analytic_account_id = False
             site_id = self.move_id.site_id.id
             if site_id:

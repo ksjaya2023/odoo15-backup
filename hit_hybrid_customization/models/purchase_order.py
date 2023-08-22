@@ -19,6 +19,16 @@ class PurchaseOrder(models.Model):
         invoice_vals.update({'site_id': site_id})
         return invoice_vals
 
+
+class PurchaseOrderLine(models.Model):
+    _inherit = 'purchase.order.line'
+
+
+    @api.constrains('account_analytic_id')
+    def _constrains_account_analytic_id(self):
+        for record in self:
+            if not record.account_analytic_id:
+                raise ValidationError(_('The analytic account requires mandatory input.'))
     
 
 

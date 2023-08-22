@@ -38,5 +38,6 @@
         "views/account_move_views.xml",
         "views/analytic_account_views.xml",
         "views/pg_master_data_views.xml",
+        "views/account_asset_views.xml",
     ],
 }

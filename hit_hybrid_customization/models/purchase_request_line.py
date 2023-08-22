@@ -30,3 +30,9 @@ class PurchaseRequestLine(models.Model):
         ('58_bulan', '58 Bulan'),
         ('60_bulan', '60 Bulan'),
     ], string='Life of Projects')
+
+    @api.constrains('analytic_account_id')
+    def _constrains_analytic_account_id(self):
+        for record in self:
+            if not record.analytic_account_id:
+                raise ValidationError(_('The analytic account requires mandatory input.'))

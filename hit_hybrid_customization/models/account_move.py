@@ -2,7 +2,7 @@
 
 
 from odoo import models, fields, api, _
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from collections import defaultdict
 from odoo.tools import float_compare
 from odoo.tools.misc import format_date, get_lang
@@ -270,6 +270,25 @@ class AccountMove(models.Model):
         # This is performed at the very end to avoid flushing fields before the whole processing.
         to_post._check_balanced()
         return to_post
+
+
+    @api.constrains('invoice_line_ids', 'line_ids')
+    def _check_analytic_account_id(self):
+        for record in self:
+            if record.move_type in ('out_invoice', 'in_invoice'):
+                for journal in record.line_ids:
+                    if not journal.analytic_account_id:
+                        continue
+                for inv_line in record.invoice_line_ids:
+                    if not inv_line.analytic_account_id:
+                        raise ValidationError('The analytic account is mandatory.')
+            if record.move_type in ('entry'):
+                for journal in record.invoice_line_ids:
+                    if not journal.analytic_account_id:
+                        continue
+                for inv_line in record.line_ids:
+                    if not inv_line.analytic_account_id:
+                        raise ValidationError('The analytic account is mandatory.')
 
 
 class AccountMoveLine(models.Model):

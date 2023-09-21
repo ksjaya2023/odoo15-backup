@@ -39,5 +39,7 @@
         "views/analytic_account_views.xml",
         "views/pg_master_data_views.xml",
         "views/account_asset_views.xml",
+        "views/stock_picking_views.xml",
+        "views/stock_quant_views.xml",
     ],
 }

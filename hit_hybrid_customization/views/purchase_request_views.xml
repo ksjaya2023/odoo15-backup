@@ -7,6 +7,18 @@
             <field name="model">purchase.request</field>
             <field name="inherit_id" ref="purchase_request.view_purchase_request_form" />
             <field name="arch" type="xml">
+                <!-- <xpath expr="//button[@name='button_draft']" position="after">
+                    for testing purpose, please comment button helper again
+                    <button name="%(purchase_request.action_purchase_request_line_make_purchase_order)d" string="Create RFQ Helper" type="action"/>
+                    <button name="button_approved" states="to_approve" string="Approve Helper" type="object" class="oe_highlight" />
+                    <button name="button_done" states="approved" string="Done Helper" type="object" class="oe_highlight" />
+                </xpath> -->
+                <!-- <xpath expr="//field[@name='picking_type_id']" position="before">
+                    <field name="purchase_type"/>
+                </xpath>
+                <xpath expr="//field[@name='picking_type_id']" position="after">
+                    <field name="site_id"/>
+                </xpath> -->
                 <xpath expr="//form/sheet/notebook/page/field[@name='line_ids']/tree/field[@name='product_qty']" position="after">
                     <field name="life_of_projects"/>
                 </xpath>

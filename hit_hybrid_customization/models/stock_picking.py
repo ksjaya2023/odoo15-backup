@@ -2,6 +2,31 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+import logging
+
+_logger = logging.getLogger(__name__)
+
+_CATEGORY = [
+    ("in", "Receipts"),
+    ("int", "Internal Transfer"),
+    ("out", "Inventory Issued"),
+    ("rev", "Return to Vendor"),
+    ("ret", "Returns"),
+]
+
+
+class StockPickingType(models.Model):
+    _inherit = 'stock.picking.type'
+
+    operation_category = fields.Selection(selection=_CATEGORY, string="Operation Category")
+
+
+
+class StockWarehouse(models.Model):
+    _inherit = 'stock.warehouse'
+
+    site_id = fields.Many2one('md.site', string='Site') 
+
 
 _CATEGORY = [
     ("in", "Receipts"),
@@ -36,6 +61,67 @@ class StockPicking(models.Model):
         string="Operation Category",
     )
 
+    purchase_request_id = fields.Many2one(
+        "purchase.request",
+        string="Purchase Request",
+        readonly=True,
+    )
+
+    # def auto_input_allocation_from_backorder(self, backorder_picking):
+    #     _logger.info('auto_input_allocation_from_backorder')
+    #     picking_id = self.env['stock.picking'].browse(backorder_picking.id)
+    #     purchase_request_id = picking_id.purchase_request_id
+    #     purchase_id = picking_id.purchase_id
+    #     picking_items = picking_id.move_ids_without_package
+        
+    #     for item in picking_items:
+    #         operation_category = item.operation_category
+    #         product_id = item.product_id.id
+    #         quantity = item.product_uom_qty
+    #         uom = item.product_uom.id
+            
+    #         if not purchase_request_id or not purchase_id or not product_id:
+    #             continue
+            
+    #         pr_line_id = self.env['purchase.request.line'].search([
+    #             ('request_id', '=', purchase_request_id.id),
+    #             ('product_id', '=', product_id)
+    #         ])
+            
+    #         po_line_id = self.env['purchase.order.line'].search([
+    #             ('order_id', '=', purchase_id.id),
+    #             ('product_id', '=', product_id)
+    #         ])
+            
+    #         if not pr_line_id or not po_line_id:
+    #             continue
+            
+    #         if operation_category == 'rev':
+    #             quantity = 0
+    #         elif operation_category == 'in':
+    #             quantity = 0
+    #         else:
+    #             return False
+            
+    #         allocation_value = {
+    #             'purchase_request_line_id': pr_line_id.id or False,
+    #             'purchase_line_id': po_line_id.id or False,
+    #             'stock_move_id': item.id or False,
+    #             'product_uom_id': uom,
+    #             'requested_product_uom_qty': quantity,
+    #             'allocated_product_qty': quantity,
+    #         }
+            
+    #         try:
+    #             self.env['purchase.request.allocation'].create(allocation_value)
+    #         except Exception as e:
+    #             # Handle the exception (log, display error, etc.)
+    #             continue
+        
+    #     return True
+
+
+    # ---- Inherited Functions ----
     @api.depends('state', 'operation_category')
     def _compute_show_validate(self):
         for picking in self:
@@ -43,15 +129,55 @@ class StockPicking(models.Model):
             if picking.state == 'assigned' and picking.operation_category == 'rev' and picking.x_studio_still_in_approval == True:
                 picking.show_validate = False
 
+    # def _create_backorder(self):
+    #     _logger.info('_create_backorder custom')
+    #     """ This method is called when the user chose to create a backorder. It will create a new
+    #     picking, the backorder, and move the stock.moves that are not `done` or `cancel` into it.
+    #     """
+    #     backorders = self.env['stock.picking']
+    #     bo_to_assign = self.env['stock.picking']
+    #     for picking in self:
+    #         moves_to_backorder = picking.move_lines.filtered(lambda x: x.state not in ('done', 'cancel'))
+    #         if moves_to_backorder:
+    #             _logger.info('Creating backorder for picking: %s' % picking.name)
+    #             backorder_picking = picking.copy({
+    #                 'name': '/',
+    #                 'move_lines': [],
+    #                 'move_line_ids': [],
+    #                 'backorder_id': picking.id
+    #             })
+    #             _logger.info('Backorder created with name: %s' % backorder_picking.name)
+    #             picking.message_post(
+    #                 body=_('The backorder <a href=# data-oe-model=stock.picking data-oe-id=%d>%s</a> has been created.') % (
+    #                     backorder_picking.id, backorder_picking.name))
+    #             moves_to_backorder.write({'picking_id': backorder_picking.id})
+    #             moves_to_backorder.move_line_ids.package_level_id.write({'picking_id':backorder_picking.id})
+    #             moves_to_backorder.mapped('move_line_ids').write({'picking_id': backorder_picking.id})
+    #             backorders |= backorder_picking
+    #             self.auto_input_allocation_from_backorder(backorder_picking)
+    #             if backorder_picking.picking_type_id.reservation_method == 'at_confirm':
+    #                 bo_to_assign |= backorder_picking
+    #     if bo_to_assign:
+    #         bo_to_assign.action_assign()
+    #     return backorders                
+
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
     analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Account')
 
+    operation_category = fields.Selection(
+        related="picking_id.operation_category",
+        readonly=True,
+        store=True,
+        string="Operation Category",
+    )
+
 
     def _prepare_account_move_vals(self, credit_account_id, debit_account_id, journal_id, qty, description, svl_id, cost):
         self.ensure_one()
+        # Customization for analytic account
         if self.is_inventory:
             analytic_account_id = self.analytic_account_id.id
         else:
@@ -82,7 +208,7 @@ class StockMove(models.Model):
         credit_value = debit_value
 
         valuation_partner_id = self._get_partner_id_for_valuation_lines()
-        res = [(0, 0, line_vals) for line_vals in self._generate_valuation_lines_data(valuation_partner_id, qty, debit_value, credit_value, debit_account_id, credit_account_id, description, analytic_account_id).values()]
+        res = [(0, 0, line_vals) for line_vals in self._generate_valuation_lines_data(valuation_partner_id, qty, debit_value, credit_value, debit_account_id, credit_account_id, description, analytic_account_id).values()] # Customization on this line
 
         return res
 
@@ -100,7 +226,7 @@ class StockMove(models.Model):
             'debit': debit_value if debit_value > 0 else 0,
             'credit': -debit_value if debit_value < 0 else 0,
             'account_id': debit_account_id,
-            'analytic_account_id': analytic_account_id,
+            'analytic_account_id': analytic_account_id, # Customization on this line
         }
 
         credit_line_vals = {

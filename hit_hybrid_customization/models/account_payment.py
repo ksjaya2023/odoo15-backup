@@ -16,6 +16,7 @@ class AccountPayment(models.Model):
     advance = fields.Boolean('Advance')
     analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Account')
 
+
     @api.onchange('payment_type')
     def _onchange_payment_type(self):
         domain = []
@@ -110,6 +111,7 @@ class AccountPayment(models.Model):
 
         return liquidity_lines, counterpart_lines, writeoff_lines
 
+
     def _prepare_payment_display_name(self):
         '''
         Hook method for inherit
@@ -121,6 +123,7 @@ class AccountPayment(models.Model):
             'outbound-supplier': _("Vendor Payment"),
             'inbound-supplier': _("Vendor Reimbursement"),
         }
+
 
     def _prepare_move_line_default_vals(self, write_off_line_vals=None):
         ''' Prepare the dictionary to create the default account.move.lines for the current payment.

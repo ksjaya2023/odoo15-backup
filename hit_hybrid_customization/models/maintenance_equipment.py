@@ -8,6 +8,7 @@ from odoo.exceptions import UserError, ValidationError
 class MaintenanceEquipment(models.Model):
     _inherit = "maintenance.equipment"
 
+
     @api.onchange("x_studio_asset")
     def _onchange_account_asset(self):
         for record in self:
@@ -39,10 +40,12 @@ class MaintenanceEquipment(models.Model):
             else:
                 record.partner_id = None
 
+
     @api.onchange("employee_id")
     def _onchange_employee_id(self):
         for record in self:
             record.x_studio_department = record.employee_id.department_id.id
+
 
     def name_get(self):
         result = []
@@ -54,6 +57,7 @@ class MaintenanceEquipment(models.Model):
             if record.name and not record.x_studio_equipment_name:
                 result.append((record.id, record.name))
         return result
+
 
     @api.model
     def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):

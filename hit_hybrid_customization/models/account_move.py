@@ -6,13 +6,13 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from collections import defaultdict
 from odoo.tools import float_compare
 from odoo.tools.misc import format_date, get_lang
+import json
 
 
 class AccountMove(models.Model):
     _inherit = "account.move"
 
     site_id = fields.Many2one('md.site', string='Site')
-
     state = fields.Selection(
         selection=[
             ("draft", "Draft"),
@@ -22,10 +22,28 @@ class AccountMove(models.Model):
             ("reject", "Rejected"),
         ]
     )
+    purchase_request_id = fields.Many2one('purchase.request', string='Purchase Request')
+    bill_reference = fields.Char('Bill Reference')
+
+
+    '''
+    To Do:
+    Auto fill data tanggal_faktur_pajak and tanggal_bukti_potong from old data.
+    '''
+
+    tanggal_faktur_pajak = fields.Date('Tanggal Faktur Pajak')
+    tanggal_bukti_potong = fields.Date('Tanggal Bukti Potong')
+
+    @api.onchange('invoice_date')
+    def _onchange_invoice_date(self):
+        if self.move_type == 'out_invoice' and self.invoice_date:
+            self.tanggal_faktur_pajak = self.invoice_date
+
 
     def seq_auto_name(self):
         seq = self.env["ir.sequence"].next_by_code("pg.si.inv")
         self.write({"name": seq})
+
 
     @api.model
     def create(self, vals):
@@ -271,26 +289,6 @@ class AccountMove(models.Model):
         to_post._check_balanced()
         return to_post
 
-
-    # @api.constrains('invoice_line_ids', 'line_ids')
-    # def _check_analytic_account_id(self):
-    #     for record in self:
-    #         if record.payment_id:
-    #             continue
-    #         if record.move_type in ('out_invoice', 'in_invoice'):
-    #             for journal in record.line_ids:
-    #                 if not journal.analytic_account_id:
-    #                     continue
-    #             for inv_line in record.invoice_line_ids:
-    #                 if not inv_line.analytic_account_id:
-    #                     raise ValidationError('The analytic account is mandatory.')
-    #         if record.move_type in ('entry'):
-    #             for journal in record.invoice_line_ids:
-    #                 if not journal.analytic_account_id:
-    #                     continue
-    #             for inv_line in record.line_ids:
-    #                 if not inv_line.analytic_account_id:
-    #                     raise ValidationError('The analytic account is mandatory.')
 
 
 class AccountMoveLine(models.Model):

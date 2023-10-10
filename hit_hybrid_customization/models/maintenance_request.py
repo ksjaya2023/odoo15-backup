@@ -9,11 +9,11 @@ class MaintenanceRequest(models.Model):
 
     wo_done_date_time = fields.Datetime(
         compute='_compute_wo_done_date_time', string='Complete Time')
-
     inspection_id = fields.Many2one(
         string='Inspection',
         comodel_name='hit.condition.monitoring'
     )
+
 
     @api.depends('stage_id.name')
     def _compute_wo_done_date_time(self):
@@ -23,6 +23,7 @@ class MaintenanceRequest(models.Model):
             else:
                 record.wo_done_date_time = None
 
+
     @api.onchange('wo_done_date_time', 'schedule_date')
     def _onchange_wo_done_date_time(self):
         for record in self:
@@ -30,6 +31,7 @@ class MaintenanceRequest(models.Model):
                 diff = record.wo_done_date_time - record.schedule_date
                 result = abs(diff)
                 record.duration = result.total_seconds() / 3600
+
 
     @api.onchange('inspection_id')
     def _onchange_inspection_id(self):

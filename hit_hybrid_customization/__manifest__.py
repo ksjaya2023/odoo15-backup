@@ -23,6 +23,8 @@
         "purchase",
         "stock",
         "hit_condition_monitoring",
+        "hr",
+        "l10n_id_efaktur",
     ],
     # always loaded
     # make sure the menu view is on the last
@@ -41,5 +43,6 @@
         "views/account_asset_views.xml",
         "views/stock_picking_views.xml",
         "views/stock_quant_views.xml",
+        "views/report_tax_views.xml",
     ],
 }

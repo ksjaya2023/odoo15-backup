@@ -25,7 +25,7 @@
             <field name="active" eval="True" />
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='code']" position="after">
-                    <field name="site_id" />
+                    <field name="site_id" options="{'no_create': True}"/>
                 </xpath>
             </field>
         </record>
@@ -40,12 +40,16 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='picking_type_id']" position="after">
                     <field name="operation_category" invisible="1"/>
+                    <field name="purchase_request_id" invisible="1"/>
+                    <field name="purchase_id" invisible="1"/>
                 </xpath>
                 <xpath expr="//button[@name='action_cancel']" position="after">
                     <!-- for testing purpose, please comment button helper again -->
                     <!-- <button name="button_validate" string="VALIDATE HELPER" type="object"/> -->
+                    <!-- <button name="action_set_quantities_to_reservation" string="SET QTY HELPER" type="object"/> -->
                 </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']//field[@name='product_id']" position="after">
+                    <field name="id" invisible="1"/>
                     <field name="analytic_account_id" attrs="{'column_invisible': [('parent.operation_category', 'not in', ('in', 'out'))]}"/>
                 </xpath>
             </field>

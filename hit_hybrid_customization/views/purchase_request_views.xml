@@ -1,32 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Form view for "model" -->
         <record id="hit_purchase_request_form_inherit" model="ir.ui.view">
             <field name="name">hit.purchase.request.form.inherit</field>
             <field name="model">purchase.request</field>
             <field name="inherit_id" ref="purchase_request.view_purchase_request_form" />
             <field name="arch" type="xml">
-                <!-- <xpath expr="//button[@name='button_draft']" position="after">
-                    for testing purpose, please comment button helper again
-                    <button name="%(purchase_request.action_purchase_request_line_make_purchase_order)d" string="Create RFQ Helper" type="action"/>
-                    <button name="button_approved" states="to_approve" string="Approve Helper" type="object" class="oe_highlight" />
-                    <button name="button_done" states="approved" string="Done Helper" type="object" class="oe_highlight" />
-                </xpath> -->
-                <!-- <xpath expr="//field[@name='picking_type_id']" position="before">
-                    <field name="purchase_type"/>
+                <xpath expr="//button[@name='button_draft']" position="after">
+                    <!-- for testing purpose, please comment button helper again -->
+                    <!-- <button name="%(purchase_request.action_purchase_request_line_make_purchase_order)d" string="Create RFQ Helper" type="action"/> -->
+                    <!-- <button name="button_approved" states="to_approve" string="Approve Helper" type="object" class="oe_highlight" /> -->
+                    <!-- <button name="button_done" states="approved" string="Done Helper" type="object" class="oe_highlight" /> -->
                 </xpath>
-                <xpath expr="//field[@name='picking_type_id']" position="after">
-                    <field name="site_id"/>
-                </xpath> -->
+                <xpath expr="//button[@name='button_rejected']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_draft']" position="attributes">
+                    <attribute name="groups"/>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="attrs">{}</attribute>
+                    <attribute name="force_save">True</attribute>
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_start']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='group_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='requested_by']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='description']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//group/group[3]" position="after">
+                    <group>
+                        <field name="purchase_type" attrs="{'readonly': [['is_editable','=',False]]}"/>
+                        <field name="picking_type_id" options="{'no_create': True}" domain="[('operation_category', '=', 'in')]" force_save="1"/>
+                        <field name="site_id" options="{'no_create': True}" force_save="1" attrs="{'readonly': [['is_editable','=',False]]}"/>
+                        <field name="status_asset" attrs="{'invisible': [('purchase_type','!=','asset_request')]}"/>
+                        <!-- <field name="is_direct_payment" attrs="{'readonly': [['is_editable','=',False]]}"/> -->
+                    </group>
+                    <group>
+                        <field name="date_start"/>
+                        <field name="create_uid" />
+                        <field name="priority" attrs="{'readonly': [['is_editable','=',False]]}"/>
+                        <field name="description" attrs="{'readonly': [['is_editable','=',False]]}"/>
+                    </group>
+                </xpath>
                 <xpath expr="//form/sheet/notebook/page/field[@name='line_ids']/tree/field[@name='product_qty']" position="after">
                     <field name="life_of_projects"/>
+                    <field name="site_id" invisible="1"/>
                 </xpath>
-                <xpath expr="//form/sheet/notebook/page/field[@name='line_ids']/form/sheet/group/group" position="inside">
-                    <field name="life_of_projects"/>
+                <xpath expr="//field[@name='line_ids']" position="attributes">
+                    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
                 </xpath>
-                <xpath expr="//form/sheet/notebook/page/field[@name='line_ids']/form/sheet/group/group/field[@name='estimated_cost']" position="attributes">
+                <xpath expr="//field[@name='line_ids']/form/sheet/group/group" position="inside">
+                    <field name="life_of_projects" attrs="{'readonly': [('is_editable','=', False)]}"/>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']//field[@name='estimated_cost']" position="attributes">
                     <attribute name="string">Estimate Price</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']//field[@name='product_uom_id']" position="attributes">
+                    <attribute name="string">UoM</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']//field[@name='date_required']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                    <attribute name="string">Due Date</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']//field[@name='purchased_qty']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']//field[@name='purchase_state']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/tree//field[@name='company_id']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/form//field[@name='product_id']" position="attributes">
+                    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+                    <attribute name="required">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/form//field[@name='product_id']" position="attributes">
+                    <attribute name="options">{'no_create': True}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/form//field[@name='product_uom_id']" position="attributes">
+                    <attribute name="options">{'no_create': True}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+                    <attribute name="options">{'no_create': True}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/form//field[@name='date_required']" position="attributes">
+                    <attribute name="string">Due Date</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/form//field[@name='cancelled']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="pg_purchase_request_purchase_request_line_form_inherit" model="ir.ui.view">
+            <field name="name">pg_purchase_request_purchase_request_line_form_inherit</field>
+            <field name="model">purchase.request.line</field>
+            <field name="inherit_id" ref="purchase_request.purchase_request_line_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='purchase_request_allocation_ids']//field[@name='purchase_line_id']" position="after">
+                    <field name="purchase_request_line_id" optional="hide"/>
+                    <field name="stock_move_number" invisible="1"/>
                 </xpath>
             </field>
         </record>

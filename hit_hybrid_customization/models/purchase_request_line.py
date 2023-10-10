@@ -31,8 +31,81 @@ class PurchaseRequestLine(models.Model):
         ('60_bulan', '60 Bulan'),
     ], string='Life of Projects')
 
+
+    move_count = fields.Integer(
+        string="Stock Move Count",
+        related="request_id.move_count",
+        readonly=True
+    )
+
+    # latest_purchase_request_allocation = fields.Many2one(
+    #     string="Latest Allocation",
+    #     comodel_name="purchase.request.allocation",
+    #     compute="_compute_latest_allocation",
+    #     store=True
+    # )
+
+    # stock_move_id = fields.Many2one(
+    #     string="Stock Move",
+    #     comodel_name="stock.move",
+    #     ondelete="cascade",
+    #     related="latest_purchase_request_allocation.stock_move_id",
+    #     store=True
+    # )
+    
+    # move_state = fields.Selection([
+    #     ('draft', 'New'), ('cancel', 'Cancelled'),
+    #     ('waiting', 'Waiting Another Move'),
+    #     ('confirmed', 'Waiting Availability'),
+    #     ('partially_available', 'Partially Available'),
+    #     ('assigned', 'Available'),
+    #     ('done', 'Done')], string='Moves Status',
+    #     copy=False, default='draft', index=True, readonly=True,
+    #     related='stock_move_id.state',
+    #     help="*Following State of the related stock move\n")
+
+    # stock_move_number = fields.Integer('Stock Move Number', related='stock_move_id.id')
+
+    site_id = fields.Many2one('md.site', string='Site', related='request_id.site_id', store=True)
+
+
     @api.constrains('analytic_account_id')
     def _constrains_analytic_account_id(self):
         for record in self:
             if not record.analytic_account_id:
                 raise ValidationError(_('The analytic account requires mandatory input.'))
+
+
+    # @api.depends('purchase_request_allocation_ids.write_date')
+    # def _compute_latest_allocation(self):
+    #     for record in self:
+    #         latest_allocation = record.purchase_request_allocation_ids.sorted(
+    #             key=lambda r: r.write_date, reverse=True
+    #         )[:1]
+    #         if latest_allocation:
+    #             record.latest_purchase_request_allocation = latest_allocation[0]
+    #         else:
+    #             record.latest_purchase_request_allocation = False
+
+
+    @api.onchange("product_id")
+    def _onchange_product_id(self):
+        if self.product_id:
+            self.analytic_account_id = False
+            site_id = self.site_id.id
+            if site_id:
+                domain = [("site_id", "=", site_id)]
+                return {"domain": {"analytic_account_id": domain}}
+            else:
+                return {"domain": {"analytic_account_id": [("site_id", "=", False)]}}
+        else:
+            self.analytic_account_id = False
+            return {"domain": {"analytic_account_id": [("site_id", "=", False)]}}
+
+
+
+class PurchaseRequestAllocation(models.Model):
+    _inherit = "purchase.request.allocation"
+    
+
+    stock_move_number = fields.Integer('Stock Move Number', related='stock_move_id.id')

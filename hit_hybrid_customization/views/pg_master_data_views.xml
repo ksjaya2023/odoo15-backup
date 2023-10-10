@@ -39,6 +39,7 @@
                         </div>
                         <group>
                             <field name="company_id" />
+                            <field name="is_default" />
                         </group>
                     </sheet>
                 </form>

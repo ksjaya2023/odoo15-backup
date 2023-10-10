@@ -8,7 +8,7 @@
             <field name="name">pg_analytic_account_analytic_group_form_view_inherit</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='parent_id']" position="after">
-                    <field name="site_id"/>
+                    <field name="site_id" options="{'no_create': True}"/>
                 </xpath>
             </field>
         </record>
@@ -19,7 +19,7 @@
             <field name="name">pg_analytic_account_analytic_group_tree_view_inherit</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="after">
-                    <field name="site_id"/>
+                    <field name="site_id" options="{'no_create': True}"/>
                 </xpath>
             </field>
         </record>
@@ -30,7 +30,7 @@
             <field name="name">pg_analytic_view_account_analytic_account_form_inherit</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='group_id']" position="after">
-                    <field name="site_id"/>
+                    <field name="site_id" options="{'no_create': True}"/>
                 </xpath>
             </field>
         </record>

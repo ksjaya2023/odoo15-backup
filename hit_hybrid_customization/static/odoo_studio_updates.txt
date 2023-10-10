@@ -1,0 +1,1589 @@
+1. Pay attention to site and operation type master data configuration.
+2. Please maintain site data in warehouse for auto fill site based on picking type in purchase request screen.
+
+Notes Odoo Studio:
+Frontend:
+Comment existing site warehouse.
+Comment picking type id.
+Update studio_customization.studio_report_docume_f78cd9e0-52ee-4fd7-8e6f-7430a16c615a
+Update studio_customization.studio_report_docume_f78cd9e0-52ee-4fd7-8e6f-7430a16c615a copy(1): x_studio_purchase_type
+
+Maintain Data:
+- Add Warehouse and site in approval.
+- Maintain site in warehouse screen.
+
+Backend:
+- Hide printout pr copy from menu.
+- [angga] add approval to pr
+
+for record in records:
+  id = record.id
+  if record.purchase_type == 'purchase_request':
+    approvers_project_head = env['x_master_approval'].search([('x_studio_category', '=', 'PR'), ('x_studio_site', '=', record.site_id.id), ('x_name', '=', 'Section Head')], limit=1)
+    approvers_project_manager = env['x_master_approval'].search([('x_studio_category', '=', 'PR'), ('x_studio_site', '=', record.site_id.id), ('x_name', '=', 'Project Manager')], limit=1)
+    approvers_department_manager = env['x_master_approval'].search([('x_studio_category', '=', 'PR'), ('x_studio_department', '=', record.x_studio_departement), ('x_name', '=', 'Department Manager')], limit=1)
+    approvers = approvers_project_head.union(approvers_project_manager).union(approvers_department_manager)
+    approvers = approvers
+  else:
+    approvers_project_head = env['x_master_approval'].search([('x_studio_category', '=', 'AR'), ('x_studio_site', '=', record.site_id.id), ('x_name', '=', 'Section Head')], limit=1)
+    approvers_project_manager = env['x_master_approval'].search([('x_studio_category', '=', 'AR'), ('x_studio_site', '=', record.site_id.id), ('x_name', '=', 'Project Manager')], limit=1)
+    approvers_department_manager = env['x_master_approval'].search([('x_studio_category', '=', 'AR'), ('x_studio_department', '=', record.x_studio_departement), ('x_name', '=', 'Department Manager')], limit=1)
+    approvers_bod = env['x_master_approval'].search([('x_studio_category', '=', 'AR'), ('x_name', '=', 'BOD')], limit=1)
+    approvers = approvers_project_head.union(approvers_project_manager).union(approvers_department_manager).union(approvers_bod)
+    
+  approvers = approvers
+  
+  for approver in approvers:
+    if (approver.x_studio_minimum_spend <= record.x_studio_amount_total):
+      check = env['x_approval_list'].search([('x_studio_many2one_field_mlJBb', "=", approver.id), ('x_studio_purchase_request', "=", id)])
+      if (check):
+        continue
+      env['x_approval_list'].create({'x_studio_many2one_field_mlJBb': approver.id, 'x_studio_purchase_request': id, 'x_name': env['ir.sequence'].next_by_code('app_inv') })
+
+
+
+
+- Approve
+# @author: anggakawa
+
+# list approval yang ada di model target
+# One2many on each model
+target_field_map = {
+  "account.move": "x_studio_one2many_field_oWOSf", "account.payment": "x_studio_payments",
+  "x_reservation": "x_studio_approval_list", "purchase.request": "x_studio_approval_list",
+  "purchase.order": "x_studio_approval_list", "res.partner": "x_studio_approval_list",
+  "stock.picking": "x_studio_approval_list", "maintenance.equipment": "x_studio_approval_list",
+  "x_return_request": "x_studio_approval_list", "x_disposal": "x_studio_approval_list",
+  "x_scrap": "x_studio_approval_list", "x_transfer_equipment": "x_studio_approval_list",
+}
+
+# Many2one in approval list
+appr_field_map = {
+  "account.move": "x_studio_many2one_field_I3X9h", "account.payment": "x_studio_payments",
+  "x_reservation": "x_studio_reservation", "purchase.request": "x_studio_purchase_request",
+  "purchase.order": "x_studio_purchase_order", "res.partner": "x_studio_vendor",
+  "stock.picking": "x_studio_transfer", "maintenance.equipment": "x_studio_equipment",
+  "x_return_request": "x_studio_return_request", "x_disposal": "x_studio_disposal",
+  "x_scrap": "x_studio_scrap", "x_transfer_equipment": "x_studio_transfer_equipment",
+}
+
+category = env.context.get('category')
+
+record = env[category].sudo().search([('id', '=', env.context.get('active_ids'))], limit=1)
+check = False
+if record[target_field_map[category]]:
+  id = record.id
+  find_unappr = env['x_approval_list'].search([(appr_field_map[category], "=", id), ("x_studio_approved", '=', False)], limit=1)
+  if find_unappr:
+    find_unappr['x_studio_approved'] = True
+  for appr in record[target_field_map[category]]:
+    if appr.x_studio_approved == False:
+      check = True
+  record.sudo().write({'x_studio_still_in_approval': check})
+  
+# Happened after approval or when x_studio_still_in_approval = False
+  if not check:
+    if category == 'account.move':
+      record.sudo().action_post() # langsung post
+      # record.sudo().write({'auto_post': False}) # tidak langsung post
+    elif category == 'account.payment':
+      record.sudo().action_post() # langsung post
+      # record.sudo().write({'auto_post': False}) # tidak langsung post
+    elif category == 'purchase.request':
+      for pr_item in record:
+        if pr_item.purchase_type == 'asset_request':
+          if not pr_item.x_studio_form_sirkuler:
+            raise UserError('You need to input the form sirkuler first.')
+          else:
+            pr_item.sudo().button_approved() # langsung approved
+        else:
+          record.sudo().button_approved() # langsung approved
+    elif category == 'purchase.order':
+      # record.sudo().button_confirm() # langsung confirm
+      for order in record:
+        order._add_supplier_to_product()
+        # Deal with double validation process
+        if order._approval_allowed():
+            # order.button_approve()
+          order.write({'state': 'purchase', 'date_approve': datetime.datetime.now()})
+          order._create_picking()
+          # order.action_view_picking()
+          # order._prepare_invoice()
+          # order.action_create_invoice()
+        else:
+            order.write({'state': 'to approve'})
+        if order.partner_id not in order.message_partner_ids:
+            order.message_subscribe([order.partner_id.id])
+      ref = env['ir.sequence'].next_by_code('po.sequence')
+      record['x_studio_rfq'] = record.name
+      record['name'] = 'PO/' + str(record.x_studio_department) + '/' + ref
+    elif category == 'stock.picking':
+      if record.x_studio_operation_type_name == 'Return to Vendor':
+        record['show_validate'] = True
+      elif (record.x_studio_operation_type_name in ['Return to Vendor','Inventory Issued']):
+        record.sudo().with_context(skip_backorder=True, picking_ids_not_to_backorder=record.id).button_validate()
+    elif category == 'x_reservation':
+      in_progress = env['x_reservation_stage'].search([('x_name', '=', 'In Progress')], limit=(1,))
+      record.sudo().write({'x_studio_status': 'in progress',
+                            'x_studio_stage_id': in_progress.id})
+    elif category == 'x_disposal':
+      record.sudo().write({'x_studio_status': 'Done',
+                            'x_studio_stage_id': '3'})
+    elif category == 'x_scrap':
+      record.sudo().write({'x_studio_status': 'In Progress',
+                            'x_studio_stage_id': '3'})
+    elif category == 'x_return_request':
+      record.sudo().write({'x_studio_status_bar': 'in progress',
+                            'x_studio_stage_id': '3'})
+    elif category == 'x_transfer_equipment':
+      record.sudo().write({'x_studio_status': 'In Progress',
+                            'x_studio_stage_id': '3'})
+    elif category == 'maintenance.equipment':
+      record.sudo().write({'x_studio_state': 'approved'})
+    elif category == 'res.partner':
+      record.sudo().write({'x_studio_state': 'approved'})
+
+- PR Naming Convention
+
+for line in records:
+  if not line.x_studio_request_number:
+    ref = env['ir.sequence'].next_by_code('pr.sequence')
+    line['x_studio_request_number'] = ref
+  
+  if line.x_studio_request_number:
+    if line.x_studio_departement:
+      if line.purchase_type == 'purchase_request':
+        line['name'] = 'PR/' + str(line.x_studio_departement) + '/' + line.x_studio_request_number
+      elif line.purchase_type == 'asset_request':
+        line['name'] = 'AR/' + str(line.x_studio_departement) + '/' + line.x_studio_request_number
+      else:
+        line['name'] = 'PR/' + str(line.x_studio_departement) + '/' + line.x_studio_request_number
+    else:
+      if line.purchase_type == 'purchase_request':
+        line['name'] = 'PR/' + line.x_studio_request_number
+      elif line.purchase_type == 'asset_request':
+        line['name'] = 'AR/' + line.x_studio_request_number
+      else:
+        line['name'] = 'PR/' + line.x_studio_request_number
+
+
+- [angga] pengecekan status approval
+
+for record in records:
+  check = False
+  if record.x_studio_approval_list:
+    for appr in record.x_studio_approval_list:
+      if appr.x_studio_approved is False:
+        check = True
+  record['x_studio_still_in_approval'] = check
+  if record.purchase_type == 'asset_request':
+    approvals = env['x_approval_list'].search([('x_studio_many2one_field_mlJBb.x_name', "!=", 'BOD'), ('x_studio_purchase_request', "=", record.id), ('x_studio_approved', '=', False)], limit=1)
+    if approvals:
+      record['x_studio_all_approve_except_bod'] = False
+    else:
+      record['x_studio_all_approve_except_bod'] = True
+
+- Create PR from GI
+
+# Available variables:
+#  - env: Odoo Environment on which the action is triggered
+#  - model: Odoo Model of the record on which the action is triggered; is a void recordset
+#  - record: record on which the action is triggered; may be void
+#  - records: recordset of all records on which the action is triggered in multi-mode; may be void
+#  - time, datetime, dateutil, timezone: useful Python libraries
+#  - float_compare: Odoo function to compare floats based on specific precisions
+#  - log: log(message, level='info'): logging function to record debug information in ir.logging table
+#  - UserError: Warning Exception to use with raise
+#  - Command: x2Many commands namespace
+# To return an action, assign: action = {...}
+
+for gi in record:
+  opr_type_id = 0
+  opr_type = env['stock.picking.type'].search([('sequence_code','=','IN'), ('warehouse_id', '=', gi.picking_type_id.warehouse_id.id)])
+  for line_opr_type in opr_type:
+    opr_type_id = line_opr_type.id
+  
+  create_pr = env['purchase.request'].create({
+    'requested_by':gi.create_uid.id,
+    'date_start':gi.create_date,
+    'picking_type_id':opr_type_id,
+    'company_id':gi.company_id.id,
+    'x_studio_create_by_issue':True,
+    'purchase_type': 'purchase_request',
+    'x_studio_requester_name': str(gi.env.user.name),
+    'site_id': gi.picking_type_id.warehouse_id.site_id.id,
+  })
+  
+  if create_pr:
+    pr_id = 0
+    for row_pr in create_pr:
+      pr_id = row_pr.id
+      
+    # gi['x_studio_create_pr'] = True
+    # gi['x_studio_pr'] = id
+    
+    for item_gi in gi.move_ids_without_package:
+      env['purchase.request.line'].create({'product_id':item_gi.product_id.id,
+        'name':item_gi.product_id.name,
+        'product_qty':item_gi.product_uom_qty,
+        'product_uom_id':item_gi.product_uom.id,
+        'date_required':datetime.date.today(),
+        'estimated_cost':item_gi.price_unit,
+        'request_id':pr_id,
+        'analytic_account_id':gi.x_studio_analytic_account.id,
+    })
+    gi['x_studio_create_pr'] = True
+    gi['x_studio_pr'] = create_pr.id
+
+
+- Approve Reservation and Create issue when inprogess
+
+# Available variables:
+#  - env: Odoo Environment on which the action is triggered
+#  - model: Odoo Model of the record on which the action is triggered; is a void recordset
+#  - record: record on which the action is triggered; may be void
+#  - records: recordset of all records on which the action is triggered in multi-mode; may be void
+#  - time, datetime, dateutil, timezone: useful Python libraries
+#  - float_compare: Odoo function to compare floats based on specific precisions
+#  - log: log(message, level='info'): logging function to record debug information in ir.logging table
+#  - UserError: Warning Exception to use with raise
+#  - Command: x2Many commands namespace
+# To return an action, assign: action = {...}
+
+for line in record:
+  
+  line['x_studio_status'] = 'done'
+  stage = env['x_reservation_stage'].search([('x_name','=','Done')])
+  for row_stage in stage:
+    line['x_studio_stage_id'] = row_stage.id
+  
+  if line.x_studio_reservation_type == '1':       #Reservasi type Stock, then create GI
+  
+    rec_opr_type = 0
+    opr_type = env['stock.picking.type'].search([('name','=','Inventory Issued'), ('warehouse_id', '=', line.x_studio_warehouse.id)], limit=1)
+    for row_opr_type in opr_type:
+      rec_opr_type = row_opr_type.id
+      
+    rec_src_loc = 0
+    src_loc = env['stock.location'].search([('complete_name','=', line.x_studio_locations.complete_name)])
+    for row_src_loc in src_loc:
+      rec_src_loc = row_src_loc.id
+      
+    dest_loc_id = 0
+    dest_loc = env['stock.location'].search([('name','=','Physical Locations')])
+    for row_dest_loc in dest_loc:
+      dest_loc_id = row_dest_loc.id
+    
+    if rec_opr_type:
+      if rec_src_loc:
+        
+        gi_temp = env['stock.picking'].search([('x_studio_many2one_reservation','=',line.id)])
+        if not gi_temp:
+          rec_gi = env['stock.picking'].create({'location_dest_id': opr_type.default_location_dest_id.id,
+                                                     'location_id':rec_src_loc,
+                                                     'picking_type_id':rec_opr_type,
+                                                     'x_studio_many2one_reservation':line.id,
+                                                     'x_studio_create_by_reservation':1,
+          })
+          
+          if rec_gi:
+            gi_id = 0
+            for row_gi in rec_gi:
+              gi_id = row_gi.id
+            
+            for item in line.x_reservation_line_ids_f5c60:
+              env['stock.move'].create({'product_id':item.x_studio_many2one_field_vym0h.id, 
+                                        'product_uom_qty':item.x_studio_quantity,
+                                        'picking_id':gi_id,
+                                        'name':item.x_studio_many2one_field_vym0h.name,
+                                        'product_uom':item.x_studio_uom.id,
+                                        'location_id':rec_src_loc,
+                                        'location_dest_id': opr_type.default_location_dest_id.id,
+                                        'analytic_account_id': line.x_studio_analytic_account.id or False,
+              })
+          
+            line['x_studio_create_gi'] = True
+            line['x_studio_gi'] = gi_id
+          
+  elif line.x_studio_reservation_type == '2':       #reservasi type Non Stock, then Create PR
+  
+    opr_type_id = 0
+    opr_type = env['stock.picking.type'].search([('sequence_code','=','IN'), ('warehouse_id', '=', line.x_studio_warehouse.id)])
+    for line_opr_type in opr_type:
+      opr_type_id = line_opr_type.id
+    
+    pr_temp = env['purchase.request'].search([('x_studio_many2one_reservation','=',line.id)])
+    if not pr_temp:
+      create_pr = env['purchase.request'].create({
+        'requested_by':line.create_uid.id,
+        'date_start':datetime.date.today(),
+        'picking_type_id':opr_type_id,
+        'company_id':line.create_uid.company_id.id,
+        'x_studio_request_type':'Non Stock',
+        'x_studio_many2one_reservation':line.id,
+        'x_studio_create_by_reservasi':True,
+        'x_studio_requester_name': str(line.env.user.name),
+        'x_studio_departement': 'PLM',
+        'purchase_type': 'purchase_request',
+        'site_id': line.x_studio_warehouse.site_id.id,
+      })
+    
+      if create_pr:
+        pr_id = 0
+        for row_pr in create_pr:
+          pr_id = row_pr.id
+              
+        line['x_studio_create_pr'] = True
+        line['x_studio_pr_number'] = pr_id
+      
+        for item_resv in line.x_reservation_line_ids_f5c60:
+          env['purchase.request.line'].create({
+                                      'product_id':item_resv.x_studio_many2one_field_vym0h.id,
+                                      'name':item_resv.x_studio_many2one_field_vym0h.name,
+                                      'product_qty':item_resv.x_studio_quantity,
+                                      'product_uom_id':item_resv.x_studio_uom.id,
+                                      'date_required':datetime.date.today(),
+                                      'estimated_cost':item_resv.x_studio_price_2,
+                                      'analytic_account_id':line.x_studio_analytic_account_1.id,
+                                      'request_id':pr_id
+          })
+
+  
+  else:
+    raise UserError('You need to input the reservation type.')
+
+
+
+
+
+Attachments:
+Updated PR Customization:
+<data>
+  <xpath expr="//form[1]/sheet[1]/group[1]/group[3]" position="replace">
+    <xpath expr="//field[@name='date_start']" position="move"/>
+    <xpath expr="//field[@name='origin']" position="move"/>
+  </xpath>
+  <xpath expr="//button[@name='button_approved']" position="attributes">
+    <attribute name="attrs">{'invisible': ['|', ('state', '!=', 'to_approve'), ('x_studio_still_in_approval', '=', True)]}</attribute>
+    <attribute name="states"/>
+    <attribute name="string">Confirm</attribute>
+  </xpath>
+  <xpath expr="//button[@name='button_approved']" position="after">
+    <button name="1474" string="APPROVE" type="action" class="btn-success" context="{'category': 'purchase.request'}" attrs="{'invisible': ['|', '|', ('state', '!=', 'to_approve'),('x_studio_show_button_approve', '=', False), ('x_studio_still_in_approval', '=', False)]}" confirm="Are you sure you want to do this?"/>
+    <button name="1475" string="REJECT" type="action" class="btn-danger" context="{'category': 'purchase.request'}" attrs="{'invisible': ['|', '|', ('state', '!=', 'to_approve'),('x_studio_show_button_approve', '=', False), ('x_studio_still_in_approval', '=', False)]}" confirm="Are you sure you want to do this?"/>
+  </xpath>
+  <xpath expr="//button[@name='377']" position="attributes">
+    <attribute name="class">btn-primary</attribute>
+    <attribute name="groups">__export__.res_groups_222_12a4ae9e,__export__.res_groups_223_508174cb</attribute>
+    <attribute name="studio_approval">False</attribute>
+  </xpath>
+  <xpath expr="//button[@name='button_done']" position="attributes">
+    <attribute name="class"/>
+    <attribute name="attrs">{'invisible': [('state', '!=', 'approved')]}</attribute>
+    <attribute name="groups">purchase_request.group_purchase_request_manager,__export__.res_groups_222_12a4ae9e,__export__.res_groups_223_508174cb</attribute>
+  </xpath>
+  <xpath expr="//field[@name='purchase_type']" position="before">
+    <field name="x_studio_request_number" string="Request Number" attrs="{}" invisible="1"/>
+    <field name="x_studio_request_type" string="Request Type" attrs="{}" invisible="1"/>
+  </xpath>
+  <xpath expr="//field[@name='purchase_type']" position="after">
+    <!--<field name="x_studio_purchase_type" attrs="{'readonly': [['is_editable','=',False]]}"/>-->
+    <!--<field name="x_studio_status_asset" attrs="{'invisible': [('x_studio_purchase_type','!=','Asset Request')], 'readonly': [['is_editable','=',False]]}"/> -->
+    <field name="x_studio_many2one_reservation" domain="[[&quot;x_studio_status&quot;,&quot;=&quot;,&quot;in progress&quot;]]" attrs="{&quot;readonly&quot;: [[&quot;is_editable&quot;,&quot;=&quot;,False]]}"/>
+    <field name="x_studio_requester_name" string="Requester Name" attrs="{&quot;readonly&quot;: [[&quot;is_editable&quot;,&quot;=&quot;,False]]}" required="1"/>
+    <field name="x_studio_departement" string="Department" attrs="{&quot;readonly&quot;: [[&quot;is_editable&quot;,&quot;=&quot;,False]]}" required="1"/>
+  </xpath>
+  <xpath expr="//field[@name='assigned_to']" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='assigned_to']" position="after">
+    <field name="x_studio_create_rfq" string="Create RFQ" attrs="{}" invisible="1"/>
+    <field name="x_studio_rfq" string="RFQ" force_save="True" attrs="{&quot;invisible&quot;: [[&quot;x_studio_create_rfq&quot;,&quot;=&quot;,False]]}" readonly="1"/>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/notebook[1]/page[1]" position="inside">
+    <xpath expr="//field[@name='line_ids']" position="move"/>
+    <field name="x_studio_amount_total" force_save="True" attrs="{}" readonly="1" string="amount_total"/>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/notebook[1]" position="inside">
+    <page string="Approval" name="studio_page_qFE3h">
+      <group name="studio_group_qFE3h">
+        <group name="studio_group_qFE3h_left">
+          <field name="x_studio_approval_list" string="Approval List" force_save="True" attrs="{}" readonly="1">
+            <tree create="false" edit="false" delete="false">
+              <field name="x_studio_sequence" widget="handle"/>
+              <field name="x_studio_approver" optional="show"/>
+              <field name="x_studio_warehouse" optional="show" string="Site"/>
+              <field name="x_studio_approved" optional="show"/>
+            </tree>
+            <form create="false" delete="false">
+              <header/>
+              <sheet string="Approval List" name="studio_sheet_517ee8">
+                <widget name="web_ribbon" text="Archived" bg_color="bg-danger" attrs="{'invisible': [('x_active', '=', True)]}"/>
+                <field name="x_active" invisible="1"/>
+                <div class="oe_title" name="studio_div_fc6ad6">
+                  <h1>
+                    <field name="x_name" placeholder="Name..." attrs="{}" force_save="True" readonly="1"/>
+                  </h1>
+                </div>
+                <group name="studio_group_fb7ac6">
+                  <group name="studio_group_fb7ac6_left">
+                    <field name="x_studio_reservation" attrs="{}" invisible="1"/>
+                    <field name="x_studio_payments" force_save="True" attrs="{}" readonly="1"/>
+                    <field name="x_studio_many2one_field_mlJBb" attrs="{}" invisible="1"/>
+                    <field name="x_studio_many2one_field_I3X9h" attrs="{}" invisible="1"/>
+                    <field name="x_studio_purchase_request" force_save="True" attrs="{}" readonly="1"/>
+                  </group>
+                  <group name="studio_group_fb7ac6_right">
+                    <field name="x_studio_approved" string="Approved"/>
+                  </group>
+                </group>
+              </sheet>
+            </form>
+          </field>
+          <field name="x_studio_next_approval" string="Next Approval"/>
+          <field name="x_studio_reject_reason" string="Reject Reason"/>
+        </group>
+        <group name="studio_group_qFE3h_right" attrs="{}" invisible="1">
+          <field name="x_studio_still_in_approval" string="still in approval" attrs="{}"/>
+          <field name="x_studio_all_approve_except_bod" string="all approve except bod" attrs="{}"/>
+          <field name="x_studio_show_button_approve" string="Show Button Approve"/>
+          <field name="x_studio_approval_state_order" string="approval_state_order"/>
+          <field name="x_studio_approval_order" string="approval order"/>
+        </group>
+      </group>
+    </page>
+    <page string="Form Sirkuler" name="studio_page_xcmYZ" attrs="{&quot;invisible&quot;: [[&quot;x_studio_all_approve_except_bod&quot;,&quot;=&quot;,False]]}">
+      <group name="studio_group_xcmYZ">
+        <group name="studio_group_xcmYZ_left">
+          <field widget="pdf_viewer" name="x_studio_form_sirkuler" string="Form Sirkuler"/>
+        </group>
+        <group name="studio_group_xcmYZ_right"/>
+      </group>
+    </page>
+  </xpath>
+  <xpath expr="//form[1]/div[1]" position="inside">
+    <xpath expr="//field[@name='message_follower_ids']" position="move"/>
+    <xpath expr="//field[@name='activity_ids']" position="move"/>
+    <xpath expr="//field[@name='message_ids']" position="move"/>
+  </xpath>
+</data>
+
+
+
+Backup PR Customization:
+<data>
+  <xpath expr="//button[@name='button_approved']" position="after">
+    <button name="1474" string="APPROVE" type="action" class="btn-success" context="{'category': 'purchase.request'}" attrs="{'invisible': ['|', '|', ('state', '!=', 'to_approve'),('x_studio_show_button_approve', '=', False), ('x_studio_still_in_approval', '=', False)]}" confirm="Are you sure you want to do this?"/>
+    <!--<button name="1474" string="APPROVE" type="action" class="btn-success" context="{'category': 'purchase.request'}" attrs="{'invisible': ['|', '|', '|', ('state', 'in', ('draft', 'rejected')), ('x_studio_still_in_approval', '=', False), ('x_studio_all_approve_except_bod', '=', False), ('x_studio_form_sirkuler','=',False)]}" confirm="Are you sure you want to do this?"/>-->
+    <!--<button name="1474" string="APPROVE" type="action" class="btn-success" context="{'category': 'purchase.request'}" attrs="{'invisible': ['|', '|', '|', ('state', 'in', ('draft' ,'rejected')), ('x_studio_still_in_approval', '=', False), ('x_studio_all_approve_except_bod', '=', True), ('x_studio_form_sirkuler','=', True)]}" confirm="Are you sure you want to do this?"/>-->
+    <button name="1475" string="REJECT" type="action" class="btn-danger" context="{'category': 'purchase.request'}" attrs="{'invisible': ['|', '|', ('state', '!=', 'to_approve'),('x_studio_show_button_approve', '=', False), ('x_studio_still_in_approval', '=', False)]}" confirm="Are you sure you want to do this?"/>
+  </xpath>
+  <xpath expr="//button[@name='button_draft']" position="attributes">
+    <attribute name="attrs">{'invisible': [('state', '!=', 'rejected')]}</attribute>
+    <attribute name="states"/>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="attributes">
+    <attribute name="string">Estimate Cost</attribute>
+  </xpath>
+  <xpath expr="//button[@name='button_rejected']" position="attributes">
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//button[@name='button_done']" position="attributes">
+    <attribute name="attrs">{'invisible': [('state', '!=', 'approved')]}</attribute>
+  </xpath>
+  <xpath expr="//button[@name='button_approved']" position="attributes">
+    <attribute name="attrs">{'invisible': ['|', ('state', '!=', 'to_approve'), ('x_studio_still_in_approval', '=', True)]}</attribute>
+    <attribute name="states"/>
+    <attribute name="string">Confirm</attribute>
+  </xpath>
+  <xpath expr="//button[@name='377']" position="attributes">
+    <attribute name="class">btn-primary</attribute>
+  </xpath>
+  <xpath expr="//button[@name='button_done']" position="attributes">
+    <attribute name="class"/>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/h1[1]/field[@name='name']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="force_save">True</attribute>
+    <attribute name="readonly">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='requested_by']" position="before">
+    <field name="x_studio_request_number" string="Request Number" attrs="{}" invisible="1"/>
+    <field name="x_studio_request_type" string="Request Type"/>
+  </xpath>
+  <xpath expr="//field[@name='requested_by']" position="after">
+    <field name="x_studio_purchase_type" string="Purchase Type"/>
+  </xpath>
+  <xpath expr="//field[@name='assigned_to']" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='assigned_to']" position="after">
+    <field name="x_studio_create_rfq" string="Create RFQ" attrs="{}" invisible="1"/>
+    <field name="x_studio_rfq" string="RFQ" force_save="True" attrs="{&quot;invisible&quot;: [[&quot;x_studio_create_rfq&quot;,&quot;=&quot;,False]]}" readonly="1"/>
+  </xpath>
+  <xpath expr="//field[@name='group_id']" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='group_id']" position="after">
+    <field name="x_studio_create_by_issue" string="Create by Issue" attrs="{}" invisible="1"/>
+    <field name="x_studio_create_by_reservasi" string="Create by Reservasi" attrs="{}" invisible="1"/>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/group[1]/group[3]/field[@name='company_id']" position="after">
+    <field name="x_studio_many2one_reservation" domain="[[&quot;x_studio_status&quot;,&quot;=&quot;,&quot;in progress&quot;]]"/>
+    <field name="x_studio_reservation_item" string="Reservation Item" attrs="{}" invisible="1">
+      <tree editable="bottom">
+        <field name="x_studio_many2one_field_vym0h" optional="show"/>
+        <field optional="show" name="x_studio_product_name" string="Product Name"/>
+        <field name="x_studio_sequence" widget="handle"/>
+        <field name="x_studio_quantity" optional="show"/>
+        <field name="x_studio_uom" optional="show"/>
+        <field name="x_studio_price_2" optional="show"/>
+      </tree>
+    </field>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']" position="after">
+    <field name="x_studio_amount_total" force_save="True" attrs="{}" readonly="1" string="amount_total"/>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/notebook[1]" position="inside">
+    <page string="Approval" name="studio_page_qFE3h">
+      <group name="studio_group_qFE3h">
+        <group name="studio_group_qFE3h_left">
+          <field name="x_studio_approval_list" string="Approval List">
+            <tree create="false" edit="false" delete="false">
+              <field name="x_studio_sequence" widget="handle"/>
+              <field name="x_studio_many2one_field_mlJBb" optional="show"/>
+              <field name="x_studio_approved" optional="show"/>
+            </tree>
+            <form create="false" delete="false">
+              <header/>
+              <sheet string="Approval List" name="studio_sheet_517ee8">
+                <widget name="web_ribbon" text="Archived" bg_color="bg-danger" attrs="{'invisible': [('x_active', '=', True)]}"/>
+                <field name="x_active" invisible="1"/>
+                <div class="oe_title" name="studio_div_fc6ad6">
+                  <h1>
+                    <field name="x_name" placeholder="Name..." attrs="{}" force_save="True" readonly="1"/>
+                  </h1>
+                </div>
+                <group name="studio_group_fb7ac6">
+                  <group name="studio_group_fb7ac6_left">
+                    <field name="x_studio_reservation" attrs="{}" invisible="1"/>
+                    <field name="x_studio_payments" force_save="True" attrs="{}" readonly="1"/>
+                    <field name="x_studio_many2one_field_mlJBb" attrs="{}" invisible="1"/>
+                    <field name="x_studio_many2one_field_I3X9h" attrs="{}" invisible="1"/>
+                    <field name="x_studio_purchase_request" force_save="True" attrs="{}" readonly="1"/>
+                  </group>
+                  <group name="studio_group_fb7ac6_right">
+                    <field name="x_studio_approved" string="Approved"/>
+                  </group>
+                </group>
+              </sheet>
+            </form>
+          </field>
+        </group>
+        <group name="studio_group_qFE3h_right" attrs="{}" invisible="1">
+          <field name="x_studio_still_in_approval" string="still in approval"/>
+        </group>
+      </group>
+    </page>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[4]" position="after">
+    <xpath expr="//field[@name='picking_type_id'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[5]" position="after">
+    <xpath expr="//field[@name='x_studio_many2one_reservation'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[2]/field[1]" position="before">
+    <xpath expr="//field[@name='date_start'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[2]/field[2]" position="after">
+    <xpath expr="//field[@name='company_id'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[3]" position="replace"/>
+  <xpath expr="/form[1]/sheet[1]/group[1]" position="after">
+    <group name="studio_group_UGA5c">
+      <group name="studio_group_UGA5c_left"/>
+      <group name="studio_group_UGA5c_right"/>
+    </group>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]" position="inside">
+    <xpath expr="//field[@name='description'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[1]" position="attributes">
+    <attribute name="string">Notes</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[1]" position="attributes">
+    <attribute name="string">Description</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[6]" position="after">
+    <field name="x_studio_departement"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[7]" position="attributes">
+    <attribute name="string">Departement</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[7]" position="after">
+    <field name="x_studio_priority"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[8]" position="attributes">
+    <attribute name="string">Priority</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[1]" position="before">
+    <field name="x_studio_status_asset"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[1]" position="attributes">
+    <attribute name="string">Status Asset</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[1]" position="before">
+    <xpath expr="//field[@name='x_studio_departement'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[2]" position="after">
+    <xpath expr="//field[@name='x_studio_priority'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="optional">hide</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='company_id']" position="attributes">
+    <attribute name="optional">hide</attribute>
+  </xpath>
+  <xpath expr="//field[@name='purchase_state']" position="attributes">
+    <attribute name="optional">hide</attribute>
+  </xpath>
+  <xpath expr="//field[@name='product_uom_id']" position="attributes">
+    <attribute name="string">UoM</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='purchased_qty']" position="attributes">
+    <attribute name="optional">hide</attribute>
+  </xpath>
+  <xpath expr="//field[@name='product_uom_id']" position="attributes">
+    <attribute name="optional">hide</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='date_required']" position="attributes">
+    <attribute name="string">Due Date</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='name']" position="after">
+    <field name="x_studio_life_of_project" optional="show"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_life_of_project']" position="after">
+    <field optional="show" name="x_studio_budgeted"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_budgeted']" position="attributes">
+    <attribute name="string">Budgeted</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_budgeted']" position="attributes">
+    <attribute name="options"/>
+    <attribute name="widget">toggle_button</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]" position="inside">
+    <page string="New Page" name="studio_page_xcmYZ">
+      <group name="studio_group_xcmYZ">
+        <group name="studio_group_xcmYZ_left"/>
+        <group name="studio_group_xcmYZ_right"/>
+      </group>
+    </page>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[3]" position="attributes">
+    <attribute name="string">Form Sirkuler</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[3]/group[1]/group[1]" position="inside">
+    <field widget="image" options="{&quot;size&quot;: [0, 90]}" name="x_studio_form_sirkuler"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[3]/group[1]/group[1]/field[1]" position="attributes">
+    <attribute name="string">Form Sirkuler</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[3]/group[1]/group[1]/field[1]" position="attributes">
+    <attribute name="options"/>
+    <attribute name="widget">pdf_viewer</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[1]/field[1]" position="after">
+    <field name="x_studio_all_approve_except_bod"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[1]/field[2]" position="attributes">
+    <attribute name="string">all approve except bod</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[1]" position="after">
+    <xpath expr="//field[@name='x_studio_all_approve_except_bod'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[1]/field[1]" position="attributes">
+    <attribute name="force_save">True</attribute>
+    <attribute name="attrs">{}</attribute>
+    <attribute name="readonly">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list'][not(ancestor::field)]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[1]/field[1]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[1]/field[1]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[1]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="after">
+    <field optional="show" name="x_studio_note"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_note']" position="attributes">
+    <attribute name="string">Note</attribute>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="after">
+    <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_note']" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[4]" position="after">
+    <field name="x_studio_many2one_field_rn4OA"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_life_of_project']" position="replace"/>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_budgeted']" position="replace"/>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_note']" position="replace"/>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[2]/field[1]" position="before">
+    <xpath expr="//field[@name='requested_by'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[2]/field[1]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="invisible">1</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[2]/field[4]" position="after">
+    <field name="create_uid"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[1]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[2]" position="inside">
+    <xpath expr="//field[@name='x_studio_priority'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[2]/field[1]" position="after">
+    <xpath expr="//field[@name='x_studio_many2one_field_rn4OA'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[5]" position="after">
+    <field name="x_studio_requester_name"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[6]" position="attributes">
+    <attribute name="string">Requester Name</attribute>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_approved']" position="after">
+    <field name="x_studio_approver" optional="show"/>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_many2one_field_mlJBb']" position="after">
+    <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_approver']" position="move"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='name']" position="after">
+    <field name="x_studio_life_of_project" optional="show"/>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_sequence']" position="after">
+    <field name="create_date" optional="show"/>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='create_date']" position="replace"/>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[2]/field[2]" position="attributes">
+    <attribute name="string">Site</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[1]" position="before">
+    <field name="x_studio_mayna_test_field"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[1]" position="attributes">
+    <attribute name="string">mayna test field</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_life_of_project']" position="after">
+    <field name="x_studio_budgeted" optional="show"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='cancelled']" position="after">
+    <field name="x_studio_budgeted"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='x_studio_budgeted']" position="after">
+    <field name="x_studio_life_of_project"/>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_approved']" position="after">
+    <field name="x_studio_warehouse" optional="show"/>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_warehouse']" position="attributes">
+    <attribute name="string">Site</attribute>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_approved']" position="after">
+    <field name="x_studio_department" optional="show"/>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_department']" position="replace"/>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_warehouse']" position="after">
+    <field name="x_studio_department" optional="show"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[6]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_purchase_type'][not(ancestor::field)]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[2]/field[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[2]/field[3]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="invisible">1</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[3]" position="attributes">
+    <attribute name="attrs">{"invisible": [["x_studio_all_approve_except_bod","=",False]]}</attribute>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_approver']" position="after">
+    <field name="x_studio_user_id" optional="show"/>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_user_id']" position="replace"/>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[1]" position="replace"/>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[1]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[2]" position="after">
+    <field name="x_studio_next_approval"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[3]" position="attributes">
+    <attribute name="string">Next Approval</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[3]" position="after">
+    <field name="x_studio_show_button_approve"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[4]" position="attributes">
+    <attribute name="string">Show Button Approve</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[2]" position="attributes">
+    <attribute name="attrs">{"invisible": [["x_studio_purchase_type","!=","Asset Request"]]}</attribute>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='date_required']" position="attributes">
+    <attribute name="string">Due Date</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='is_editable']" position="before">
+    <field name="x_studio_site"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='x_studio_site']" position="attributes">
+    <attribute name="string">Site</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="domain">[["group_id.parent_id.x_studio_site","=","record.x_studio_site.id"]]</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="attributes">
+    <attribute name="string">Estimated Price</attribute>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="attributes">
+    <attribute name="string">Estimate Price</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="domain">[]</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='x_studio_life_of_project']" position="after">
+    <field name="x_studio_mayna_test_field"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='x_studio_mayna_test_field']" position="attributes">
+    <attribute name="string">mayna test field</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[2]/field[1]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="domain">[["x_studio_site","=","x_studio_many2one_field_rn4OA"]]</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="domain">[["x_studio_site","=","x_studio_many2one_field_rn4OA"]]</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="domain">[["x_studio_site","=",63972]]</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="domain">[]</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='product_id']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='x_studio_mayna_test_field']" position="replace"/>
+  <xpath expr="//field[@name='estimated_cost']" position="attributes">
+    <attribute name="string">Estimate Cost</attribute>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="attributes">
+    <attribute name="string">Estimate Cost</attribute>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="attributes">
+    <attribute name="string">Estimate Cost</attribute>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="attributes">
+    <attribute name="string">Estimate Cost</attribute>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="attributes">
+    <attribute name="string">Estimate Cost</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/tree//field[@name='x_studio_life_of_project']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='x_studio_life_of_project']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[1]/field[1]" position="after">
+    <xpath expr="//field[@name='x_studio_next_approval'][not(ancestor::field)]" position="move"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='life_of_projects']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='life_of_projects']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="required"/>
+  </xpath>
+  <xpath expr="//field[@name='estimated_cost']" position="attributes">
+    <attribute name="string">Estimate Price</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[3]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[5]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[1]/group[1]/field[6]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[1]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[2]" position="attributes">
+    <attribute name="attrs">{"invisible": [["x_studio_purchase_type","!=","Asset Request"]], "readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[2]/field[1]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",True]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[2]/field[2]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[2]/field[1]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='product_id']" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='x_studio_budgeted']" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='life_of_projects']" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[3]" position="after">
+    <field name="x_studio_approval_state_order"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[4]" position="attributes">
+    <attribute name="string">approval_state_order</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[4]" position="after">
+    <field name="x_studio_approval_order"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]/field[5]" position="attributes">
+    <attribute name="string">approval order</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[2]" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[1]/field[2]" position="after">
+    <field name="x_studio_reject_reason"/>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[2]/group[1]/group[1]/field[3]" position="attributes">
+    <attribute name="string">Reject Reason</attribute>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_many2one_field_mlJBb']" position="replace"/>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_approver']" position="after">
+    <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_warehouse']" position="move"/>
+  </xpath>
+  <xpath expr="//field[@name='x_studio_approval_list']/tree//field[@name='x_studio_department']" position="replace"/>
+  <xpath expr="//field[@name='line_ids']/form//field[@name='cancelled']" position="attributes">
+    <attribute name="attrs">{}</attribute>
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="/form[1]/sheet[1]/notebook[1]/page[1]/field[1]" position="attributes">
+    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+    <attribute name="readonly"/>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups">__export__.res_groups_213_c3ea551c</attribute>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups"/>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups">purchase.group_warning_purchase</attribute>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups"/>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups">__export__.res_groups_213_c3ea551c</attribute>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups"/>
+  </xpath>
+  <xpath expr="(//button[@type='action'][@name='377'])[1]" position="attributes">
+    <attribute name="studio_approval">True</attribute>
+  </xpath>
+  <xpath expr="(//button[@type='action'][@name='377'])[1]" position="attributes">
+    <attribute name="studio_approval">False</attribute>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups">purchase.group_warning_purchase</attribute>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups"/>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups">hit_menu_access_right.group_hit_purch_asset_general_manager</attribute>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups"/>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups"/>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[6]" position="attributes">
+    <attribute name="groups">__export__.res_groups_222_12a4ae9e,__export__.res_groups_223_508174cb</attribute>
+  </xpath>
+  <xpath expr="/form[1]/header[1]/button[7]" position="attributes">
+    <attribute name="groups">purchase_request.group_purchase_request_manager,__export__.res_groups_222_12a4ae9e,__export__.res_groups_223_508174cb</attribute>
+  </xpath>
+</data>
+
+
+studio_customization.studio_report_docume_f78cd9e0-52ee-4fd7-8e6f-7430a16c615a:
+<t t-name="studio_main_report">
+    <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+            <t t-if="doc.purchase_type=='asset_request'">
+            <xpath expr="/t/div" position="inside">
+                <style type="text/css">
+             hr { border-bottom: 2px black solid;  height: 1px; margin-top: 10px}
+                #signature {
+                border-bottom: 1px solid black; height: 5px
+                }
+              .my-table {
+                border-collapse: collapse;
+                width: 100%;
+              }
+              .my-table th, .my-table td {
+                border: 1px solid black;
+                padding: 1px;
+              }
+              .my-image { 
+              width: 300px;
+              height: auto;
+              }
+              body {
+                      font-family: 'Times New Roman', Times, serif; font-size:11px;
+                    }
+
+            </style>
+                <!-- akhir bagian style pada xml -->
+                <div>
+                    <header>
+                        <br/>
+                        <div class="text-center">
+                            <img class="img-fluid my-image" src="/web/image/1945-afb167c2/prager_logo.jpg"/>
+                            <p style="font-size:10pt; color: black;">
+                                Kompleks Kensington Commercial
+                                
+                                <br/>
+                                Jl. Boulevard Blok TKC No. B18, Kelapa Gading, Jakarta Utara 14240
+                                
+                                <br/>
+                                +62 21 224 572 29
+                            
+                            </p>
+                        </div>
+                    </header>
+                </div>
+            </xpath>
+            <div class="page">
+                <div class="oe_structure"/>
+            <hr/>
+            <div class="row">
+                <div class="col-12">
+                    <div style="text-align: center;">
+                        <br/>
+                        <h4>
+                            <strong>Asset Request Form</strong>
+                        </h4>
+                        <br/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10">
+                    <table style=" border-collapse: collapse; width: 70%;">
+                        <thead>
+                            <tr>
+                                <th style="vertical-align: top;width: 100px;">
+                                    <span>PR Number</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="vertical-align: top;">
+                                    <span>Date Request</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.date_start"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="vertical-align: top;">
+                                    <span>PR Type</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.purchase_type"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style=" vertical-align: top;">
+                                    <span>Site</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.site_id.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style=" vertical-align: top;">
+                                    <span>Department</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.x_studio_departement"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style=" vertical-align: top;">
+                                    <span>Priority</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.x_studio_priority"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style=" vertical-align: top;">
+                                    <span>Requested By</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.x_studio_requester_name"/>
+                                </td>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <br/>
+            <hr/>
+            <div class="row my-3">
+                <div class="col-12">
+                    <table class="my-table">
+                       
+                        <tr style="font-weight: bold; text-align: center;">
+                            <th>No.</th>
+                            <th>Product Item</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>UoM</th>
+                            <th>Due Date</th>
+                            <th>Life of Project</th>
+                            <th>Budgeted</th>
+                        </tr>
+                        <t t-set="i" t-value="1"/>
+                        <tr t-foreach="doc.line_ids" t-as="table_line" >
+                            <td style="text-align: left;">
+                                                <span style="margin:5px;" t-esc="i" />
+                                                <t t-set="i" t-value="i+1" />
+                            </td>
+                            <td>
+                                <span style="margin: 5px;" t-field="table_line.product_id"/>
+                            </td>
+                            <td>
+                                <span style="margin: 5px;" t-field="table_line.name"/>
+                            </td>
+                            <td style="text-align:right;">
+                                <span style="margin: 5px;" t-field="table_line.product_qty"/>
+                            </td>
+                            <td>
+                                <span style="margin: 5px;" t-field="table_line.product_uom_id"/>
+                            </td>
+                            <td style="text-align: center;">
+                                <span  t-field="table_line.date_required"/>
+                            </td>
+                            <td>
+                                <span style="margin:5px;" t-field="table_line.life_of_projects"/>
+                            </td>
+                            <td>
+                                <span style="margin: 5px;" t-if="table_line.x_studio_budgeted" t-esc="'yes'"></span>
+                                <span style="margin: 5px;" t-if="not table_line.x_studio_budgeted" t-esc="'no'" ></span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <br/>
+                <br/>
+                <div class="row my-3" >
+                    <div class="col-1"></div>
+                    <div class="col-10">
+                        <table class="my-table" style="page-break-inside: avoid; margin-top:40px;">
+                            <tr>
+                                <td t-foreach="doc.x_studio_approval_list" t-as="line" style="width: 80px; border: 1px solid black; text-align: center; vertical-align: top; font-weight: bold;">
+                                    <span>Approved By</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td t-foreach="doc.x_studio_approval_list" t-as="line" style="width: 80px; height: 40px; border: 1px solid black; text-align: center; vertical-align: middle; font-weight: bold;">
+                                    <span t-if="line.x_studio_approved" t-esc="'Approved by System'" style="vertical-align: middle; color:blue;"></span>
+                                    <span t-if="not line.x_studio_approved" t-esc="''" style="vertical-align: middle; color:red;"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td t-foreach="doc.x_studio_approval_list" t-as="line" style=" text-align: center; ">
+                                   <span style="font-weight: bold;" t-esc="line.x_studio_many2one_field_mlJBb.x_name"/><br/>
+                                   <span t-if="line.x_studio_approved" t-field="line.__last_update" style="vertical-align: middle;"></span> WIB
+                                   <span t-if="not line.x_studio_approved" t-esc="''" style="vertical-align: middle; color:red;"></span>
+                                </td>
+                                
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="oe_structure"/>
+                <div class="footer">
+                    <div class="text-center" style="border-top: 1px solid black;">
+                        <table class="table-sm" style="border: none;" width="100%">
+                            <tbody style="border: none;">
+                                <tr style="border: none;">
+                                    <td width="90%" style="border: none; font-size: 9px; font-style:italic;" class="text-left">
+                                    <span>Printed By</span> :<span t-esc="user.name"></span><br/>
+                                    <span>Date</span> :<span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/> <span>WIB</span>
+                                    </td>
+                                    <td width="10%" style="border: none;" class="text-end">
+                                        <span class="page"/>/
+                                        
+                                        <span class="topage"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <t t-call="studio_customization.studio_report_docume_f78cd9e0-52ee-4fd7-8e6f-7430a16c615a_document"/>
+            <p style="page-break-after: always;"/>
+        </t>
+        <t t-if="doc.purchase_type=='purchase_request'">
+            <xpath expr="/t/div" position="inside">
+                <style type="text/css">
+             hr { border-bottom: 2px black solid;  height: 1px; margin-top: 10px}
+                #signature {
+                border-bottom: 1px solid black; height: 5px
+                }
+              .my-table {
+                border-collapse: collapse;
+                width: 100%;
+              }
+              .my-table th, .my-table td {
+                border: 1px solid black;
+                padding: 1px;
+              }
+              .my-image { 
+              width: 300px;
+              height: auto;
+              }
+              body {
+                      font-family: 'Times New Roman', Times, serif; font-size:11px;
+                    }
+
+            </style>
+                <!-- akhir bagian style pada xml -->
+                <div>
+                    <header>
+                        <br/>
+                        <div class="text-center">
+                            <img class="img-fluid my-image" src="/web/image/1945-afb167c2/prager_logo.jpg"/>
+                            <p style="font-size:10pt; color: black;">
+                                Kompleks Kensington Commercial
+                                
+                                <br/>
+                                Jl. Boulevard Blok TKC No. B18, Kelapa Gading, Jakarta Utara 14240
+                                
+                                <br/>
+                                +62 21 224 572 29
+                            
+                            </p>
+                        </div>
+                    </header>
+                </div>
+            </xpath>
+            <div class="page">
+                <div class="oe_structure"/>
+            <hr/>
+            <div class="row">
+                <div class="col-12">
+                    <div style="text-align: center;">
+                        <br/>
+                        <h4>
+                            <strong>Purchase Request Form</strong>
+                        </h4>
+                        <br/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10">
+                    <table style=" border-collapse: collapse; width: 70%;">
+                        <thead>
+                            <tr>
+                                <th style="vertical-align: top; width:100px;">
+                                    <span>PR Number</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="vertical-align: top;">
+                                    <span>Date Request</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.date_start"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="vertical-align: top;">
+                                    <span>PR Type</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.purchase_type"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style=" vertical-align: top;">
+                                    <span>Site</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.site_id.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style=" vertical-align: top;">
+                                    <span>Department</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.x_studio_departement"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style=" vertical-align: top;">
+                                    <span>Priority</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.x_studio_priority"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style=" vertical-align: top;">
+                                    <span>Requested By</span>
+                                </th>
+                                <td>:</td>
+                                <td>
+                                    <span t-field="doc.x_studio_requester_name"/>
+                                </td>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <br/>
+            <hr/>
+            <div class="row my-3">
+                <div class="col-12">
+                    <table class="my-table">
+                       
+                        <tr style="font-weight: bold; text-align: center;">
+                            <TH>No.</TH>
+                            <th>Product Item</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>UoM</th>
+                            <th>Due Date</th>
+                        </tr>
+                        <t t-set="i" t-value="1"/>
+                        <tr t-foreach="doc.line_ids" t-as="table_line" >
+                            <td style="text-align: left;">
+                                <span style="margin:5px;" t-esc="i" />
+                                <t t-set="i" t-value="i+1" />
+                            </td>
+                            <td>
+                                <span style="margin: 5px;" t-field="table_line.product_id"/>
+                            </td>
+                            <td>
+                                <span style="margin: 5px;" t-field="table_line.name"/>
+                            </td>
+                            <td style="text-align:right;" >
+                                <span style="margin: 5px;" t-field="table_line.product_qty"/>
+                            </td>
+                            <td>
+                                <span style="margin: 5px;" t-field="table_line.product_uom_id"/>
+                            </td>
+                            <td style="text-align: center;">
+                                <span  t-field="table_line.date_required"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <br/>
+                <br/>
+                <div class="row my-3">
+                    <div class="col-1"></div>
+                    <div class="col-10">
+                        <table class="my-table" style="page-break-inside: avoid; margin-top:40px;">
+                            <tr>
+                                <td t-foreach="doc.x_studio_approval_list" t-as="line" style="width: 80px; border: 1px solid black; text-align: center; vertical-align: top; font-weight: bold;">
+                                    <span>Approved By</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td t-foreach="doc.x_studio_approval_list" t-as="line" style="width: 80px; height: 40px; border: 1px solid black; text-align: center; vertical-align: middle; font-weight: bold;">
+                                    <span t-if="line.x_studio_approved" t-esc="'Approved by System'" style="vertical-align: middle; color:blue;"></span>
+                                    <span t-if="not line.x_studio_approved" t-esc="''" style="vertical-align: middle; color:red;"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td t-foreach="doc.x_studio_approval_list" t-as="line" style=" text-align: center; ">
+                                   <span style="font-weight: bold;" t-esc="line.x_studio_many2one_field_mlJBb.x_name"/><br/>
+                                   <span t-if="line.x_studio_approved" t-field="line.__last_update" style="vertical-align: middle;"></span> WIB
+                                   <span t-if="not line.x_studio_approved" t-esc="''" style="vertical-align: middle; color:red;"></span>
+                                </td>
+                                
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="oe_structure"/>
+                <div class="footer">
+                    <div class="text-center" style="border-top: 1px solid black;">
+                        <table class="table-sm" style="border: none;" width="100%">
+                            <tbody style="border: none;">
+                                <tr style="border: none;">
+                                    <td width="90%" style="border: none; font-size: 9px; " class="text-left">
+                                    <span>Printed By</span> :<span t-esc="user.name"></span><br/>
+                                    <span>Date</span> :<span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')" t-option="{'widget':'datetime'}"/> <span>WIB</span>
+                                    </td>
+                                    <td width="10%" style="border: none;" class="text-end">
+                                        <span class="page"/>/
+                                        
+                                        <span class="topage"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <t t-call="studio_customization.studio_report_docume_f78cd9e0-52ee-4fd7-8e6f-7430a16c615a_document"/>
+            <p style="page-break-after: always;"/>
+        </t>
+    </t>
+</t>
+</t>

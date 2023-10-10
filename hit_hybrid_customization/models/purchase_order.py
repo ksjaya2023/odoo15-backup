@@ -2,15 +2,29 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-
+import logging
+_logger = logging.getLogger(__name__)
 
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     site_id = fields.Many2one('md.site', string='Site')
+    purchase_request_id = fields.Many2one(
+        "purchase.request",
+        string="Purchase Request",
+        readonly=True,
+    )
+
 
     def button_confirm_rfq(self):
         self.write({'state': 'sent'})
+
+
+    # ---- Inherited Functions ----
+    def _prepare_picking(self):
+        picking_vals = super(PurchaseOrder, self)._prepare_picking()
+        picking_vals.update({"purchase_request_id": self.purchase_request_id.id or False})
+        return picking_vals
 
 
     def _prepare_invoice(self):
@@ -32,6 +46,8 @@ class PurchaseOrderLine(models.Model):
             if not record.account_analytic_id:
                 raise ValidationError(_('The analytic account requires mandatory input.'))
 
+
+    # ---- Inherited Functions ----
     def _prepare_stock_move_vals(self, picking, price_unit, product_uom_qty, product_uom):
         self.ensure_one()
         self._check_orderpoint_picking_type()
@@ -42,7 +58,7 @@ class PurchaseOrderLine(models.Model):
             # TODO: remove index in master?
             'name': (self.product_id.display_name or '')[:2000],
             'product_id': self.product_id.id,
-            'analytic_account_id': self.account_analytic_id.id or False,
+            'analytic_account_id': self.account_analytic_id.id or False, # Customization on this line
             'date': date_planned,
             'date_deadline': date_planned,
             'location_id': self.order_id.partner_id.property_stock_supplier.id,
@@ -65,6 +81,9 @@ class PurchaseOrderLine(models.Model):
             'product_packaging_id': self.product_packaging_id.id,
             'sequence': self.sequence,
         }
+
+
+
     
 
 

@@ -1,0 +1,80 @@
+1. Create automation for domain.
+Name: Domain standard job based on equipment
+Action to do: Execute Python Code
+Model: maintenance.request
+Trigger: Based on Form Modification
+Trigger Field: euqipment_id
+
+Code:
+site_equipment = record.equipment_id.x_studio_warehouse.site_id
+if site_equipment:
+  action = {'domain': {'x_studio_standard_job': [('x_studio_analytic_account.site_id', '=', site_equipment.id)]}}
+else:
+  action = {'domain': {'x_studio_standard_job': [('x_studio_analytic_account.site_id', '=', True)]}}
+
+2. Add pipeline statusbar.
+Model: x_standard_job
+Field: x_studio_state
+Selection: draft, confirm.
+
+3. Create server action for button.
+Name: Button Confirm Standard Job
+Model: Standard Job (x_standard_job)
+Action To Do: Update the Record
+
+Data to write:
+Field: x_studio_state
+Evaluation type: Value
+Value: confirm
+
+Keep the server action id for xml view.
+Click the "Create Contextual Action" button to activate it, ensuring that all existing data is automatically confirmed initially.
+Then remove it again later.
+
+4. Modify the standard job xml view.
+Name: Odoo Studio: Default form view for x_standard_job customization
+
+<data>
+  <xpath expr="//form[1]/header[1]" position="inside">
+    <button name="1751" string="Confirm" type="action" class="btn-primary" attrs="{'invisible': [('x_studio_state', '!=', 'draft')]}"/>
+    <field widget="statusbar" name="x_studio_state"/>
+  </xpath>
+  <xpath expr="//field[@name='x_name']" position="attributes">
+    <attribute name="placeholder">Standard Job...</attribute>
+    <attribute name="string">Standard Job</attribute>
+  </xpath>
+  <xpath expr="//group[@name='studio_group_3606a2_left']" position="inside">
+    <field name="x_studio_many2one_field_ORpl6" domain="[['parent_id', '=' ,False]]" string="Project Site" attrs="{'readonly': [('x_studio_state', '!=', 'draft')]}"/>
+    <field name="x_studio_department_2" string="Department" domain="[['name','=', '202 Maintenance']]" attrs="{'readonly': [('x_studio_state', '!=', 'draft')]}"/>
+    <field name="x_studio_type" string="Type" attrs="{'readonly': [('x_studio_state', '!=', 'draft')]}"/>
+    <field name="x_studio_analytic_account" attrs="{'readonly': [('x_studio_state', '!=', 'draft')]}"/>
+  </xpath>
+  <xpath expr="//group[@name='studio_group_3606a2_right']" position="inside">
+    <field name="create_uid"/>
+    <field name="create_date"/>
+  </xpath>
+</data>
+
+5. Update automation.
+Action Name: Auto Fill WO Data
+Model: Maintenance Request (	maintenance.request)
+Trigger: Based on Form Modification
+Trigger Fields: Standard Job, Standard Job.
+
+for record in record:
+  # Auto fill analytic group & account  
+  if record.x_studio_standard_job:
+    record['x_studio_project_site'] = record.x_studio_standard_job.x_studio_many2one_field_ORpl6.id
+    record['x_studio_department'] = record.x_studio_standard_job.x_studio_department_2.id
+    record['x_studio_type'] = record.x_studio_standard_job.x_studio_type.id
+    record['x_studio_many2one_field_Si5aA'] = record.x_studio_standard_job.x_studio_analytic_account.id
+
+
+6. Update view.
+Odoo Studio: equipment.request.form customization
+
+<field name="x_studio_project_site" readonly="1" force_save="1"/>
+<field name="x_studio_department" readonly="1" force_save="1"/>
+<field name="x_studio_type" readonly="1" force_save="1"/>
+<field name="x_studio_many2one_field_Si5aA" attrs="{'invisible' : [['x_studio_work_order_type', '=' , 'Inspeksi']]}" readonly="1" force_save="1"/>
+

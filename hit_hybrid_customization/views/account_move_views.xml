@@ -27,6 +27,15 @@
                 <xpath expr="//field[@name='ref']" position="after">
                     <field name="bill_reference" attrs="{'invisible':[('move_type', 'not in', ('in_invoice', 'in_receipt', 'in_refund'))]}"/>
                 </xpath>
+                <xpath expr="//field[@name='reversed_entry_id']" position="before">
+                    <field name="pg_reversal_id" attrs="{'invisible': ['|', ('reversed_entry_id', '!=', False), ('move_type', '!=', 'entry')]}"/>
+                </xpath>
+                <xpath expr="//field[@name='reversed_entry_id']" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('pg_reversal_id', '!=', False), ('move_type', '!=', 'entry')]}</attribute>
+                </xpath>
+                <xpath expr="//header//button[9]" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', '|', '|', '|', ('move_type', '!=', 'entry'), ('state', '!=', 'posted'), ('payment_state', '=', 'reversed'), ('reversed_entry_id', '!=', False), ('pg_reversal_id', '!=', False)]}</attribute>
+                </xpath>
             </field>
         </record>
         <record id="pg_account_move_efaktur_form_view_inherited" model="ir.ui.view">

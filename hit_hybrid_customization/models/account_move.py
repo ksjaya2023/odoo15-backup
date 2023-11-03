@@ -7,6 +7,8 @@ from collections import defaultdict
 from odoo.tools import float_compare
 from odoo.tools.misc import format_date, get_lang
 import json
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
@@ -24,15 +26,18 @@ class AccountMove(models.Model):
     )
     purchase_request_id = fields.Many2one('purchase.request', string='Purchase Request')
     bill_reference = fields.Char('Bill Reference')
-
-
-    '''
-    To Do:
-    Auto fill data tanggal_faktur_pajak and tanggal_bukti_potong from old data.
-    '''
-
+    pg_reversal_id = fields.Many2one('account.move', string="Reverse To", compute='_compute_pg_reversal_id')
     tanggal_faktur_pajak = fields.Date('Tanggal Faktur Pajak')
     tanggal_bukti_potong = fields.Date('Tanggal Bukti Potong')
+
+    @api.depends('reversed_entry_id')
+    def _compute_pg_reversal_id(self):
+        for record in self:
+            dest_reversal = record.env['account.move'].search([("reversed_entry_id", "=", record.id)], limit=1)
+            if dest_reversal:
+                record.pg_reversal_id = dest_reversal.id
+            else:
+                record.pg_reversal_id = False
 
     @api.onchange('invoice_date')
     def _onchange_invoice_date(self):
@@ -308,5 +313,7 @@ class AccountMoveLine(models.Model):
         else:
             self.analytic_account_id = False
             return {"domain": {"analytic_account_id": [("site_id", "=", False)]}}
+
+
 
 

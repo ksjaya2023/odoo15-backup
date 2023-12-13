@@ -36,6 +36,17 @@
                 <xpath expr="//header//button[9]" position="attributes">
                     <attribute name="attrs">{'invisible': ['|', '|', '|', '|', ('move_type', '!=', 'entry'), ('state', '!=', 'posted'), ('payment_state', '=', 'reversed'), ('reversed_entry_id', '!=', False), ('pg_reversal_id', '!=', False)]}</attribute>
                 </xpath>
+                <xpath expr="//field[@name='tax_totals_json']" position="after">
+                    <field name="currency_id" invisible="1" />
+                    <label for="total_discount" />
+                    <div>
+                        <field name="currency_symbol" class="oe_inline" />
+                        <field name="total_discount" class="oe_inline" />
+                    </div>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']//field[@name='discount']" position="after">
+                    <field name="discount_val" optional="show" />
+                </xpath>
             </field>
         </record>
         <record id="pg_account_move_efaktur_form_view_inherited" model="ir.ui.view">

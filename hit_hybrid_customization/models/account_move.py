@@ -29,6 +29,35 @@ class AccountMove(models.Model):
     pg_reversal_id = fields.Many2one('account.move', string="Reverse To", compute='_compute_pg_reversal_id')
     tanggal_faktur_pajak = fields.Date('Tanggal Faktur Pajak')
     tanggal_bukti_potong = fields.Date('Tanggal Bukti Potong')
+    total_discount = fields.Char(compute='_compute_total_discount', string='Total Discount')
+    currency_symbol = fields.Char('Currency Symbol', related="currency_id.symbol")
+
+
+    # ---- Computed Fields ----
+
+
+    @api.depends('invoice_line_ids')
+    def _compute_total_discount(self):
+        for record in self:
+            total_discount_val = 0
+            total_discount_val = sum(record.invoice_line_ids.mapped("discount_val"))
+            record.total_discount = total_discount_val
+
+    @api.depends('reversed_entry_id')
+    def _compute_pg_reversal_id(self):
+        for record in self:
+            dest_reversal = record.env['account.move'].search([("reversed_entry_id", "=", record.id)], limit=1)
+            if dest_reversal:
+                record.pg_reversal_id = dest_reversal.id
+            else:
+                record.pg_reversal_id = False
+
+    @api.onchange('invoice_line_ids')
+    def pg_onchange_invoice_line_ids(self):
+        for rec in self:
+            for line in rec.invoice_line_ids:
+                line.pg_compute_discount()
+                line.pg_compute_discount_val()
 
     @api.depends('reversed_entry_id')
     def _compute_pg_reversal_id(self):
@@ -44,10 +73,12 @@ class AccountMove(models.Model):
         if self.move_type == 'out_invoice' and self.invoice_date:
             self.tanggal_faktur_pajak = self.invoice_date
 
-
     def seq_auto_name(self):
         seq = self.env["ir.sequence"].next_by_code("pg.si.inv")
         self.write({"name": seq})
+
+
+    # ---- Inherited Functions ----
 
 
     @api.model
@@ -299,6 +330,37 @@ class AccountMove(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
+    discount_val = fields.Float(string="Discount Value")
+
+
+    def pg_compute_discount_val(self):
+        for record in self:
+            if record.discount:
+                record.discount_val = 0
+                discount_val = (record.discount / 100) * (record.quantity * record.price_unit)
+                record.discount_val = discount_val
+
+
+    def pg_compute_discount(self):
+        for record in self:
+            if record.discount_val:
+                record.discount = 0
+                discount = (record.discount_val / (record.quantity * record.price_unit)) * 100
+                record.discount = discount
+
+
+    # ---- Onchanges ----
+
+
+    @api.onchange('discount','price_unit', 'quantity')
+    def _onchange_discount(self):
+        self.pg_compute_discount_val()
+
+
+    @api.onchange('discount_val','price_unit', 'quantity')
+    def _onchange_discount_val(self):
+        self.pg_compute_discount()
+
 
     @api.onchange("product_id", "account_id")
     def _onchange_product_id(self):
@@ -309,10 +371,12 @@ class AccountMoveLine(models.Model):
                 domain = [("site_id", "=", site_id)]
                 return {"domain": {"analytic_account_id": domain}}
             else:
-                return {"domain": {"analytic_account_id": [("site_id", "=", False)]}}
+                return {"domain": {"analytic_account_id": [("site_id", "=", True)]}}
         else:
             self.analytic_account_id = False
-            return {"domain": {"analytic_account_id": [("site_id", "=", False)]}}
+            return {"domain": {"analytic_account_id": [("site_id", "=", True)]}}
+
+
 
 
 

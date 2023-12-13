@@ -8,6 +8,13 @@ from odoo.exceptions import UserError, ValidationError
 import logging
 _logger = logging.getLogger(__name__)
 
+_JOURNAL_PAYMENT = [
+    ("draft", "Unposted"),
+    ("posted", "Posted"),
+    ("reversed", "Reversed"),
+]
+
+
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
     _description = 'account.payment'
@@ -15,6 +22,20 @@ class AccountPayment(models.Model):
     account_move_id = fields.Many2one('account.move', string='Invoice Number')
     advance = fields.Boolean('Advance')
     analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Account')
+    journal_payment_state = fields.Selection(selection=_JOURNAL_PAYMENT, compute='_compute_journal_payment_state', string='Journal State')
+    
+    @api.depends('state')
+    def _compute_journal_payment_state(self):
+        for record in self:
+            find_journals = record.env["account.move"].search([("payment_id", "=", record.id)])
+            if not find_journals:
+                record.journal_payment_state = 'draft'
+            elif any(journal.pg_reversal_id for journal in find_journals):
+                record.journal_payment_state = 'reversed'
+            elif all(journal.state == 'posted' and not journal.pg_reversal_id for journal in find_journals):
+                record.journal_payment_state = 'posted'
+            else:
+                record.journal_payment_state = 'draft'
 
 
     @api.onchange('payment_type')

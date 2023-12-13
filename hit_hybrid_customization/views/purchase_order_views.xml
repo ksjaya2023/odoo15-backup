@@ -29,6 +29,18 @@
                     <field name="site_id" options="{'no_create': True}"/>
                     <field name="purchase_request_id" invisible="1"/>
                 </xpath>
+                <xpath expr="//field[@name='order_line']//field[@name='taxes_id']" position="after">
+                    <field name="discount" optional="show" />
+                    <field name="discount_val" optional="show" />
+                </xpath>
+                <xpath expr="//field[@name='tax_totals_json']" position="after">
+                    <field name="currency_id" invisible="1" />
+                    <label for="total_discount" />
+                    <div>
+                        <field name="currency_symbol" class="oe_inline" />
+                        <field name="total_discount" class="oe_inline" />
+                    </div>
+                </xpath>
             </field>
         </record>
         <record id="purchase.purchase_rfq" model="ir.actions.act_window">

@@ -1,0 +1,36 @@
+1. Create new field:
+model: purchase.request
+name: x_studio_reset_reason
+type: char
+
+2. Create new server action and keep the id.
+model: purchase.request
+name:Reset to draft PR after full approved
+action to do: Execute Python Code
+codes:
+
+if record.x_studio_approval_list:
+  if not record.x_studio_reset_reason:
+    raise UserError('Please provide a reason for reset before continuing.')
+  find_unappr = env['x_approval_list'].search([("x_studio_purchase_request", "=", record.id), ("x_studio_approved", '=', True)])
+  # log(find_unappr)
+  if find_unappr:
+    for data in find_unappr:
+      data['x_studio_approved'] = False
+  for appr in record.x_studio_approval_list:
+    if appr.x_studio_approved == False:
+      check = True
+  record.sudo().write({'x_studio_still_in_approval': check})
+  record.button_draft()
+
+3. Update view:
+Name: Odoo Studio: purchase.request.form customization.
+
+<xpath expr="//button[@name='button_approved']" position="after">
+  <button name="1474" string="APPROVE" type="action" class="btn-success" context="{'category': 'purchase.request'}" attrs="{'invisible': ['|', '|', ('state', '!=', 'to_approve'),('x_studio_show_button_approve', '=', False), ('x_studio_still_in_approval', '=', False)]}" confirm="Are you sure you want to do this?"/>
+  <button name="1475" string="REJECT" type="action" class="btn-danger" context="{'category': 'purchase.request'}" attrs="{'invisible': ['|', '|', ('state', '!=', 'to_approve'),('x_studio_show_button_approve', '=', False), ('x_studio_still_in_approval', '=', False)]}" confirm="Are you sure you want to do this?"/>
+  <button name="1758" string="SET TO DRAFT" type="action" class="btn-warning" attrs="{'invisible': ['|', ('state', '!=', 'approved'),('purchase_count', '!=', 0)]}" confirm="Are you sure you want to do this?"/>
+</xpath>
+
+<field name="x_studio_reject_reason" string="Reject Reason"/>
+<field name="x_studio_reset_reason"/>

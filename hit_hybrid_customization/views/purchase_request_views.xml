@@ -12,6 +12,10 @@
                     <!-- <button name="button_approved" states="to_approve" string="Approve Helper" type="object" class="oe_highlight" /> -->
                     <!-- <button name="button_done" states="approved" string="Done Helper" type="object" class="oe_highlight" /> -->
                 </xpath>
+                <xpath expr="//button[@name='button_draft']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('state', '!=', 'rejected')]}</attribute>
+                    <attribute name="states"/>
+                </xpath>
                 <xpath expr="//button[@name='button_rejected']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -42,7 +46,7 @@
                     <group>
                         <field name="purchase_type" attrs="{'readonly': [['is_editable','=',False]]}"/>
                         <field name="picking_type_id" options="{'no_create': True}" domain="[('operation_category', '=', 'in')]" force_save="1"/>
-                        <field name="site_id" options="{'no_create': True}" force_save="1" attrs="{'readonly': [['is_editable','=',False]]}"/>
+                        <field name="site_id" options="{'no_create': True}" force_save="1" readonly="1"/>
                         <field name="status_asset" attrs="{'invisible': [('purchase_type','!=','asset_request')]}"/>
                         <!-- <field name="is_direct_payment" attrs="{'readonly': [['is_editable','=',False]]}"/> -->
                     </group>

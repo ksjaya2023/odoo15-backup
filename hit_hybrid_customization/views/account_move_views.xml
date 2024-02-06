@@ -33,6 +33,10 @@
                 <xpath expr="//field[@name='reversed_entry_id']" position="attributes">
                     <attribute name="attrs">{'invisible': ['|', ('pg_reversal_id', '!=', False), ('move_type', '!=', 'entry')]}</attribute>
                 </xpath>
+                <xpath expr="//field[@name='to_check']" position='after'>
+                    <field name="reversed_of_id" string="Reversed Of" attrs="{'invisible': [('move_type', 'not in', ('in_refund', 'out_refund'))]}"/>
+                    <field name="reversed_by_id" string="Reversed By" attrs="{'invisible': [('move_type', 'not in', ('in_invoice', 'out_invoice'))]}"/>
+                </xpath>
                 <xpath expr="//header//button[9]" position="attributes">
                     <attribute name="attrs">{'invisible': ['|', '|', '|', '|', ('move_type', '!=', 'entry'), ('state', '!=', 'posted'), ('payment_state', '=', 'reversed'), ('reversed_entry_id', '!=', False), ('pg_reversal_id', '!=', False)]}</attribute>
                 </xpath>

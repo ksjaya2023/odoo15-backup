@@ -27,6 +27,8 @@ class AccountMove(models.Model):
     purchase_request_id = fields.Many2one('purchase.request', string='Purchase Request')
     bill_reference = fields.Char('Bill Reference')
     pg_reversal_id = fields.Many2one('account.move', string="Reverse To", compute='_compute_pg_reversal_id')
+    reversed_of_id = fields.Many2one('account.move')
+    reversed_by_id = fields.Many2one('account.move', compute='_compute_reversal_id', store=True)
     tanggal_faktur_pajak = fields.Date('Tanggal Faktur Pajak')
     tanggal_bukti_potong = fields.Date('Tanggal Bukti Potong')
     total_discount = fields.Char(compute='_compute_total_discount', string='Total Discount')
@@ -52,21 +54,21 @@ class AccountMove(models.Model):
             else:
                 record.pg_reversal_id = False
 
+    @api.depends('reversed_of_id')
+    def _compute_reversal_id(self):
+        for record in self:
+            dest_reversal = record.env['account.move'].search([("reversed_of_id", "=", record.id)], limit=1)
+            if dest_reversal:
+                record.reversed_by_id = dest_reversal.id
+            else:
+                record.reversed_by_id = False
+
     @api.onchange('invoice_line_ids')
     def pg_onchange_invoice_line_ids(self):
         for rec in self:
             for line in rec.invoice_line_ids:
                 line.pg_compute_discount()
                 line.pg_compute_discount_val()
-
-    @api.depends('reversed_entry_id')
-    def _compute_pg_reversal_id(self):
-        for record in self:
-            dest_reversal = record.env['account.move'].search([("reversed_entry_id", "=", record.id)], limit=1)
-            if dest_reversal:
-                record.pg_reversal_id = dest_reversal.id
-            else:
-                record.pg_reversal_id = False
 
     @api.onchange('invoice_date')
     def _onchange_invoice_date(self):
@@ -90,6 +92,29 @@ class AccountMove(models.Model):
             return create_data
         else:
             return create_data
+
+    def button_cancel(self):
+        res = super().button_cancel()
+        for record in self:
+            record.write({"reversed_of_id": False})
+        return res
+
+    def action_reverse(self):
+        res = super().action_reverse()
+        for record in self:
+            if record.move_type == 'in_invoice':
+                refund_records = record.env['account.move'].search([('reversed_of_id', '=', record.id), ('move_type', '=', 'in_refund')])
+                for refund_record in refund_records:
+                    if refund_record and record.reversed_of_id.id:
+                        raise ValidationError(_("Dokumen sudah dilakukan reverse dengan dokumen %s") % refund_records.name)
+                record.write({"reversed_of_id": record.id})
+            elif record.move_type == 'out_invoice':
+                refund_records = record.env['account.move'].search([('reversed_of_id', '=', record.id), ('move_type', '=', 'out_refund')])
+                for refund_record in refund_records:
+                    if refund_record and record.reversed_of_id.id:
+                        raise ValidationError(_("Dokumen sudah dilakukan reverse dengan dokumen %s") % refund_records.name)
+                record.write({"reversed_of_id": record.id})
+        return res
 
     def _get_violated_lock_dates(self, invoice_date, has_tax):
         """Get all the lock dates affecting the current invoice_date.

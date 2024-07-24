@@ -72,7 +72,7 @@ class PurchaseRequestLine(models.Model):
     @api.constrains('analytic_account_id')
     def _constrains_analytic_account_id(self):
         for record in self:
-            if not record.analytic_account_id:
+            if record.product_id and not record.analytic_account_id:
                 raise ValidationError(_('The analytic account requires mandatory input.'))
 
 

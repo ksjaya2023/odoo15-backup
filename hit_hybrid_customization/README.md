@@ -74,6 +74,45 @@ Comment:
    <attribute name="invisible">1</attribute>
   </xpath>
 
+- 24/07/24 Update 'studio_customization.studio_report_docume_3a7b30a9-9221-4a0b-98e8-da7f7b3ea7db'
+
+Add PR No after PO number.
+
+  <tr>
+      <th style="vertical-align: top; width: 130px">
+          <span style="margin:5px;">PO NO</span>
+      </th>
+      <td>:</td>
+      <td>
+          <!--<span>:</span>-->
+          <span style="margin:3px;" t-field="doc.name"/>
+      </td>
+  </tr>
+  <tr>
+      <th style="vertical-align: top; width: 130px">
+          <span style="margin:5px;">PR NO</span>
+      </th>
+      <td>:</td>
+      <td>
+          <!--<span>:</span>-->
+          <span style="margin:3px;" t-field="doc.x_studio_many2one_pr.name"/>
+      </td>
+  </tr>
+
+-- 24/07/24 Update 'studio_customization.studio_report_docume_0c81f9e7-5632-465f-8a93-0c3a36105fd4'
+
+Add CoA information after product information in line item, only for vendor bill (purchase invoice)
+
+<t t-if="doc.move_type=='in_invoice'">
+
+  <th>Item</th>
+  <th>CoA</th>
+
+  <span style="margin:5px;" t-field="table_line.account_id.code"/>
+  <span style="margin:5px;" t-field="table_line.account_id.name"/>
+
+</t>
+
 
   
 

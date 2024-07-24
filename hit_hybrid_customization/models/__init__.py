@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from . import stock_quant
 from . import account_move
 from . import purchase_request_line
 from . import maintenance_request
@@ -10,6 +11,5 @@ from . import stock_picking
 from . import purchase_order
 from . import pg_master_data
 from . import analytic_account
-from . import stock_quant
 from . import purchase_request
 from . import report_tax

@@ -66,7 +66,7 @@ class AccountPayment(models.Model):
 
     @api.depends('journal_id', 'partner_id', 'partner_type', 'is_internal_transfer', 'advance')
     def _compute_destination_account_id(self):
-        _logger.info('####')
+        # _logger.info('####')
         self.destination_account_id = False
         for pay in self:
             if pay.is_internal_transfer:
@@ -77,10 +77,10 @@ class AccountPayment(models.Model):
                     if pay.advance:
                         if pay.payment_type == 'inbound':
                             pay.destination_account_id = pay.partner_id.x_studio_advance_sales_id
-                            _logger.info('inbound %s', pay.destination_account_id)
+                            # _logger.info('inbound %s', pay.destination_account_id)
                         else:
                             pay.destination_account_id = pay.partner_id.x_studio_advance_purchase_id
-                            _logger.info('outbound %s', pay.destination_account_id)
+                            # _logger.info('outbound %s', pay.destination_account_id)
                     else:
                         pay.destination_account_id = pay.partner_id.with_company(pay.company_id).property_account_receivable_id
                 else:
@@ -95,10 +95,10 @@ class AccountPayment(models.Model):
                     if pay.advance:
                         if pay.payment_type == 'inbound':
                             pay.destination_account_id = pay.partner_id.x_studio_advance_sales_id
-                            _logger.info('inbound %s', pay.destination_account_id)
+                            # _logger.info('inbound %s', pay.destination_account_id)
                         else:
                             pay.destination_account_id = pay.partner_id.x_studio_advance_purchase_id
-                            _logger.info('outbound %s)', pay.destination_account_id)
+                            # _logger.info('outbound %s)', pay.destination_account_id)
                     else:
                         pay.destination_account_id = pay.partner_id.with_company(pay.company_id).property_account_payable_id
                 else:

@@ -12,6 +12,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='user_id']" position="after">
                     <field name="analytic_account_id" />
+                    <field name="backdate_inventory" />
+                    <field name="accounting_date" />
                 </xpath>
             </field>
         </record>

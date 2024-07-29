@@ -108,6 +108,7 @@ class PurchaseRequestLineMakePurchaseOrder(models.TransientModel):
             "group_id": group_id.id,
             "purchase_request_id": request.id, # Customization on this line
             "site_id": site.id,
+            "state": 'draft'
         }
         return data
 
@@ -135,6 +136,8 @@ class PurchaseRequestLineMakePurchaseOrder(models.TransientModel):
                     line.request_id.site_id,
                 )
                 purchase = purchase_obj.create(po_data)
+                _logger.info(f"purchase created {purchase.name}")
+                _logger.info(f"purchase state {purchase.state}")
 
             # Look for any other PO line in the selected PO with same
             # product and UoM to sum quantities instead of creating a new

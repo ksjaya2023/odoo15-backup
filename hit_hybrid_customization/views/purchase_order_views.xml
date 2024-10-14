@@ -9,7 +9,7 @@
             <field name="mode">extension</field>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='button_unlock']" position="after">
-                    <button name="button_confirm_rfq" type="object" string="Request Approval" states="draft" class="oe_highlight"/>
+                    <button name="button_confirm_rfq" type="object" string="Request Approval" states="draft" class="oe_highlight" invisible="1"/>
                     <!-- for testing purpose, please comment button helper again -->
                     <!-- <button name="button_confirm" type="object" string="Confirm Helper" class="oe_highlight"/> -->
                 </xpath>

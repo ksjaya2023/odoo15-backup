@@ -95,6 +95,8 @@
                 </xpath>
                 <xpath expr="//field[@name='line_ids']/form//field[@name='product_uom_id']" position="attributes">
                     <attribute name="options">{'no_create': True}</attribute>
+                    <attribute name="attrs">{"readonly": [["is_editable","=",False]]}</attribute>
+                    <attribute name="force_save">1</attribute>
                 </xpath>
                 <xpath expr="//field[@name='line_ids']/form//field[@name='analytic_account_id']" position="attributes">
                     <attribute name="options">{'no_create': True}</attribute>

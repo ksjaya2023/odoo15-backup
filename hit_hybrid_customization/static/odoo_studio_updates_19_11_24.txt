@@ -1,0 +1,249 @@
+1. Update views: studio_customization.studio_report_docume_3a7b30a9-9221-4a0b-98e8-da7f7b3ea7db
+
+<tr>
+    <th style="vertical-align: top; width: 130px">
+        <span style="margin:5px;">PR NO</span>
+    </th>
+    <td>:</td>
+    <td>
+        <!--<span>:</span>-->
+        <span style="margin:3px;" t-field="doc.x_studio_many2one_pr.name"/>
+    </td>
+</tr>
+<tr>
+    <th style="vertical-align: top; width: 130px">
+        <span style="margin:5px;">Term of Payment</span>
+    </th>
+    <td>:</td>
+    <td>
+        <!--<span>:</span>-->
+        <span style="margin:3px;" t-field="doc.payment_term_id.name"/>
+    </td>
+</tr>
+
+2. Update server action: Create PR from GI
+Model: stock.picking
+
+for gi in record:
+  opr_type_id = 0
+  opr_type = env['stock.picking.type'].search([('sequence_code','=','IN'), ('warehouse_id', '=', gi.picking_type_id.warehouse_id.id)], limit=1)
+  if opr_type:
+    opr_type_id = opr_type.id
+  
+  create_pr = env['purchase.request'].create({
+    'requested_by':gi.create_uid.id,
+    'date_start':gi.create_date,
+    'picking_type_id': opr_type_id,
+    'company_id':gi.company_id.id,
+    'x_studio_create_by_issue':True,
+    'purchase_type': 'purchase_request',
+    'x_studio_requester_name': str(gi.env.user.name),
+    'site_id': gi.picking_type_id.warehouse_id.site_id.id,
+    'description': "From {}".format(gi.name),
+    'x_studio_many2one_reservation': gi.x_studio_many2one_reservation.id,
+    'picking_id': gi.id,
+  })
+  
+  if create_pr:
+    pr_id = create_pr.id
+    
+    for item_gi in gi.move_ids_without_package:
+      env['purchase.request.line'].create({'product_id':item_gi.product_id.id,
+        'name':item_gi.product_id.name,
+        'product_qty':item_gi.product_uom_qty,
+        'product_uom_id':item_gi.product_uom.id,
+        'date_required':datetime.date.today(),
+        'estimated_cost':item_gi.price_unit,
+        'request_id':pr_id,
+        'analytic_account_id':item_gi.analytic_account_id.id,
+    })
+    gi['x_studio_create_pr'] = True
+    gi['x_studio_pr'] = pr_id
+
+3. Default form view for x_reservation
+<button name="674" string="Done" type="action" class="btn-primary" attrs="{'invisible': ['|', ('x_studio_status', '!=', 'in progress'), ('x_studio_still_in_approval', '=', True)]}"/>
+
+4. Create new automation
+Model: x_reservation
+Trigger: On Update
+Field: x_studio_status
+
+Create issue/pr when inprogess:
+
+for line in record:
+  if line.x_studio_status == 'in progress':
+    if line.x_studio_reservation_type == '1':       #Reservasi type Stock, then create GI
+    
+      rec_opr_type = 0
+      opr_type = env['stock.picking.type'].search([('name','=','Inventory Issued'), ('warehouse_id', '=', line.x_studio_warehouse.id)], limit=1)
+      for row_opr_type in opr_type:
+        rec_opr_type = row_opr_type.id
+        
+      rec_src_loc = 0
+      src_loc = env['stock.location'].search([('complete_name','=', line.x_studio_locations.complete_name)])
+      for row_src_loc in src_loc:
+        rec_src_loc = row_src_loc.id
+        
+      dest_loc_id = 0
+      dest_loc = env['stock.location'].search([('name','=','Physical Locations')])
+      for row_dest_loc in dest_loc:
+        dest_loc_id = row_dest_loc.id
+      
+      if rec_opr_type:
+        if rec_src_loc:
+          
+          gi_temp = env['stock.picking'].search([('x_studio_many2one_reservation','=',line.id)])
+          if not gi_temp:
+            rec_gi = env['stock.picking'].create({'location_dest_id': opr_type.default_location_dest_id.id,
+                                                       'location_id':rec_src_loc,
+                                                       'picking_type_id':rec_opr_type,
+                                                       'x_studio_many2one_reservation':line.id,
+                                                       'x_studio_create_by_reservation':1,
+            })
+            
+            if rec_gi:
+              gi_id = 0
+              for row_gi in rec_gi:
+                gi_id = row_gi.id
+              
+              for item in line.x_reservation_line_ids_f5c60:
+                env['stock.move'].create({'product_id':item.x_studio_many2one_field_vym0h.id, 
+                                          'product_uom_qty':item.x_studio_quantity,
+                                          'picking_id':gi_id,
+                                          'name':item.x_studio_many2one_field_vym0h.name,
+                                          'product_uom':item.x_studio_uom.id,
+                                          'location_id':rec_src_loc,
+                                          'location_dest_id': opr_type.default_location_dest_id.id,
+                                          'analytic_account_id': line.x_studio_analytic_account.id or False,
+                })
+            
+              line['x_studio_create_gi'] = True
+              line['x_studio_gi'] = gi_id
+            
+    elif line.x_studio_reservation_type == '2':       #reservasi type Non Stock, then Create PR
+    
+      opr_type_id = 0
+      opr_type = env['stock.picking.type'].search([('sequence_code','=','IN'), ('warehouse_id', '=', line.x_studio_warehouse.id)])
+      for line_opr_type in opr_type:
+        opr_type_id = line_opr_type.id
+      
+      pr_temp = env['purchase.request'].search([('x_studio_many2one_reservation','=',line.id)])
+      if not pr_temp:
+        create_pr = env['purchase.request'].create({
+          'requested_by':line.create_uid.id,
+          'date_start':datetime.date.today(),
+          'picking_type_id':opr_type_id,
+          'company_id':line.create_uid.company_id.id,
+          'x_studio_request_type':'Non Stock',
+          'x_studio_many2one_reservation':line.id,
+          'x_studio_create_by_reservasi':True,
+          'x_studio_requester_name': str(line.env.user.name),
+          'x_studio_departement': 'PLM',
+          'purchase_type': 'purchase_request',
+          'site_id': line.x_studio_warehouse.site_id.id,
+        })
+      
+        if create_pr:
+          pr_id = 0
+          for row_pr in create_pr:
+            pr_id = row_pr.id
+                
+          line['x_studio_create_pr'] = True
+          line['x_studio_pr_number'] = pr_id
+        
+          for item_resv in line.x_reservation_line_ids_f5c60:
+            env['purchase.request.line'].create({
+                                        'product_id':item_resv.x_studio_many2one_field_vym0h.id,
+                                        'name':item_resv.x_studio_many2one_field_vym0h.name,
+                                        'product_qty':item_resv.x_studio_quantity,
+                                        'product_uom_id':item_resv.x_studio_uom.id,
+                                        'date_required':datetime.date.today(),
+                                        'estimated_cost':item_resv.x_studio_price_2,
+                                        'analytic_account_id':line.x_studio_analytic_account_1.id,
+                                        'request_id':pr_id
+            })
+  
+    
+    else:
+      raise UserError('You need to input the reservation type.')
+
+5. Change: Approve Reservation and Create issue when inprogess > [Active] Button Done
+Model: x_reservation
+
+for line in record:
+  line['x_studio_status'] = 'done'
+  stage = env['x_reservation_stage'].search([('x_name','=','Done')], limit=1)
+  if stage:
+    line['x_studio_stage_id'] = stage.id
+
+6. Update: [angga] pengecekan status approval
+
+  # WO stage based on reservation by Mayna
+  if record.x_studio_work_order:
+    # WO stage based on reservation    
+    if record.x_studio_status=='done':
+      for wo in record.x_studio_work_order:
+        wo_stage = env['maintenance.stage'].search([('name', 'ilike', 'Repaired')], limit=1)
+        if wo_stage:
+          wo['stage_id'] = wo_stage.id
+          # for wo_install_item in wo.x_studio_part_installed:
+          #   wo_install_item['x_studio_status_1'] = 'Installed'
+    elif record.x_studio_status=='cancel':
+      for wo in record.x_studio_work_order:
+        wo_stage = env['maintenance.stage'].search([('name', 'ilike', 'cancel')], limit=1)
+        if wo_stage:
+          wo['stage_id'] = wo_stage.id
+
+7. Update view: Odoo Studio: Default form view for x_return_request customization
+x_studio_reservation_list > add attribut required
+
+<field name="x_studio_reservation_list" domain="[&quot;|&quot;,[&quot;x_studio_stage_id.x_name&quot;,&quot;=&quot;,&quot;Done&quot;],[&quot;x_studio_status&quot;,&quot;=&quot;,&quot;done&quot;]]" attrs="{&quot;readonly&quot;: [[&quot;x_studio_is_editable&quot;,&quot;=&quot;,False]]}" required="1"/>
+
+10/12/24
+8. Update view: Odoo Studio: purchase.order.form customization
+  <xpath expr="//button[@name='button_cancel']" position="attributes">
+    <attribute name="groups">base.group_system</attribute>
+  </xpath>
+
+9. Update automation: Auto fill field PR number
+Model: purchase.order
+Trigger: On Update
+if line.state == 'draft':
+    department = str(line.x_studio_department) if line.x_studio_department else ''
+    separator = '/' if department else ''
+    line['name'] = 'RFQ/' + department + separator + str(line.x_studio_rfq_number)
+
+10. Server action name: Button Request Approval Purchase Order
+Model: Purchase Order
+Action To Do: Execute Python Code
+
+for record in records:
+  if record.state not in ('draft','sent'):
+    continue
+
+  # Analytic account validation
+  for analytic in record.order_line:
+    if not analytic.account_analytic_id:
+      raise UserError('The analytic account requires mandatory input.')
+  
+  # Proceed with approval logic
+  record['x_studio_approval_list'] = [(5, 0, 0)]
+  id = record.id
+  record['state'] = 'sent'
+  approvers = env['x_master_approval'].search([('x_studio_category', '=', 'RFQ')])
+  for approver in approvers:
+    if (approver.x_studio_minimum_spend <= record.amount_total):
+      check = env['x_approval_list'].search([('x_studio_many2one_field_mlJBb', "=", approver.id), ('x_studio_purchase_order', "=", id)])
+      if (check):
+        check.write({'x_new_approver': approver.x_studio_many2one_field_users.id})
+      env['x_approval_list'].create({
+        'x_studio_many2one_field_mlJBb': approver.id,
+        'x_new_approver': approver.x_studio_many2one_field_users.id,
+        'x_studio_purchase_order': id,
+        'x_name': env['ir.sequence'].next_by_code('app_inv')
+      })
+
+
+
+
+

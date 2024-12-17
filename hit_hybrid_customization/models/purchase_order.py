@@ -100,12 +100,12 @@ class PurchaseOrderLine(models.Model):
 
     # ---- Constrains ----
 
-
-    @api.constrains('account_analytic_id')
-    def _constrains_account_analytic_id(self):
-        for record in self:
-            if not record.account_analytic_id:
-                raise ValidationError(_('The analytic account requires mandatory input.'))
+    # The validation moved to button request approval RFQ
+    # @api.constrains('account_analytic_id')
+    # def _constrains_account_analytic_id(self):
+    #     for record in self:
+    #         if record.order_id.state == 'sent' and not record.account_analytic_id:
+    #             raise ValidationError(_('The analytic account requires mandatory input.'))
 
 
     # ---- Inherited Functions ----

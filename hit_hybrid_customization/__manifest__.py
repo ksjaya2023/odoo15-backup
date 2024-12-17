@@ -44,5 +44,6 @@
         "views/stock_picking_views.xml",
         "views/stock_quant_views.xml",
         "views/report_tax_views.xml",
+        "views/inventory_daily_movement_views.xml",
     ],
 }

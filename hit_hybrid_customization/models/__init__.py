@@ -13,3 +13,5 @@ from . import pg_master_data
 from . import analytic_account
 from . import purchase_request
 from . import report_tax
+from . import efaktur
+from . import report_inventory_daily

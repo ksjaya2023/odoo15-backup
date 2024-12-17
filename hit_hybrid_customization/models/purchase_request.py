@@ -24,6 +24,7 @@ class PurchaseRequest(models.Model):
         string='Purchase Type')
 
     site_id = fields.Many2one('md.site', string='Site', default=_get_default_site)
+    picking_id = fields.Many2one('stock.picking', string='Picking ID')
 
     # move_state = fields.Selection([
     #     ('draft', 'Pending'),
@@ -136,8 +137,8 @@ class PurchaseRequestLineMakePurchaseOrder(models.TransientModel):
                     line.request_id.site_id,
                 )
                 purchase = purchase_obj.create(po_data)
-                _logger.info(f"purchase created {purchase.name}")
-                _logger.info(f"purchase state {purchase.state}")
+                # _logger.info(f"purchase created {purchase.name}")
+                # _logger.info(f"purchase state {purchase.state}")
 
             # Look for any other PO line in the selected PO with same
             # product and UoM to sum quantities instead of creating a new

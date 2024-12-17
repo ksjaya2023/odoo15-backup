@@ -1,0 +1,46 @@
+<odoo>
+    <record id="view_inventory_daily_movement_tree" model="ir.ui.view">
+        <field name="name">inventory.daily.movement.tree</field>
+        <field name="model">inventory.daily.movement</field>
+        <field name="arch" type="xml">
+            <tree string="Inventory Daily Movement">
+                <field name="transaction_date"/>
+                <field name="product_id"/>
+                <field name="product_name"/>
+                <field name="location_id"/>
+                <field name="location_name"/>
+                <field name="incoming_quantity"/>
+                <field name="outgoing_quantity"/>
+                <field name="total"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_inventory_daily_movement_search" model="ir.ui.view">
+        <field name="name">inventory.daily.movement.search</field>
+        <field name="model">inventory.daily.movement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="transaction_date"/>
+                <field name="product_id"/>
+                <field name="location_id"/>
+                <group expand="1" string="Group By">
+                    <filter string="Product" name="group_by_product" context="{'group_by':'product_id'}"/>
+                    <filter string="Location" name="group_by_location" context="{'group_by':'location_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_inventory_daily_movement" model="ir.actions.act_window">
+        <field name="name">Report Inventory Daily Movement</field>
+        <field name="res_model">inventory.daily.movement</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <menuitem id="menu_inventory_daily_movement" 
+              name="Report Inventory Daily Movement" 
+              parent="stock.menu_warehouse_report" 
+              action="action_inventory_daily_movement"/>
+
+</odoo>

@@ -40,3 +40,11 @@ class MaintenanceRequest(models.Model):
                 self.x_studio_attachment = self.inspection_id.attachment
             else:
                 self.x_studio_attachment = None
+
+    @api.constrains('x_studio_part_installed', 'stage_id')
+    def _constrains_stage_and_parts(self):
+        for record in self:
+            if record.stage_id.name == 'Done':
+                for part in record.x_studio_part_installed:
+                    if part.x_reservation_id.x_studio_status not in ['done', 'rejected'] or part.x_studio_status_1 == 'Not Installed':
+                        raise ValidationError(_("There are open transactions or parts not installed."))

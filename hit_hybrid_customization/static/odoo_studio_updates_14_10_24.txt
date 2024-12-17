@@ -1,0 +1,108 @@
+Update odoo studio: 14/10/24
+
+Update views:
+1. View name: hit purchase order view model form inherited
+<button name="button_confirm_rfq" type="object" string="Request Approval" states="draft" class="oe_highlight" invisible="1"/>
+
+2. View name: Odoo Studio: purchase.order.form customization
+<button name="1540" string="Request Approval" type="action" class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}" invisible="0"/>
+<button name="1474" string="APPROVE" type="action" class="btn-success" context="{'category': 'purchase.order'}" attrs="{'invisible': ['|', ('state', '!=', 'sent'), ('x_studio_show_button_approve', '=', False)]}" confirm="Are you sure you want to do this?"/>
+<button name="1475" string="REJECT" type="action" class="btn-danger" context="{'category': 'purchase.order'}" attrs="{'invisible': ['|', ('state', '!=', 'sent'), ('x_studio_show_button_approve', '=', False)]}" confirm="Are you sure you want to do this?"/>
+
+<field name="x_studio_approval_list" string="Approval List">
+    <tree create="false" edit="false" delete="false">
+        <field name="x_studio_sequence" widget="handle"/>
+        <field name="x_new_approver" optional="show"/> -- update 14/10
+        <field name="x_studio_approver" optional="show" attrs="{}" invisible="1"/> -- update 14/10
+        <field name="x_studio_approved" optional="show"/>
+    </tree>
+</field>
+
+Create new field:
+3. Field name: x_new_approver
+FIeld type: many2one
+Fied label: Approver
+Model: x_approval_list
+Related Model: res.users
+
+Update computed fields:
+4. Field Name: x_studio_next_approval
+Model: Purchase Order
+
+for record in self:
+    record['x_studio_next_approval'] = 0
+    for list_appr in record.x_studio_approval_list:
+        if not list_appr.x_studio_approved:
+            record['x_studio_next_approval'] = list_appr.x_new_approver.id
+            break
+    else:
+        record['x_studio_next_approval'] = None
+
+Update automation:
+5. Automation name: [angga] add approval to rfq new
+Model: Purchase Order
+Active: False
+
+6. Automation name: [angga] pengecekan status approval po
+Model: Purchase Order
+Trigger: On Update
+Trigger fields: status
+
+7. Server action name: Approve
+Model: Approval List
+
+elif category == 'purchase.order':
+    # record.sudo().button_confirm() # langsung confirm
+    for order in record:
+    order._add_supplier_to_product()
+    # Deal with double validation process
+    # if order._approval_allowed():
+        # order.button_approve()
+    order.write({'state': 'purchase', 'date_approve': datetime.datetime.now()})
+    order._create_picking()
+        # order.action_view_picking()
+        # order._prepare_invoice()
+        # order.action_create_invoice()
+    # else:
+    #     order.write({'state': 'to approve'})
+    if order.partner_id not in order.message_partner_ids:
+        order.message_subscribe([order.partner_id.id])
+    ref = env['ir.sequence'].next_by_code('po.sequence')
+    record['x_studio_rfq'] = record.name
+    record['name'] = 'PO/' + str(record.x_studio_department) + '/' + ref
+
+8. Server action name: Button Request Approval Purchase Order
+Model: Purchase Order
+Action To Do: Execute Python Code
+
+for record in records:
+  if record.state not in ('draft','sent'):
+    continue
+
+  # Analytic account validation
+  for analytic in record.order_line:
+    if not analytic.account_analytic_id:
+      raise UserError('The analytic account requires mandatory input.')
+  
+  # Proceed with approval logic
+  record['x_studio_approval_list'] = [(5, 0, 0)]
+  id = record.id
+  record['state'] = 'sent'
+  approvers = env['x_master_approval'].search([('x_studio_category', '=', 'RFQ')])
+  for approver in approvers:
+    if (approver.x_studio_minimum_spend <= record.amount_total):
+      check = env['x_approval_list'].search([('x_studio_many2one_field_mlJBb', "=", approver.id), ('x_studio_purchase_order', "=", id)])
+      if (check):
+        check.write({'x_new_approver': approver.x_studio_many2one_field_users.id})
+      env['x_approval_list'].create({
+        'x_studio_many2one_field_mlJBb': approver.id,
+        'x_new_approver': approver.x_studio_many2one_field_users.id,
+        'x_studio_purchase_order': id,
+        'x_name': env['ir.sequence'].next_by_code('app_inv')
+      })
+
+
+
+
+
+

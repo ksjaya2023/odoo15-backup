@@ -75,6 +75,17 @@ class PurchaseRequestLine(models.Model):
             if record.product_id and not record.analytic_account_id:
                 raise ValidationError(_('The analytic account requires mandatory input.'))
 
+    uom_id_view = fields.Many2one('uom.uom', compute='_compute_uom_id_view', string='UoM')
+    
+    @api.depends('product_id')
+    def _compute_uom_id_view(self):
+        for record in self:
+            if record.product_id:
+                record.uom_id_view = record.product_id.uom_id.id
+            else:
+                default_uom = self.env['uom.uom'].search([], limit=1)
+                record.uom_id_view = default_uom.id if default_uom else False
+
 
     # @api.depends('purchase_request_allocation_ids.write_date')
     # def _compute_latest_allocation(self):
@@ -89,7 +100,7 @@ class PurchaseRequestLine(models.Model):
 
 
     @api.onchange("product_id")
-    def _onchange_product_id(self):
+    def _onchange_product_id_for_analytic(self):
         if self.product_id:
             self.analytic_account_id = False
             site_id = self.site_id.id
@@ -97,10 +108,10 @@ class PurchaseRequestLine(models.Model):
                 domain = [("site_id", "=", site_id)]
                 return {"domain": {"analytic_account_id": domain}}
             else:
-                return {"domain": {"analytic_account_id": [("site_id", "=", False)]}}
+                return {"domain": {"analytic_account_id": []}}
         else:
             self.analytic_account_id = False
-            return {"domain": {"analytic_account_id": [("site_id", "=", False)]}}
+            return {"domain": {"analytic_account_id": []}}
 
 
 

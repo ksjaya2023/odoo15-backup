@@ -229,6 +229,20 @@ class PurchaseOrderLine(models.Model):
         res.update({'discount': self.discount, 'discount_val': self.discount_val})
         return res
 
+    @api.onchange("product_id")
+    def _onchange_product_id_for_analytic(self):
+        if self.product_id:
+            self.account_analytic_id = False
+            site_id = self.order_id.site_id.id
+            if site_id:
+                domain = [("site_id", "=", site_id)]
+                return {"domain": {"account_analytic_id": domain}}
+            else:
+                return {"domain": {"account_analytic_id": []}}
+        else:
+            self.account_analytic_id = False
+            return {"domain": {"account_analytic_id": []}}
+
 
 
 

@@ -1,0 +1,378 @@
+1. Odoo Studio: equipment.request.form customization
+  <xpath expr="/form[1]/sheet[1]/group[2]/group[1]/field[1]" position="after">
+    <field name="x_studio_standard_job" required="1"/>
+  </xpath>
+
+2. Update automation: Auto filll reservation data
+Model: x_reservation
+for data in record:
+  if data.x_studio_equipment:
+    data['x_studio_warehouse'] = data.x_studio_equipment.x_studio_warehouse.id
+    data['x_studio_locations'] = data.x_studio_equipment.x_studio_locations.id
+    
+  if data.x_studio_work_order:
+    data['x_studio_analytic_account'] = data.x_studio_work_order.x_studio_many2one_field_Si5aA.id
+
+3. Auto Number & Auto Create Reservation
+Model: maintenance.request
+    reservation = env['x_reservation'].create({'x_name':seq_no,
+                                               'x_studio_work_order':line.id,
+                                               'x_studio_equipment':line.equipment_id.id,
+                                               'x_studio_analytic_account': line.x_studio_many2one_field_Si5aA.id,
+                                               'x_studio_warehouse': line.equipment_id.x_studio_warehouse.id,
+                                               'x_studio_locations': line.equipment_id.x_studio_locations.id,
+                                               'create_date':line.create_date,
+                                               'create_uid':line.create_uid
+    })
+
+4. [angga] pengecekan status approval
+Model: x_reservation
+
+  # WO stage based on reservation by Mayna
+  if record.x_studio_work_order:
+    # WO stage based on reservation    
+    if record.x_studio_status=='done':
+      for wo in record.x_studio_work_order:
+        wo_stage = env['maintenance.stage'].search([('name', 'ilike', 'Repaired')], limit=1)
+        if wo_stage:
+          wo['stage_id'] = wo_stage.id
+          # for wo_install_item in wo.x_studio_part_installed:
+          #   wo_install_item['x_studio_status_1'] = 'Installed'
+    elif record.x_studio_status=='cancel':
+      for wo in record.x_studio_work_order:
+        wo_stage = env['maintenance.stage'].search([('name', 'ilike', 'cancel')], limit=1)
+        if wo_stage:
+          wo['stage_id'] = wo_stage.id
+
+5. Default form view for x_reservation customization
+Model: x_reservation
+<field name="x_studio_analytic_account" force_save="True" attrs="{}" readonly="1" required="1"/>
+<field name="x_studio_work_order" string="Work Order" attrs="{&quot;readonly&quot;: [[&quot;x_studio_is_editable&quot;,&quot;=&quot;,False]]}" required="1"/>
+
+6. Domain Analytic Acc PO
+Model: purchase.order.line
+Inactive
+
+7. Create new server action: Sync Measuring Equipment
+Model: x_measuring_equipment
+# Available variables:
+#  - env: Odoo Environment on which the action is triggered
+#  - model: Odoo Model of the record on which the action is triggered; is a void recordset
+#  - record: record on which the action is triggered; may be void
+#  - records: recordset of all records on which the action is triggered in multi-mode; may be void
+#  - time, datetime, dateutil, timezone: useful Python libraries
+#  - float_compare: Odoo function to compare floats based on specific precisions
+#  - log: log(message, level='info'): logging function to record debug information in ir.logging table
+#  - UserError: Warning Exception to use with raise
+#  - Command: x2Many commands namespace
+# To return an action, assign: action = {...}
+# Server action to update selected records
+# Process only the active records (selected in the list view)
+active_ids = env.context.get('active_ids', [])
+
+if active_ids:
+    selected_records = env['x_measuring_equipment'].browse(active_ids)
+
+    for record in selected_records:
+        # Get the previous record
+        prev_data = env['x_measuring_equipment'].search(
+            [
+                ('x_studio_equipment', '=', record.x_studio_equipment.id),
+                ('x_name', '!=', record.x_name),
+                ('x_studio_measuring_date', '<', record.x_studio_measuring_date)
+            ],
+            order='x_studio_measuring_date desc',
+            limit=1
+        )
+
+        # Calculate x_studio_hm_awal
+        if prev_data:
+            # Set HM Awal to the hourmeter of the previous record
+            record['x_studio_hm_awal'] = prev_data.x_studio_hourmeter
+        else:
+            # If no previous record, keep the existing HM Awal
+            record['x_studio_hm_awal'] = record.x_studio_hm_awal
+
+        # Calculate current hourmeter
+        total_hm = record['x_studio_hm_awal'] + record.x_studio_delta
+        record['x_studio_hourmeter'] = total_hm
+
+        # Fetch service types sorted by amount
+        service_types = env['x_service_type'].search([], order='x_studio_service_amount asc')
+
+        # Determining the service type
+        serv_typ = 0
+        if service_types:
+            curr_hm = total_hm
+            if curr_hm:
+                lt = 0
+                ribuan = 0
+
+                while lt < curr_hm:
+                    for service_type in service_types:
+                        if service_type.x_studio_service_amount > 1000:
+                            continue
+                        lt = ribuan + service_type.x_studio_service_amount
+                        if lt > curr_hm:
+                            break
+                        if service_type.x_studio_service_amount % 1000 == 0:
+                            ribuan += 1000
+
+                serv_typ = lt
+            else:
+                for service_type in service_types:
+                    serv_typ = service_type.x_studio_service_amount
+                    break
+
+        sisa = serv_typ - curr_hm
+        log("ID:" + str(record.id) + "amount:" + str(serv_typ) + "hm:" + str(curr_hm), level='info')
+        log("sisa: " + str(sisa), level='info')
+        record['x_studio_sisa_serv_type'] = sisa
+        
+        x_name = (
+            str(record.id)
+            + "/"
+            + (record.x_studio_equipment.name or '')
+            + "/"
+            + (str(record.x_studio_measuring_date) if record.x_studio_measuring_date else '')
+        )
+        record['x_name'] = x_name
+        
+        if sisa <= 30:
+          
+          # cek WO
+          wo_open = env['maintenance.request'].search([('equipment_id','=',record.x_studio_equipment.id),'|',('stage_id','=',1),('stage_id','=',2)])
+          if wo_open:
+            for item_wo_open in wo_open:
+              record['x_studio_work_order'] = item_wo_open.id
+              record['x_studio_create_wo'] = True
+          else:
+            maintenance_officer = env['res.users'].search([('name','=','Maintenance Officer')], limit=1)
+            wo = env['maintenance.request'].create({
+              'equipment_id':record.x_studio_equipment.id,
+              'request_date':datetime.date.today(),
+              'x_studio_maintenance_type':'Schedulle',
+              'x_studio_work_order_type': 'Maintenance',
+              'company_id':env.company.id,
+              'user_id': maintenance_officer.id,
+              'schedule_date' : datetime.datetime.now(),
+              'description': 'Auto generated work order from measuring equipment.',
+            })
+            
+            if wo:
+              for item_wo in wo:
+                record['x_studio_work_order'] = item_wo.id
+                record['x_studio_create_wo'] = True
+            else:
+              UserError = 'tidak bisa'
+
+
+8. Update view: Odoo Studio: Default list view for x_measuring_equipment customization
+<data>
+  <xpath expr="//field[@name='x_name']" position="replace">
+    <field name="id" optional="show"/>
+    <field name="x_studio_equipment" optional="show"/>
+    <field name="x_studio_measuring_date" optional="show"/>
+    <field name="x_studio_measuring_type" optional="show"/>
+    <field name="x_studio_reset" optional="show"/>
+    <field name="x_studio_hm_awal" optional="show"/>
+    <field name="x_studio_current_hm" optional="show"/>
+    <field name="x_studio_delta" optional="show"/>
+    <field name="x_studio_hourmeter" optional="show"/>
+    <field name="x_studio_sisa_serv_type" optional="show"/>
+    <field name="create_uid" optional="show"/>
+    <field name="create_date" optional="show"/>
+  </xpath>
+</data>
+
+9. Update automation: create_wo_based_on_nilai_sisa
+Trigger Fields: x_studio_equipment, x_studio_delta, x_studio_hourmeter.
+# Available variables:
+#  - env: Odoo Environment on which the action is triggered
+#  - model: Odoo Model of the record on which the action is triggered; is a void recordset
+#  - record: record on which the action is triggered; may be void
+#  - records: recordset of all records on which the action is triggered in multi-mode; may be void
+#  - time, datetime, dateutil, timezone: useful Python libraries
+#  - float_compare: Odoo function to compare floats based on specific precisions
+#  - log: log(message, level='info'): logging function to record debug information in ir.logging table
+#  - UserError: Warning Exception to use with raise
+#  - Command: x2Many commands namespace
+# To return an action, assign: action = {...}
+for record in records:
+  # log("Processing record ID: " + str(record.id), level='info')
+  if record.x_studio_delta:
+    # log("x_studio_delta: " + str(record.x_studio_delta), level='info')
+    if record.x_studio_delta > 24:
+      raise UserError('Delta tidak boleh lebih dari 24 jam')
+  
+  curr_hm = 0
+  serv_typ = 0
+  curr_serv = 0
+  
+  # get HM terakhir
+  hm = record.env['x_measuring_equipment'].search([('x_studio_equipment','=',record.x_studio_equipment.id)],order='x_studio_measuring_date desc',limit=1)
+  if hm:
+    for line in hm:
+      curr_hm = line.x_studio_hourmeter
+      # log("Found HM terakhir for record ID " + str(record.id) + ": " + str(curr_hm), level='info')
+      break
+    
+  # else:
+  #     log("No HM data found for record ID " + str(record.id), level='info')
+  
+  # get list service type
+  fiel_list_type = record.env['x_service_type'].search([],order='x_studio_service_amount asc')
+  # log("Fetched service types: " + str(len(fiel_list_type)) + " types found.", level='info')
+  if fiel_list_type:
+    
+    if curr_hm:
+      lt = 0
+      ribuan = 0
+      mod = 0
+      # log("Starting service type calculation for current HM: " + str(curr_hm), level='info')
+      
+      while lt < curr_hm:
+        for list_type in fiel_list_type:
+          # log("Checking service type: " + str(list_type.x_studio_service_amount), level='info')
+          if list_type.x_studio_service_amount > 1000:
+            # log("Skipping service type > 1000: " + str(list_type.x_studio_service_amount), level='info')
+            continue
+          lt = ribuan + list_type.x_studio_service_amount
+          # log("Calculated lt: " + str(lt), level='info')
+          if (lt > curr_hm):
+            # log("Breaking loop as lt > curr_hm: " + str(lt) + " > " + str(curr_hm), level='info')
+            break
+          # cek kelipatan seribu
+          mod = list_type.x_studio_service_amount % 1000
+          # log("Calculated mod: " + str(mod), level='info')
+          if (mod == 0):
+            ribuan = ribuan + 1000
+            # log("Updated ribuan: " + str(ribuan), level='info')
+            
+      serv_typ = lt
+    else:
+      # log("Current HM is 0, picking the first service type.", level='info')
+      for list_type in fiel_list_type:
+        serv_typ = list_type.x_studio_service_amount
+        # log("Selected service type (serv_typ): " + str(serv_typ), level='info')
+        break
+  
+  sisa = serv_typ - curr_hm
+  # log("Calculated sisa: " + str(sisa), level='info')
+  record['x_studio_sisa_serv_type'] = str(sisa)
+  # log("Updated x_studio_sisa_serv_type: " + str(record['x_studio_sisa_serv_type']), level='info')
+  record['x_name'] =  str(record.id) + '/' + record.x_studio_equipment.name + '/' + str(record.x_studio_measuring_date)
+  # log("Updated x_name: " + record['x_name'], level='info')
+
+  
+# create WO otomatis jika -50
+# for line in record:
+  nilai_sisa = 0
+  
+  if record.x_studio_sisa_serv_type:
+    nilai_sisa = int(record.x_studio_sisa_serv_type)
+    if nilai_sisa <= 30:
+      
+      # cek WO
+      wo_open = env['maintenance.request'].search([('equipment_id','=',record.x_studio_equipment.id),'|',('stage_id','=',1),('stage_id','=',2)])
+      if wo_open:
+        for item_wo_open in wo_open:
+          record['x_studio_work_order'] = item_wo_open.id
+          record['x_studio_create_wo'] = True
+      else:
+        maintenance_officer = env['res.users'].search([('name','=','Maintenance Officer')], limit=1)
+        wo = env['maintenance.request'].create({
+          'equipment_id':record.x_studio_equipment.id,
+          'request_date':datetime.date.today(),
+          'x_studio_maintenance_type':'Schedulle',
+          'x_studio_work_order_type': 'Maintenance',
+          'company_id':env.company.id,
+          'user_id': maintenance_officer.id,
+          'schedule_date' : datetime.datetime.now(),
+          'description': 'Auto generated work order from measuring equipment.',
+          
+        })
+        
+        if wo:
+          for item_wo in wo:
+            record['x_studio_work_order'] = item_wo.id
+            record['x_studio_create_wo'] = True
+        else:
+          UserError = 'tidak bisa'
+
+10. Update server action: Approval Check on Transfer Equipment
+Model: x_transfer_equipment
+
+# Approval
+for record in records:
+  check = False
+  if record.x_studio_approval_list:
+    for appr in record.x_studio_approval_list:
+      if appr.x_studio_approved is False:
+        check = True
+  record['x_studio_still_in_approval'] = check
+  
+# Equipment Status Based on Transfer Equipment
+  if record.x_studio_equipment:
+    equipment_data = record.x_studio_equipment
+    related_asset = equipment_data.x_studio_asset
+    if record.x_studio_status == 'In Progress':
+      equipment_data['active'] = False
+      equipment_data['x_studio_is_disposed'] = False
+      equipment_data['x_studio_is_scrapped'] = False
+      if related_asset:
+        related_asset['state'] = 'paused'
+      else:
+        raise UserError('You can not pause asset {}.'.format(related_asset.name))
+    elif record.x_studio_status == 'Done':
+      equipment_data['active'] = True
+      equipment_data['x_studio_warehouse'] = record.x_studio_destination_site.id
+      equipment_data['x_studio_analytic_account'] = record.x_studio_destination_analytic_account.id
+      equipment_data['x_studio_locations'] = record.x_studio_destination_site.lot_stock_id.id
+      if related_asset:
+        related_asset['state'] = 'open'
+        related_asset['account_analytic_id'] = record.x_studio_destination_analytic_account.id
+        related_journals = env['account.move'].search([('asset_id', '=', related_asset.id), ('state', '=', 'draft')])
+        if not related_journals:
+          raise UserError("There's no journal related to asset {}.".format(related_asset.name))
+        if related_journals:
+          for journal in related_journals:
+            for data in journal.line_ids:
+              existing_analytic_acc = data.analytic_account_id.id
+              new_analytic_acc = related_asset.account_analytic_id.id
+              if data.analytic_account_id:
+                data.write({'analytic_account_id': new_analytic_acc})
+      else:
+        raise UserError('You can not run asset {} anymore.'.format(related_asset.name))
+        
+12. Update automation: [angga] add approval to pr
+Model: purchase.request
+
+for record in records:
+  id = record.id
+  env['x_approval_list'].search([('x_studio_purchase_request', '=', id)]).unlink()
+  if record.purchase_type == 'purchase_request':
+    approvers_project_head = env['x_master_approval'].search([('x_studio_category', '=', 'PR'), ('x_studio_site', '=', record.site_id.id), ('x_name', '=', 'Section Head'), ('x_studio_department', '=', record.x_studio_departement)], limit=1)
+    approvers_project_manager = env['x_master_approval'].search([('x_studio_category', '=', 'PR'), ('x_studio_site', '=', record.site_id.id), ('x_name', '=', 'Project Manager'), ('x_studio_department', '=', record.x_studio_departement)], limit=1)
+    approvers_department_manager = env['x_master_approval'].search([('x_studio_category', '=', 'PR'), ('x_studio_department', '=', record.x_studio_departement), ('x_name', '=', 'Department Manager'), ('x_studio_department', '=', record.x_studio_departement)], limit=1)
+    approvers = approvers_project_head.union(approvers_project_manager).union(approvers_department_manager)
+    approvers = approvers
+  else:
+    approvers_project_head = env['x_master_approval'].search([('x_studio_category', '=', 'AR'), ('x_studio_site', '=', record.site_id.id), ('x_name', '=', 'Section Head'), ('x_studio_department', '=', record.x_studio_departement)], limit=1)
+    approvers_project_manager = env['x_master_approval'].search([('x_studio_category', '=', 'AR'), ('x_studio_site', '=', record.site_id.id), ('x_name', '=', 'Project Manager'), ('x_studio_department', '=', record.x_studio_departement)], limit=1)
+    approvers_department_manager = env['x_master_approval'].search([('x_studio_category', '=', 'AR'), ('x_studio_department', '=', record.x_studio_departement), ('x_name', '=', 'Department Manager'), ('x_studio_department', '=', record.x_studio_departement)], limit=1)
+    approvers_bod = env['x_master_approval'].search([('x_studio_category', '=', 'AR'), ('x_name', '=', 'BOD')], limit=1)
+    approvers = approvers_project_head.union(approvers_project_manager).union(approvers_department_manager).union(approvers_bod)
+    
+  approvers = approvers
+  
+  for approver in approvers:
+    if (approver.x_studio_minimum_spend <= record.x_studio_amount_total):
+      check = env['x_approval_list'].search([('x_studio_many2one_field_mlJBb', "=", approver.id), ('x_studio_purchase_request', "=", id)])
+      if (check):
+        continue
+      env['x_approval_list'].create({'x_studio_many2one_field_mlJBb': approver.id, 'x_studio_purchase_request': id, 'x_name': env['ir.sequence'].next_by_code('app_inv') })
+
+
+13. Update view: Odoo Studio: Default form view for x_master_approval customization
+<field name="x_studio_department" string="Department" attrs="{'required': [('x_studio_category', 'in', ('PR', 'AR'))]}"/>

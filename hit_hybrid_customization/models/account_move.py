@@ -727,7 +727,7 @@ class AccountMoveLine(models.Model):
 
 
     @api.onchange("product_id", "account_id")
-    def _onchange_product_id(self):
+    def _onchange_product_id_for_analytic(self):
         if self.product_id or self.account_id:
             self.analytic_account_id = False
             site_id = self.move_id.site_id.id
@@ -735,10 +735,10 @@ class AccountMoveLine(models.Model):
                 domain = [("site_id", "=", site_id)]
                 return {"domain": {"analytic_account_id": domain}}
             else:
-                return {"domain": {"analytic_account_id": [("site_id", "=", True)]}}
+                return {"domain": {"analytic_account_id": []}}
         else:
             self.analytic_account_id = False
-            return {"domain": {"analytic_account_id": [("site_id", "=", True)]}}
+            return {"domain": {"analytic_account_id": []}}
 
 
 

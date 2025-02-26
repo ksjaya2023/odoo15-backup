@@ -46,5 +46,5 @@ class MaintenanceRequest(models.Model):
         for record in self:
             if record.stage_id.name == 'Done':
                 for part in record.x_studio_part_installed:
-                    if part.x_reservation_id.x_studio_status not in ['done', 'rejected'] or part.x_studio_status_1 == 'Not Installed':
-                        raise ValidationError(_("There are open transactions or parts not installed."))
+                    if part.x_reservation_id.x_studio_status not in ['done', 'rejected'] or part.x_studio_status_1 not in ['Return', 'Finish']:
+                        raise ValidationError(_("There are open transactions or parts with not installed and installed status."))

@@ -51,6 +51,16 @@
                 <xpath expr="//field[@name='invoice_line_ids']//field[@name='discount']" position="after">
                     <field name="discount_val" optional="show" />
                 </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']//field[@name='analytic_account_id']" position="attributes">
+                    <attribute name="required">1</attribute>
+                    <attribute name="options">{'no_create': True}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']//field[@name='analytic_account_id']" position="attributes">
+                <attribute name="attrs">{
+                    'required': [('parent.move_type', '=', 'entry')],
+                    'invisible': [('display_type', 'in', ('line_section', 'line_note'))]
+                }</attribute>
+                </xpath>
             </field>
         </record>
         <record id="pg_account_move_efaktur_form_view_inherited" model="ir.ui.view">

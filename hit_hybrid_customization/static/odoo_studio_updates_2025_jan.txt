@@ -1,0 +1,207 @@
+1. Update view: Odoo Studio: stock.picking.form customization
+  <xpath expr="//field[@name='date_done']" position="after">
+    <field name="x_studio_receive_date" string="Receive Date" attrs="{&quot;invisible&quot;: [[&quot;picking_type_code&quot;,&quot;!=&quot;,&quot;incoming&quot;]]}"/>
+  </xpath>
+
+- remove this x_studio_receive_date
+
+2. Update automation: Approval Check on Transfer Equipment
+Model: x_transfer_equipment
+Trigger field: Status
+
+# Approval
+for record in records:
+  check = False
+  if record.x_studio_approval_list:
+    for appr in record.x_studio_approval_list:
+      if appr.x_studio_approved is False:
+        check = True
+  record['x_studio_still_in_approval'] = check
+  
+# Equipment Status Based on Transfer Equipment
+  if record.x_studio_equipment:
+    equipment_data = record.x_studio_equipment
+    related_asset = equipment_data.x_studio_asset
+    if record.x_studio_status == 'In Progress':
+      equipment_data['active'] = False
+      equipment_data['x_studio_is_disposed'] = False
+      equipment_data['x_studio_is_scrapped'] = False
+      if related_asset:
+        related_asset['state'] = 'paused'
+      else:
+        raise UserError('You can not pause asset {}.'.format(related_asset.name))
+    elif record.x_studio_status == 'Done':
+      equipment_data['active'] = True
+      equipment_data['x_studio_warehouse'] = record.x_studio_destination_site.id
+      equipment_data['x_studio_analytic_account'] = record.x_studio_destination_analytic_account.id
+      equipment_data['x_studio_locations'] = record.x_studio_destination_site.lot_stock_id.id
+      
+      related_reservations = env['x_reservation'].search([('x_studio_equipment', '=', equipment_data.id), ('x_studio_status', '=', 'new')])
+      log("TRF ID:" + str(record.id) + "related_reservations:" + str(related_reservations), level='info')
+      if related_reservations:
+        for reservation in related_reservations:
+          reservation['x_studio_warehouse'] = record.x_studio_destination_site.id
+          reservation['x_studio_locations'] = record.x_studio_destination_site.lot_stock_id.id
+          
+      if related_asset:
+        related_asset['state'] = 'open'
+        related_asset['account_analytic_id'] = record.x_studio_destination_analytic_account.id
+        related_journals = env['account.move'].search([('asset_id', '=', related_asset.id), ('state', '=', 'draft')])
+        log("TRF ID:" + str(record.id) + "related_journals:" + str(related_journals), level='info')
+        if not related_journals:
+          raise UserError("There's no journal related to asset {}.".format(related_asset.name))
+        if related_journals:
+          for journal in related_journals:
+            for data in journal.line_ids:
+              existing_analytic_acc = data.analytic_account_id.id
+              new_analytic_acc = related_asset.account_analytic_id.id
+              if data.analytic_account_id:
+                data.write({'analytic_account_id': new_analytic_acc})
+      # else:
+      #   raise UserError('You can not run asset {} anymore.'.format(related_asset.name))
+
+3. Update automation: [Angga] Pengecekan status approval transfer
+Model: stock.picking
+Trigger: status
+
+# Approval
+for record in records:
+  check = False
+  if record.x_studio_approval_list:
+    for appr in record.x_studio_approval_list:
+      if appr.x_studio_approved is False:
+        check = True
+  record['x_studio_still_in_approval'] = check
+  
+# Equipment Status Based on Transfer Equipment
+  if record.x_studio_equipment:
+    equipment_data = record.x_studio_equipment
+    related_asset = equipment_data.x_studio_asset
+    if record.x_studio_status == 'In Progress':
+      equipment_data['active'] = False
+      equipment_data['x_studio_is_disposed'] = False
+      equipment_data['x_studio_is_scrapped'] = False
+      if related_asset:
+        related_asset['state'] = 'paused'
+      else:
+        raise UserError('You can not pause asset {}.'.format(related_asset.name))
+    elif record.x_studio_status == 'Done':
+      equipment_data['active'] = True
+      equipment_data['x_studio_warehouse'] = record.x_studio_destination_site.id
+      equipment_data['x_studio_analytic_account'] = record.x_studio_destination_analytic_account.id
+      equipment_data['x_studio_locations'] = record.x_studio_destination_site.lot_stock_id.id
+      
+      related_reservations = env['x_reservation'].search([('x_studio_equipment', '=', equipment_data.id), ('x_studio_status', '=', 'new')])
+      log("TRF ID:" + str(record.id) + "related_reservations:" + str(related_reservations), level='info')
+      if related_reservations:
+        for reservation in related_reservations:
+          reservation['x_studio_warehouse'] = record.x_studio_destination_site.id
+          reservation['x_studio_locations'] = record.x_studio_destination_site.lot_stock_id.id
+          
+      if related_asset:
+        related_asset['state'] = 'open'
+        related_asset['account_analytic_id'] = record.x_studio_destination_analytic_account.id
+        related_journals = env['account.move'].search([('asset_id', '=', related_asset.id), ('state', '=', 'draft')])
+        log("TRF ID:" + str(record.id) + "related_journals:" + str(related_journals), level='info')
+        if not related_journals:
+          raise UserError("There's no journal related to asset {}.".format(related_asset.name))
+        if related_journals:
+          for journal in related_journals:
+            for data in journal.line_ids:
+              existing_analytic_acc = data.analytic_account_id.id
+              new_analytic_acc = related_asset.account_analytic_id.id
+              if data.analytic_account_id:
+                data.write({'analytic_account_id': new_analytic_acc})
+      # else:
+      #   raise UserError('You can not run asset {} anymore.'.format(related_asset.name))
+      
+4. Update automation: [Angga] Add approval to inventory
+Model: stock.picking
+Trigger: On creatin and Update
+
+# Available variables:
+#  - env: Odoo Environment on which the action is triggered
+#  - model: Odoo Model of the record on which the action is triggered; is a void recordset
+#  - record: record on which the action is triggered; may be void
+#  - records: recordset of all records on which the action is triggered in multi-mode; may be void
+#  - time, datetime, dateutil, timezone: useful Python libraries
+#  - float_compare: Odoo function to compare floats based on specific precisions
+#  - log: log(message, level='info'): logging function to record debug information in ir.logging table
+#  - UserError: Warning Exception to use with raise
+#  - Command: x2Many commands namespace
+# To return an action, assign: action = {...}
+
+for record in records:
+  # Check approval by Ka Angga
+  id = record.id
+  approvers = env['x_master_approval'].search([('x_studio_category', '=', 'Inventory')])
+  for approver in approvers:
+    if (approver.x_studio_minimum_spend <= record.x_studio_grand_total):
+      check = env['x_approval_list'].search([('x_studio_many2one_field_mlJBb', "=", approver.id), ('x_studio_transfer', "=", id)])
+      if (check):
+        continue
+      env['x_approval_list'].create({'x_studio_many2one_field_mlJBb': approver.id, 'x_studio_transfer': id, 'x_name': env['ir.sequence'].next_by_code('app_inv') })
+
+  # Auto done reservasi ketika gi done, by Ka Said
+  if record.state == 'done':
+    if record.x_studio_many2one_reservation:
+      for resv in record.x_studio_many2one_reservation:
+        resv['x_studio_stage_id'] = 3 #done
+        resv['x_studio_status'] = 'done'
+      
+  # Auto fill field reservasi by Ka Said
+  if not record.x_studio_many2one_reservation:   #jika reservasi kosong
+    if record.origin:
+      po = env['purchase.order'].search([('name','=',record.origin)], limit=1)
+      if po and po.x_studio_many2one_pr and po.x_studio_many2one_pr.x_studio_many2one_reservation:
+        record['x_studio_many2one_reservation'] = po.x_studio_many2one_pr.x_studio_many2one_reservation.id
+  
+  if record.x_studio_work_order:        # ambil analytic account dari WO
+    record['x_studio_analytic_account'] = record.x_studio_work_order.x_studio_many2one_field_Si5aA.id
+  elif record.origin:
+    po = env['purchase.order'].search([('name','=',record.origin)])
+    if po:
+      for item_po in po.order_line: # jika tidak ada, ambil analytic acc dari PO
+        if item_po.account_analytic_id:
+          record['x_studio_analytic_account'] = item_po.account_analytic_id.id
+          break
+      
+  # if record.state == 'draft':
+  #   log("Record " + str(record.id) + str(record.state) + "action confirm called ", level='info')
+  #   record.action_confirm()
+      # log("Record " + str(record.id) + str(record.state) + " is created by reservation. ", level='info')
+  
+      # if not record.backorder_id:  # Safely checks for backorder_id
+      #     log("Record " + str(record.id) + str(record.state) + " is not a backorder. Calling action_confirm. ", level='info')
+      #     record.action_confirm()
+      # else:
+      #     log("Record " + str(record.id) + str(record.state) + " is a backorder. Skipping action_confirm. ", level='info')
+
+      
+  # Auto fill demand, total, outstanding by Mayna
+  record['x_studio_total_demand'] = record.x_studio_cek_total_demand
+  record['x_studio_grand_total'] = record.x_studio_cek_actual_price
+  record['x_studio_outstanding_price'] = record.x_studio_cek_total_demand - record.x_studio_cek_actual_price
+  
+  # Show approval return to vendor by Mayna
+  if record.x_studio_operation_type_name == 'Return to Vendor' and record.state in ('waiting', 'confirmed', 'assigned'):
+    record['x_studio_show_approval'] = True
+
+5. Update view: 
+Odoo Studio: equipment.form customization
+Model: maintenance.equipment
+<field name="x_studio_attachment_serial_no" string="Attachment Serial No." attrs="{&quot;required&quot;: [[&quot;x_studio_attachment&quot;,&quot;!=&quot;,False]]}" invisible="1"/>
+
+6. Update view: 
+Odoo Studio: equipment.tree customization
+Model: maintenance.equipment
+<field name="x_studio_attachment_serial_no" optional="hide"/> # Remove this field from tree
+
+7. Create fields: x_engine_serial_no
+Model: maintenance.equipment
+Type: char
+Label: Engine Serial Number
+
+Views: Odoo Studio: equipment.form customization
+  <field name="x_studio_engine_branch" force_save="True" attrs="{}" required="1"/>
+  <field name="x_engine_serial_no" force_save="True"/>

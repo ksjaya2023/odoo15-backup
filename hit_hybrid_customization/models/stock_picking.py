@@ -44,6 +44,8 @@ class StockPicking(models.Model):
         readonly=True,
     )
 
+    custom_backdate = fields.Date('Custom Backdate')
+
     # ---- Inherited Functions ----
     @api.depends('state', 'operation_category')
     def _compute_show_validate(self):
@@ -66,7 +68,7 @@ class StockMove(models.Model):
     )
 
 
-    def _prepare_account_move_vals(self, credit_account_id, debit_account_id, journal_id, qty, description, svl_id, cost):
+    def _prepare_account_move_vals(self, credit_account_id, debit_account_id, journal_id, qty, description, svl_id, cost):        
         self.ensure_one()
         # Customization for analytic account
         if self.is_inventory:
@@ -75,7 +77,7 @@ class StockMove(models.Model):
             analytic_account_id = self.analytic_account_id.id
 
         move_lines = self._prepare_account_move_line(qty, cost, credit_account_id, debit_account_id, description, analytic_account_id)
-        date = self._context.get('force_period_date', fields.Date.context_today(self))
+        date = self.picking_id.custom_backdate or self._context.get('force_period_date', fields.Date.context_today(self))
         return {
             'journal_id': journal_id,
             'line_ids': move_lines,

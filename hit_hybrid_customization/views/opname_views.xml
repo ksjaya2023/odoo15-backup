@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Tree View -->
+        <record id="view_hit_stock_opname_tree" model="ir.ui.view">
+            <field name="name">hit.stock.opname.tree</field>
+            <field name="model">hit.stock.opname</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="state"/>
+                    <field name="date"/>
+                    <field name="location_id"/>
+                    <field name="user_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_hit_stock_opname_form" model="ir.ui.view">
+            <field name="name">hit.stock.opname.form</field>
+            <field name="model">hit.stock.opname</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="button_populate" type="object" string="Populate" />
+                        <button name="button_count" type="object" string="Count" />
+                        <button name="button_apply" type="object" string="Apply" />
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="date"/>
+                            <field name="location_id" required="1"/>
+                            <field name="backdate_inventory"/>
+                            <field name="accounting_date"/>
+                            <field name="user_id"/>
+                        </group>
+                        <field name="opname_line_ids">
+                            <tree editable="bottom" string="Opname Lines">
+                                <field name="product_id" required="1"/>
+                                <field name="lot_id"/>
+                                <field name="uom_id"/>
+                                <field name="quantity"/>
+                                <field name="inventory_quantity" required="1"/>
+                                <field name="inventory_diff_quantity" string="Difference Qty"/>
+                                <field name="quant_id" optional="hide" readonly="1"/>
+                            </tree>
+                        </field>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" />
+                        <field name="activity_ids" widget="mail_activity" />
+                        <field name="message_ids" widget="mail_thread" />
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_hit_stock_opname" model="ir.actions.act_window">
+            <field name="name">Stock Opname</field>
+            <field name="res_model">hit.stock.opname</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_hit_stock_opname_tree"/>
+        </record>
+
+        <!-- Menu Item -->
+        <menuitem id="menu_hit_stock_opname" name="Stock Opname" action="action_hit_stock_opname" parent="stock.menu_stock_warehouse_mgmt"/>
+
+    </data>
+</odoo>

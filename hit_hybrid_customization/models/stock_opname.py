@@ -66,9 +66,9 @@ class HITStockOpname(models.Model):
         
 
 
-class HITStockOpname(models.Model):
+class HITStockOpnameLine(models.Model):
     _name = 'hit.stock.opname.line'
-    _description = 'HIT Stock Opname'
+    _description = 'HIT Stock Opname Line'
 
     opname_id = fields.Many2one('hit.stock.opname', string='Opname')
     product_id = fields.Many2one('product.product', string='Product')
@@ -87,8 +87,8 @@ class HITStockOpname(models.Model):
     @api.depends('product_id', 'lot_id', 'opname_id.location_id')
     def _compute_quantity(self):
         for record in self:
+            available_quantity = 0
             if record.product_id:
-                available_quantity = 0
                 record.uom_id = record.product_id.uom_id.id
                 if record.lot_id:
                     available_quantity = self.env['stock.quant']._get_available_quantity(
@@ -102,7 +102,7 @@ class HITStockOpname(models.Model):
                         location_id=record.opname_id.location_id
                     )
                 # Set the quantity field
-                record.quantity = available_quantity
+            record.quantity = available_quantity
 
         
 

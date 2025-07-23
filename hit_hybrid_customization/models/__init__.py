@@ -16,3 +16,4 @@ from . import report_tax
 from . import efaktur
 from . import report_inventory_daily
 from . import stock_opname
+from . import fuel_timesheet

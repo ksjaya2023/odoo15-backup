@@ -7,3 +7,4 @@ access_purchase_request_line_make_purchase_order_item_manager,purchase.request.l
 access_inventory_daily_movement_user,access_inventory_daily_movement_user,model_inventory_daily_movement,base.group_user,1,0,0,0
 access_hit_stock_opname,access_hit_stock_opname_user,model_hit_stock_opname,base.group_user,1,1,1,1
 access_hit_stock_opname_line,access_hit_stock_opname_line_user,model_hit_stock_opname_line,base.group_user,1,1,1,1
+access_hit_fuel_timesheet,access_hit_fuel_timesheet_user,model_hit_fuel_timesheet,base.group_user,1,1,1,1

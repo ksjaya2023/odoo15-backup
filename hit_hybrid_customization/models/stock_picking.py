@@ -19,7 +19,8 @@ class StockPickingType(models.Model):
     _inherit = 'stock.picking.type'
 
     operation_category = fields.Selection(selection=_CATEGORY, string="Operation Category")
-
+    is_consignment = fields.Boolean('Is Consignment', default=False)
+    not_manual_transfer = fields.Boolean(string="User Cannot Create Manual Transfer", default=False)
 
 
 class StockWarehouse(models.Model):
@@ -45,6 +46,31 @@ class StockPicking(models.Model):
     )
 
     custom_backdate = fields.Date('Custom Backdate')
+    is_consignment = fields.Boolean(related='picking_type_id.is_consignment', store=True)
+
+    @api.constrains('move_lines')
+    def _check_product_line_consistency(self):
+        for stock in self:
+            if stock.operation_category == 'in':
+                if not stock.move_lines:
+                    continue
+
+                stock_product_ids = stock.move_lines.mapped('product_id').ids
+                purchase_id = stock.purchase_id
+                if not purchase_id:
+                    continue
+
+                purchase_product_ids = purchase_id.order_line.mapped('product_id').ids
+
+                # Check if has any extra products
+                extra_products = set(stock_product_ids) - set(purchase_product_ids)
+                if extra_products:
+                    product_names = self.env['product.product'].browse(list(extra_products)).mapped('display_name')
+                    raise ValidationError(
+                        f"You cannot add new products to this receipts.\n"
+                        f"The following product(s) are not in the original purchase order:\n - " +
+                        "\n - ".join(product_names)
+                    )
 
     # ---- Inherited Functions ----
     @api.depends('state', 'operation_category')
@@ -53,6 +79,21 @@ class StockPicking(models.Model):
             super(StockPicking, picking)._compute_show_validate()
             if picking.state == 'assigned' and picking.operation_category == 'rev' and picking.x_studio_still_in_approval == True:
                 picking.show_validate = False
+
+    def button_validate(self):
+        for picking in self:
+            missing_accounts = picking.move_ids_without_package.filtered(lambda m: not m.analytic_account_id)
+            if missing_accounts:
+                raise ValidationError("All line items must have an Analytic Account before validating.")
+        picking = super(StockPicking, self).button_validate()
+        return picking
+
+    @api.onchange('picking_type_id')
+    def _validate_onchange_inventory_issued(self):
+        action_id = self.env.ref('stock.action_picking_tree_all', raise_if_not_found=False)
+        if action_id:
+            if self.picking_type_id and self.picking_type_id.not_manual_transfer:
+                    raise ValidationError("Manual transfer creation is not allowed for this operation type")
 
 
 class StockMove(models.Model):
@@ -66,6 +107,41 @@ class StockMove(models.Model):
         store=True,
         string="Operation Category",
     )
+
+    qty_done = fields.Float(string="Done")
+
+    def write(self, vals):
+        """Auto generate stock.move.line ketika qty_done di-input"""
+        if 'qty_done' in vals and vals['qty_done'] and vals['qty_done'] > 0:
+            for move in self:
+                # Hapus existing move lines untuk regenerate
+                move.move_line_ids.unlink()
+                move_line_vals = {
+                    'move_id': move.id,
+                    'product_id': move.product_id.id,
+                    'product_uom_id': move.product_uom.id,
+                    'qty_done': vals['qty_done'],
+                    'location_id': move.location_id.id,
+                    'location_dest_id': move._get_destination_location(),
+                    'picking_id': move.picking_id.id if move.picking_id else False,
+                }
+                # Tambahan field untuk tracking jika diperlukan
+                if move.product_id.tracking != 'none':
+                    move_line_vals.update({
+                        'lot_id': False,
+                        'lot_name': False,
+                    })
+                # Buat move line
+                self.env['stock.move.line'].create(move_line_vals)
+            vals = vals.copy()
+        return super().write(vals)
+
+    def _get_destination_location(self):
+        """Get destination location dari operation type"""
+        self.ensure_one()
+        if self.picking_id and self.picking_id.picking_type_id:
+            return self.picking_id.picking_type_id.default_location_dest_id.id
+        return self.location_dest_id.id
 
 
     def _prepare_account_move_vals(self, credit_account_id, debit_account_id, journal_id, qty, description, svl_id, cost):        

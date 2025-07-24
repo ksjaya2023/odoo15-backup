@@ -13,6 +13,12 @@
                 <xpath expr="//field[@name='name']" position="after">
                     <field name="operation_category" />
                 </xpath>
+                <xpath expr="//field[@name='code']" position="after">
+                    <field name="is_consignment" />
+                </xpath>
+                <xpath expr="//field[@name='show_reserved']" position="after">
+                    <field name="not_manual_transfer" attrs="{'invisible': [('operation_category', '!=', 'out')]}"/>
+                </xpath>
             </field>
         </record>
         <record id="pg_stock_view_warehouse_inherited" model="ir.ui.view">
@@ -49,8 +55,12 @@
                 </xpath>
                 <xpath expr="//field[@name='picking_type_id']" position="after">
                     <field name="operation_category" invisible="1"/>
+                    <field name="is_consignment" invisible="1"/>
                     <field name="purchase_request_id" invisible="1"/>
                     <field name="purchase_id" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='owner_id']" position="attributes">
+                    <attribute name="attrs">{'required': [('is_consignment', '=', True)], 'invisible': [('picking_type_code', '!=', 'incoming')]}</attribute>
                 </xpath>
                 <xpath expr="//button[@name='action_cancel']" position="after">
                     <!-- for testing purpose, please comment button helper again -->
@@ -59,7 +69,10 @@
                 </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']//field[@name='product_id']" position="after">
                     <field name="id" invisible="1"/>
-                    <field name="analytic_account_id" required="1" options="{'no_create': True}"/>
+                    <field name="analytic_account_id" options="{'no_create': True}" placeholder="Set before saving"/>
+                </xpath>
+                <xpath expr="//field[@name='move_ids_without_package']//field[@name='product_uom']" position="before">
+                    <field name="qty_done"/>
                 </xpath>
             </field>
         </record>

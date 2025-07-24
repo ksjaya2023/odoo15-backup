@@ -46,5 +46,6 @@
         "views/report_tax_views.xml",
         "views/inventory_daily_movement_views.xml",
         "views/opname_views.xml",
+        "views/fuel_timesheet_views.xml",
     ],
 }
